@@ -32,8 +32,8 @@ export async function GET(request: Request) {
         set(name: string, value: string, options: CookieOptions) {
           redirectResponse.cookies.set({ name, value, ...options });
         },
-        remove(name: string, options: CookieOptions) {
-          redirectResponse.cookies.delete(name, options);
+        remove(name: string, _options: CookieOptions) {
+          redirectResponse.cookies.delete(name);
         },
       },
     });
