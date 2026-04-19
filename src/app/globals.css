@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #c1121f;
+}
+
+html, body {
+  min-height: 100%;
+}
+
+body {
+  background: linear-gradient(180deg, #fff 0%, #fff5f5 100%);
+  color: #0a0a0a;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Scrollbar chat */
+.chat-scroll::-webkit-scrollbar { width: 8px; }
+.chat-scroll::-webkit-scrollbar-thumb { background: #c1121f66; border-radius: 4px; }
