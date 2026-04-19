@@ -17,13 +17,14 @@ export default async function Home() {
       <section className="bg-gradient-to-br from-candas-rojo to-candas-rojoOscuro text-white">
         <div className="max-w-6xl mx-auto px-4 py-20 text-center">
           <div className="flex justify-center mb-8">
-            <div className="w-32 h-40">
+            <div className="w-44 h-44">
               <Image
-                src="/630.png"
+                src="/Candas.webp"
                 alt="Escudo Candás CF"
-                width={128}
-                height={160}
+                width={176}
+                height={176}
                 priority
+                className="drop-shadow-xl"
               />
             </div>
           </div>

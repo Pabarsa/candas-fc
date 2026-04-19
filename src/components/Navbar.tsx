@@ -94,12 +94,12 @@ export default function Navbar() {
     <header className="bg-candas-rojo text-white shadow-lg sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3 font-bold text-xl hover:opacity-90 transition">
-          <div className="w-12 h-12 flex-shrink-0">
-            <Image 
-              src="/630.png" 
-              alt="Candás CF" 
-              width={48} 
-              height={48}
+          <div className="w-10 h-10 flex-shrink-0">
+            <Image
+              src="/Candas.webp"
+              alt="Candás CF"
+              width={40}
+              height={40}
               priority
             />
           </div>
