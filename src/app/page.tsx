@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { calcularClasificacion, Equipo, Partido } from "@/lib/types";
+import CuentaAtras from "@/components/CuentaAtras";
 
 export const dynamic = "force-dynamic";
 
@@ -99,7 +100,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* PRÓXIMO PARTIDO */}
+      {/* PRÓXIMO PARTIDO con cuenta atrás */}
       {proximoPartido && (
         <section className="bg-candas-negro text-white">
           <div className="max-w-6xl mx-auto px-4 py-4">
@@ -113,14 +114,36 @@ export default async function Home() {
                 <p className="font-bold text-sm">{proximoPartido.visitante?.nombre}</p>
               </div>
               {proximoPartido.fecha ? (
-                <p className="text-white/60 text-xs">
-                  {new Date(proximoPartido.fecha).toLocaleDateString("es-ES", {
-                    weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit",
-                  })}
-                </p>
+                <div className="flex flex-col items-end gap-1">
+                  <p className="text-white/60 text-xs">
+                    {new Date(proximoPartido.fecha).toLocaleDateString("es-ES", {
+                      weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit",
+                    })}
+                  </p>
+                  <CuentaAtras fecha={proximoPartido.fecha} />
+                </div>
               ) : (
                 <p className="text-white/40 text-xs">Fecha por confirmar</p>
               )}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* BANNER REGISTRO — solo para no logados, antes del contenido */}
+      {!user && (
+        <section className="bg-amber-50 border-b border-amber-200">
+          <div className="max-w-6xl mx-auto px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-amber-800 text-sm font-semibold">
+              🔒 El chat, los viajes, el simulador y las encuestas son exclusivos para abonados
+            </p>
+            <div className="flex gap-2 flex-shrink-0">
+              <Link href="/registro" className="bg-candas-rojo text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-candas-rojoOscuro transition">
+                Crear cuenta gratis
+              </Link>
+              <Link href="/login" className="bg-white text-gray-700 text-xs font-semibold px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition">
+                Iniciar sesión
+              </Link>
             </div>
           </div>
         </section>
@@ -227,7 +250,7 @@ export default async function Home() {
               { href: "/clasificacion", icon: "📊", title: "Clasificación", desc: "Segunda Asturfútbol Grupo 1 actualizada", libre: true },
               { href: "/fotos", icon: "📸", title: "Fotos", desc: "Galería de imágenes de los partidos", libre: true },
               { href: user ? "/simulador" : "/login", icon: "🔮", title: "Simulador", desc: "Simula cómo puede terminar la liga", libre: false },
-              { href: user ? "/abonados" : "/login", icon: "🚗", title: "Abonados", desc: "Chat y viajes compartidos al campo", libre: false },
+              { href: user ? "/abonados" : "/login", icon: "🚗", title: "Abonados", desc: "Chat, viajes y encuestas del partido", libre: false },
             ].map((item) => (
               <Link key={item.title} href={item.href}
                 className="bg-white rounded-xl p-5 shadow hover:shadow-lg hover:-translate-y-0.5 transition border border-gray-100 block">
@@ -242,14 +265,19 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* CTA REGISTRO */}
+        {/* CTA REGISTRO — solo para no logados, al fondo */}
         {!user && (
           <section className="bg-gradient-to-br from-candas-rojo to-candas-rojoOscuro rounded-2xl p-8 text-white text-center">
             <p className="text-2xl font-black mb-2">¿Aún no eres abonado?</p>
-            <p className="text-white/80 mb-5 text-sm">Regístrate gratis y accede al simulador, el chat, los viajes y la galería completa.</p>
-            <Link href="/registro" className="bg-white text-candas-rojo font-black px-8 py-3 rounded-xl hover:bg-candas-crema transition inline-block">
-              Crear cuenta gratis
-            </Link>
+            <p className="text-white/80 mb-5 text-sm">Regístrate gratis y accede al simulador, el chat, los viajes y las encuestas del mejor jugador.</p>
+            <div className="flex gap-3 justify-center flex-wrap">
+              <Link href="/registro" className="bg-white text-candas-rojo font-black px-8 py-3 rounded-xl hover:bg-candas-crema transition inline-block">
+                Crear cuenta gratis
+              </Link>
+              <Link href="/login" className="bg-white/15 text-white font-bold px-8 py-3 rounded-xl hover:bg-white/25 transition inline-block border border-white/30">
+                Ya tengo cuenta
+              </Link>
+            </div>
           </section>
         )}
       </div>

@@ -5,6 +5,7 @@ import ChatAbonados from "@/components/ChatAbonados";
 import TablonViajes from "@/components/TablonViajes";
 import GaleriaAbonados from "@/components/GaleriaAbonados";
 import EncuestaAbonados from "@/components/EncuestaAbonados";
+import HistorialEncuestas from "@/components/HistorialEncuestas";
 
 export const dynamic = "force-dynamic";
 
@@ -40,6 +41,60 @@ export default async function AbonadosPage() {
     proximos = (data ?? []) as Partido[];
   }
 
+  // Historial de encuestas cerradas
+  const { data: encuestasCerradas } = await supabase
+    .from("encuestas")
+    .select("id, titulo, created_at")
+    .eq("activa", false)
+    .order("created_at", { ascending: false });
+
+  const historialEncuestas: {
+    encuestaId: number;
+    titulo: string;
+    ganadorNombre: string;
+    votos: number;
+    totalVotos: number;
+    fecha: string;
+  }[] = [];
+
+  if (encuestasCerradas && encuestasCerradas.length > 0) {
+    const ids = encuestasCerradas.map((e) => e.id);
+
+    const { data: votos } = await supabase
+      .from("votos")
+      .select("encuesta_id, jugador_id, jugadores(nombre)")
+      .in("encuesta_id", ids);
+
+    if (votos) {
+      for (const enc of encuestasCerradas) {
+        const votosEnc = votos.filter((v) => v.encuesta_id === enc.id);
+        if (votosEnc.length === 0) continue;
+
+        // Contar votos por jugador
+        const conteo = new Map<number, { nombre: string; votos: number }>();
+        votosEnc.forEach((v: any) => {
+          const id = v.jugador_id;
+          const nombre = v.jugadores?.nombre ?? "Desconocido";
+          if (!conteo.has(id)) conteo.set(id, { nombre, votos: 0 });
+          conteo.get(id)!.votos++;
+        });
+
+        const sorted = Array.from(conteo.values()).sort((a, b) => b.votos - a.votos);
+        const ganador = sorted[0];
+        const totalVotos = sorted.reduce((s, r) => s + r.votos, 0);
+
+        historialEncuestas.push({
+          encuestaId: enc.id,
+          titulo: enc.titulo,
+          ganadorNombre: ganador.nombre,
+          votos: ganador.votos,
+          totalVotos,
+          fecha: enc.created_at,
+        });
+      }
+    }
+  }
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">
       <div className="mb-8">
@@ -55,7 +110,7 @@ export default async function AbonadosPage() {
         <TablonViajes usuarioId={user.id} proximosPartidos={proximos} />
       </div>
 
-      {/* Encuesta */}
+      {/* Encuesta activa */}
       <section className="mb-10">
         <div className="flex items-center gap-3 mb-5">
           <h2 className="text-2xl font-black">🗳️ Encuesta</h2>
@@ -65,6 +120,9 @@ export default async function AbonadosPage() {
           <EncuestaAbonados usuarioId={user.id} />
         </div>
       </section>
+
+      {/* Historial de encuestas cerradas */}
+      <HistorialEncuestas historial={historialEncuestas} />
 
       {/* Galería de fotos */}
       <section>
