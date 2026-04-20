@@ -33,12 +33,12 @@ function FotoCard({
   onClick: () => void;
 }) {
   const [cargada, setCargada] = useState(false);
-  const { col, aspect } = PATRON[indicePatron % PATRON.length];
+  const col = PATRON[indicePatron % PATRON.length];
 
   return (
     <button
       onClick={onClick}
-      className={`${col} group relative overflow-hidden rounded-xl bg-gray-200 focus:outline-none focus:ring-2 focus:ring-candas-rojo ${aspect}`}
+      className={`${col} group relative overflow-hidden rounded-xl bg-gray-200 focus:outline-none focus:ring-2 focus:ring-candas-rojo`}
     >
       {!cargada && (
         <div className="absolute inset-0 bg-gray-200 animate-pulse rounded-xl" />
