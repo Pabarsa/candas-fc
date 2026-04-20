@@ -238,6 +238,22 @@ function CrearPartidoTab({
       return;
     }
     setGuardando(true);
+
+    // Comprobar duplicado
+    const { data: existente } = await supabase
+      .from("partidos")
+      .select("id")
+      .eq("jornada", jornada)
+      .eq("local_id", localId)
+      .eq("visitante_id", visitanteId)
+      .maybeSingle();
+
+    if (existente) {
+      setError("Ya existe ese partido en esa jornada.");
+      setGuardando(false);
+      return;
+    }
+
     const { error } = await supabase.from("partidos").insert({
       jornada,
       local_id: localId,
