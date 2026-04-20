@@ -995,6 +995,7 @@ type JugadorAdmin = {
   dorsal: number | null;
   posicion: string | null;
   activo: boolean;
+  foto_url: string | null;
 };
 
 const POSICIONES = ["Portero", "Defensa", "Centrocampista", "Delantero"];
@@ -1015,11 +1016,27 @@ function PlantillaAdminTab() {
   const [añadiendo, setAñadiendo] = useState(false);
   const [mostrarForm, setMostrarForm] = useState(false);
   const [ok, setOk] = useState<string | null>(null);
+  const [subiendoFotoId, setSubiendoFotoId] = useState<number | null>(null);
+
+  const subirFoto = async (jugadorId: number, archivo: File) => {
+    setSubiendoFotoId(jugadorId);
+    const ext = archivo.name.split(".").pop();
+    const nombre = `jugador_${jugadorId}_${Date.now()}.${ext}`;
+    const { error: uploadError } = await supabase.storage
+      .from("galeria")
+      .upload(`jugadores/${nombre}`, archivo, { contentType: archivo.type, upsert: true });
+    if (!uploadError) {
+      const { data: urlData } = supabase.storage.from("galeria").getPublicUrl(`jugadores/${nombre}`);
+      await supabase.from("jugadores").update({ foto_url: urlData.publicUrl }).eq("id", jugadorId);
+      cargar();
+    }
+    setSubiendoFotoId(null);
+  };
 
   const cargar = async () => {
     const { data } = await supabase
       .from("jugadores")
-      .select("id, nombre, dorsal, posicion, activo")
+      .select("id, nombre, dorsal, posicion, activo, foto_url")
       .order("dorsal", { ascending: true, nullsFirst: false });
     setJugadores((data as JugadorAdmin[]) ?? []);
     setCargando(false);
@@ -1196,15 +1213,36 @@ function PlantillaAdminTab() {
                 </div>
               ) : (
                 <div className="flex items-center gap-3">
-                  {/* Dorsal */}
-                  <div className="w-8 h-8 bg-candas-rojo text-white rounded-lg flex items-center justify-center font-black text-sm flex-shrink-0">
-                    {j.dorsal ?? "—"}
-                  </div>
+                  {/* Foto o dorsal */}
+                  {j.foto_url ? (
+                    <img src={j.foto_url} alt={j.nombre} className="w-10 h-10 rounded-lg object-cover flex-shrink-0 border border-gray-100" />
+                  ) : (
+                    <div className="w-10 h-10 bg-candas-rojo text-white rounded-lg flex items-center justify-center font-black text-sm flex-shrink-0">
+                      {j.dorsal ?? "—"}
+                    </div>
+                  )}
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-sm">{j.nombre}</p>
-                    {j.posicion && <p className="text-xs text-gray-400">{j.posicion}</p>}
+                    <p className="text-xs text-gray-400">
+                      {j.dorsal ? `#${j.dorsal}` : ""}{j.dorsal && j.posicion ? " · " : ""}{j.posicion ?? ""}
+                    </p>
                   </div>
-                  <div className="flex gap-2 flex-shrink-0">
+                  <div className="flex gap-2 flex-shrink-0 items-center">
+                    {/* Subir foto */}
+                    <label className={`cursor-pointer text-xs font-medium transition ${subiendoFotoId === j.id ? "text-gray-300" : "text-purple-500 hover:text-purple-700"}`}>
+                      {subiendoFotoId === j.id ? "Subiendo..." : j.foto_url ? "📷 Cambiar" : "📷 Foto"}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        disabled={subiendoFotoId !== null}
+                        onChange={(e) => {
+                          const f = e.target.files?.[0];
+                          if (f) subirFoto(j.id, f);
+                          e.target.value = "";
+                        }}
+                      />
+                    </label>
                     <button
                       onClick={() => empezarEdicion(j)}
                       className="text-blue-500 hover:text-blue-700 text-xs font-medium"
