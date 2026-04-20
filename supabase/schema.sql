@@ -40,7 +40,8 @@ begin
   values (
     new.id,
     coalesce(new.raw_user_meta_data->>'nombre', ''),
-    coalesce(new.raw_user_meta_data->>'carnet', '')
+    -- nullif evita insertar cadena vacía; la restricción UNIQUE ignora NULLs
+    nullif(coalesce(new.raw_user_meta_data->>'carnet', ''), '')
   );
   return new;
 end;
