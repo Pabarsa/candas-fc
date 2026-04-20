@@ -13,7 +13,7 @@ type Props = {
 export default function AdminPanel({ equipos, partidos }: Props) {
   const supabase = createClient();
   const router = useRouter();
-  const [tab, setTab] = useState<"resultados" | "crear" | "equipos" | "galeria" | "encuestas">("resultados");
+  const [tab, setTab] = useState<"resultados" | "crear" | "equipos" | "galeria" | "encuestas" | "plantilla">("resultados");
 
   return (
     <div>
@@ -33,6 +33,9 @@ export default function AdminPanel({ equipos, partidos }: Props) {
         <TabBtn activo={tab === "encuestas"} onClick={() => setTab("encuestas")}>
           🗳️ Encuestas
         </TabBtn>
+        <TabBtn activo={tab === "plantilla"} onClick={() => setTab("plantilla")}>
+          👟 Plantilla
+        </TabBtn>
       </div>
 
       {tab === "resultados" && (
@@ -46,6 +49,7 @@ export default function AdminPanel({ equipos, partidos }: Props) {
       )}
       {tab === "galeria" && <GaleriaAdminTab />}
       {tab === "encuestas" && <EncuestasAdminTab partidos={partidos} />}
+      {tab === "plantilla" && <PlantillaAdminTab />}
     </div>
   );
 }
@@ -261,22 +265,6 @@ function CrearPartidoTab({
       return;
     }
     setGuardando(true);
-
-    // Comprobar duplicado
-    const { data: existente } = await supabase
-      .from("partidos")
-      .select("id")
-      .eq("jornada", jornada)
-      .eq("local_id", localId)
-      .eq("visitante_id", visitanteId)
-      .maybeSingle();
-
-    if (existente) {
-      setError("Ya existe ese partido en esa jornada.");
-      setGuardando(false);
-      return;
-    }
-
     const { error } = await supabase.from("partidos").insert({
       jornada,
       local_id: localId,
@@ -995,6 +983,275 @@ function EncuestasAdminTab({ partidos }: { partidos: Partido[] }) {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+// =====================================================
+// TAB: Gestión de plantilla
+// =====================================================
+type JugadorAdmin = {
+  id: number;
+  nombre: string;
+  dorsal: number | null;
+  posicion: string | null;
+  activo: boolean;
+};
+
+const POSICIONES = ["Portero", "Defensa", "Centrocampista", "Delantero"];
+
+function PlantillaAdminTab() {
+  const supabase = createClient();
+  const [jugadores, setJugadores] = useState<JugadorAdmin[]>([]);
+  const [cargando, setCargando] = useState(true);
+  const [editandoId, setEditandoId] = useState<number | null>(null);
+  const [editNombre, setEditNombre] = useState("");
+  const [editDorsal, setEditDorsal] = useState<string>("");
+  const [editPosicion, setEditPosicion] = useState("");
+  const [guardando, setGuardando] = useState(false);
+  // Nuevo jugador
+  const [nuevoNombre, setNuevoNombre] = useState("");
+  const [nuevoDorsal, setNuevoDorsal] = useState("");
+  const [nuevaPosicion, setNuevaPosicion] = useState("");
+  const [añadiendo, setAñadiendo] = useState(false);
+  const [mostrarForm, setMostrarForm] = useState(false);
+  const [ok, setOk] = useState<string | null>(null);
+
+  const cargar = async () => {
+    const { data } = await supabase
+      .from("jugadores")
+      .select("id, nombre, dorsal, posicion, activo")
+      .order("dorsal", { ascending: true, nullsFirst: false });
+    setJugadores((data as JugadorAdmin[]) ?? []);
+    setCargando(false);
+  };
+
+  useEffect(() => { cargar(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const empezarEdicion = (j: JugadorAdmin) => {
+    setEditandoId(j.id);
+    setEditNombre(j.nombre);
+    setEditDorsal(j.dorsal?.toString() ?? "");
+    setEditPosicion(j.posicion ?? "");
+  };
+
+  const cancelarEdicion = () => setEditandoId(null);
+
+  const guardarEdicion = async (id: number) => {
+    if (!editNombre.trim()) return;
+    setGuardando(true);
+    await supabase.from("jugadores").update({
+      nombre: editNombre.trim(),
+      dorsal: editDorsal ? parseInt(editDorsal) : null,
+      posicion: editPosicion || null,
+    }).eq("id", id);
+    setGuardando(false);
+    setEditandoId(null);
+    cargar();
+  };
+
+  const toggleActivo = async (j: JugadorAdmin) => {
+    await supabase.from("jugadores").update({ activo: !j.activo }).eq("id", j.id);
+    cargar();
+  };
+
+  const añadirJugador = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nuevoNombre.trim()) return;
+    setAñadiendo(true);
+    await supabase.from("jugadores").insert({
+      nombre: nuevoNombre.trim(),
+      dorsal: nuevoDorsal ? parseInt(nuevoDorsal) : null,
+      posicion: nuevaPosicion || null,
+      activo: true,
+    });
+    setNuevoNombre(""); setNuevoDorsal(""); setNuevaPosicion("");
+    setMostrarForm(false);
+    setOk("✅ Jugador añadido.");
+    setTimeout(() => setOk(null), 3000);
+    setAñadiendo(false);
+    cargar();
+  };
+
+  const activos = jugadores.filter(j => j.activo);
+  const inactivos = jugadores.filter(j => !j.activo);
+
+  if (cargando) return <p className="text-gray-400 text-sm">Cargando plantilla...</p>;
+
+  return (
+    <div className="space-y-6">
+      {/* Cabecera */}
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-gray-500">
+          <strong>{activos.length}</strong> jugadores activos · <strong>{inactivos.length}</strong> inactivos
+        </p>
+        <button
+          onClick={() => setMostrarForm(!mostrarForm)}
+          className="bg-candas-rojo text-white font-bold px-4 py-2 rounded-xl text-sm hover:bg-candas-rojoOscuro transition"
+        >
+          {mostrarForm ? "Cancelar" : "➕ Añadir jugador"}
+        </button>
+      </div>
+
+      {/* Form nuevo jugador */}
+      {mostrarForm && (
+        <form onSubmit={añadirJugador} className="bg-white rounded-xl shadow p-5 border border-gray-100">
+          <h3 className="font-black mb-4">Nuevo jugador</h3>
+          <div className="grid sm:grid-cols-3 gap-3 mb-3">
+            <div>
+              <label className="text-xs font-semibold text-gray-500 mb-1 block">Nombre *</label>
+              <input
+                type="text"
+                value={nuevoNombre}
+                onChange={(e) => setNuevoNombre(e.target.value)}
+                placeholder="Nombre completo"
+                className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-candas-rojo focus:outline-none"
+                autoFocus
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-gray-500 mb-1 block">Dorsal</label>
+              <input
+                type="number"
+                value={nuevoDorsal}
+                onChange={(e) => setNuevoDorsal(e.target.value)}
+                placeholder="Nº"
+                min={1} max={99}
+                className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-candas-rojo focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-gray-500 mb-1 block">Posición</label>
+              <select
+                value={nuevaPosicion}
+                onChange={(e) => setNuevaPosicion(e.target.value)}
+                className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-candas-rojo focus:outline-none"
+              >
+                <option value="">Sin especificar</option>
+                {POSICIONES.map(p => <option key={p} value={p}>{p}</option>)}
+              </select>
+            </div>
+          </div>
+          <button
+            type="submit"
+            disabled={añadiendo}
+            className="bg-candas-rojo text-white font-black px-6 py-2 rounded-xl text-sm hover:bg-candas-rojoOscuro transition disabled:opacity-50"
+          >
+            {añadiendo ? "Añadiendo..." : "Añadir"}
+          </button>
+        </form>
+      )}
+
+      {ok && <p className="text-green-600 text-sm font-semibold">{ok}</p>}
+
+      {/* Lista activos */}
+      <div className="bg-white rounded-xl shadow overflow-hidden border border-gray-100">
+        <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
+          <h3 className="font-black text-sm">Plantilla activa ({activos.length})</h3>
+        </div>
+        <ul className="divide-y divide-gray-50">
+          {activos.map((j) => (
+            <li key={j.id} className="px-4 py-3">
+              {editandoId === j.id ? (
+                <div className="space-y-2">
+                  <div className="grid sm:grid-cols-3 gap-2">
+                    <input
+                      type="text"
+                      value={editNombre}
+                      onChange={(e) => setEditNombre(e.target.value)}
+                      className="border-2 border-candas-rojo rounded-lg px-2 py-1.5 text-sm focus:outline-none"
+                      autoFocus
+                    />
+                    <input
+                      type="number"
+                      value={editDorsal}
+                      onChange={(e) => setEditDorsal(e.target.value)}
+                      placeholder="Dorsal"
+                      min={1} max={99}
+                      className="border-2 border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:border-candas-rojo focus:outline-none"
+                    />
+                    <select
+                      value={editPosicion}
+                      onChange={(e) => setEditPosicion(e.target.value)}
+                      className="border-2 border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:border-candas-rojo focus:outline-none"
+                    >
+                      <option value="">Sin especificar</option>
+                      {POSICIONES.map(p => <option key={p} value={p}>{p}</option>)}
+                    </select>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => guardarEdicion(j.id)}
+                      disabled={guardando}
+                      className="bg-candas-rojo text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-candas-rojoOscuro transition disabled:opacity-50"
+                    >
+                      {guardando ? "..." : "✓ Guardar"}
+                    </button>
+                    <button
+                      onClick={cancelarEdicion}
+                      className="text-gray-500 text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-gray-100 transition"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  {/* Dorsal */}
+                  <div className="w-8 h-8 bg-candas-rojo text-white rounded-lg flex items-center justify-center font-black text-sm flex-shrink-0">
+                    {j.dorsal ?? "—"}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-sm">{j.nombre}</p>
+                    {j.posicion && <p className="text-xs text-gray-400">{j.posicion}</p>}
+                  </div>
+                  <div className="flex gap-2 flex-shrink-0">
+                    <button
+                      onClick={() => empezarEdicion(j)}
+                      className="text-blue-500 hover:text-blue-700 text-xs font-medium"
+                    >
+                      Editar
+                    </button>
+                    <button
+                      onClick={() => toggleActivo(j)}
+                      className="text-gray-400 hover:text-red-500 text-xs font-medium"
+                    >
+                      Desactivar
+                    </button>
+                  </div>
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Lista inactivos */}
+      {inactivos.length > 0 && (
+        <div className="bg-white rounded-xl shadow overflow-hidden border border-gray-100">
+          <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
+            <h3 className="font-black text-sm text-gray-400">Inactivos / baja ({inactivos.length})</h3>
+          </div>
+          <ul className="divide-y divide-gray-50">
+            {inactivos.map((j) => (
+              <li key={j.id} className="px-4 py-3 flex items-center gap-3 opacity-50">
+                <div className="w-8 h-8 bg-gray-300 text-white rounded-lg flex items-center justify-center font-black text-sm flex-shrink-0">
+                  {j.dorsal ?? "—"}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm line-through">{j.nombre}</p>
+                  {j.posicion && <p className="text-xs text-gray-400">{j.posicion}</p>}
+                </div>
+                <button
+                  onClick={() => toggleActivo(j)}
+                  className="text-green-600 hover:text-green-700 text-xs font-medium flex-shrink-0"
+                >
+                  Reactivar
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
