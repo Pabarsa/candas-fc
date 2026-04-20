@@ -120,6 +120,8 @@ export default function Navbar() {
           {link("/", "Inicio")}
           {link("/clasificacion", "Clasificación")}
           {link("/fotos", "Fotos")}
+          {link("/campo", "El Campo")}
+          {link("/campo", "El Campo")}
           {user && link("/simulador", "Simulador")}
           {user && link("/abonados", "Abonados")}
           {rol === "admin" && link("/admin", "Admin")}
