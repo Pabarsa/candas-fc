@@ -62,10 +62,11 @@ function TabBtn({
   return (
     <button
       onClick={onClick}
-      className={`px-4 py-2 font-medium border-b-2 transition -mb-px ${activo
+      className={`px-4 py-2 font-medium border-b-2 transition -mb-px ${
+        activo
           ? "border-candas-rojo text-candas-rojo"
           : "border-transparent text-gray-600 hover:text-gray-900"
-        }`}
+      }`}
     >
       {children}
     </button>
@@ -354,12 +355,18 @@ function GaleriaAdminTab() {
   const [error, setError] = useState<string | null>(null);
   const [ok, setOk] = useState<string | null>(null);
 
-  // Form
+  // Form nuevo post
   const [titulo, setTitulo] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [instagram, setInstagram] = useState("");
   const [archivo, setArchivo] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+
+  // Edición inline
+  const [editandoId, setEditandoId] = useState<number | null>(null);
+  const [editTitulo, setEditTitulo] = useState("");
+  const [editInstagram, setEditInstagram] = useState("");
+  const [guardando, setGuardando] = useState(false);
 
   const cargar = async () => {
     const { data } = await supabase
@@ -431,6 +438,30 @@ function GaleriaAdminTab() {
     const nombreArchivo = partes[partes.length - 1];
     await supabase.storage.from("galeria").remove([nombreArchivo]);
     await supabase.from("posts").delete().eq("id", post.id);
+    cargar();
+  };
+
+  const empezarEdicion = (post: Post) => {
+    setEditandoId(post.id);
+    setEditTitulo(post.titulo);
+    setEditInstagram(post.instagram_fotografa ?? "");
+  };
+
+  const cancelarEdicion = () => {
+    setEditandoId(null);
+    setEditTitulo("");
+    setEditInstagram("");
+  };
+
+  const guardarEdicion = async (postId: number) => {
+    if (!editTitulo.trim()) return;
+    setGuardando(true);
+    await supabase.from("posts").update({
+      titulo: editTitulo.trim(),
+      instagram_fotografa: editInstagram.trim().replace("@", "") || null,
+    }).eq("id", postId);
+    setGuardando(false);
+    setEditandoId(null);
     cargar();
   };
 
@@ -528,27 +559,84 @@ function GaleriaAdminTab() {
         ) : (
           <ul className="space-y-3 max-h-[520px] overflow-y-auto pr-1">
             {posts.map((post) => (
-              <li key={post.id} className="flex gap-3 items-start border-b border-gray-100 pb-3">
-                <img
-                  src={post.foto_url}
-                  alt={post.titulo}
-                  className="w-14 h-14 object-cover rounded-lg flex-shrink-0"
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm truncate">{post.titulo}</p>
-                  {post.instagram_fotografa && (
-                    <p className="text-xs text-pink-500">@{post.instagram_fotografa}</p>
-                  )}
-                  <p className="text-xs text-gray-400">
-                    {new Date(post.created_at).toLocaleDateString("es-ES")}
-                  </p>
-                </div>
-                <button
-                  onClick={() => borrar(post)}
-                  className="text-red-500 hover:text-red-700 text-xs font-medium flex-shrink-0"
-                >
-                  Borrar
-                </button>
+              <li key={post.id} className="border-b border-gray-100 pb-3 last:border-0">
+                {editandoId === post.id ? (
+                  /* ── Modo edición ── */
+                  <div className="flex gap-3 items-start">
+                    <img
+                      src={post.foto_url}
+                      alt={post.titulo}
+                      className="w-14 h-14 object-cover rounded-lg flex-shrink-0"
+                    />
+                    <div className="flex-1 space-y-2">
+                      <input
+                        type="text"
+                        value={editTitulo}
+                        onChange={(e) => setEditTitulo(e.target.value)}
+                        placeholder="Título"
+                        className="w-full border-2 border-candas-rojo rounded-lg px-2 py-1.5 text-sm focus:outline-none"
+                        autoFocus
+                      />
+                      <div className="flex items-center gap-1">
+                        <span className="text-gray-400 text-sm font-bold">@</span>
+                        <input
+                          type="text"
+                          value={editInstagram}
+                          onChange={(e) => setEditInstagram(e.target.value.replace("@", ""))}
+                          placeholder="instagram (opcional)"
+                          className="flex-1 border-2 border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:border-candas-rojo focus:outline-none"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => guardarEdicion(post.id)}
+                          disabled={guardando}
+                          className="bg-candas-rojo text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-candas-rojoOscuro transition disabled:opacity-50"
+                        >
+                          {guardando ? "Guardando..." : "✓ Guardar"}
+                        </button>
+                        <button
+                          onClick={cancelarEdicion}
+                          className="text-gray-500 text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-gray-100 transition"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  /* ── Modo normal ── */
+                  <div className="flex gap-3 items-start">
+                    <img
+                      src={post.foto_url}
+                      alt={post.titulo}
+                      className="w-14 h-14 object-cover rounded-lg flex-shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-sm truncate">{post.titulo}</p>
+                      {post.instagram_fotografa && (
+                        <p className="text-xs text-pink-500">@{post.instagram_fotografa}</p>
+                      )}
+                      <p className="text-xs text-gray-400">
+                        {new Date(post.created_at).toLocaleDateString("es-ES")}
+                      </p>
+                    </div>
+                    <div className="flex flex-col gap-1 flex-shrink-0">
+                      <button
+                        onClick={() => empezarEdicion(post)}
+                        className="text-blue-500 hover:text-blue-700 text-xs font-medium"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => borrar(post)}
+                        className="text-red-500 hover:text-red-700 text-xs font-medium"
+                      >
+                        Borrar
+                      </button>
+                    </div>
+                  </div>
+                )}
               </li>
             ))}
           </ul>
@@ -678,6 +766,29 @@ function EncuestasAdminTab({ partidos }: { partidos: Partido[] }) {
     setResultados((prev) => ({ ...prev, [encuestaId]: sorted }));
   };
 
+  const [notificando, setNotificando] = useState<number | null>(null);
+  const [notifOk, setNotifOk] = useState<string | null>(null);
+
+  const notificar = async (enc: Encuesta) => {
+    if (!confirm(`¿Enviar email a todos los abonados para votar en "${enc.titulo}"?`)) return;
+    setNotificando(enc.id);
+    setNotifOk(null);
+    try {
+      const res = await fetch("/api/notificar-encuesta", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ titulo: enc.titulo, encuestaId: enc.id }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setNotifOk(`✅ Email enviado a ${data.enviados} abonados.`);
+    } catch (err: any) {
+      setNotifOk(`❌ Error: ${err.message}`);
+    } finally {
+      setNotificando(null);
+    }
+  };
+
   const crear = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!titulo.trim()) return;
@@ -748,6 +859,11 @@ function EncuestasAdminTab({ partidos }: { partidos: Partido[] }) {
       {/* Lista encuestas */}
       <div className="bg-white rounded-xl shadow p-6">
         <h3 className="font-black text-lg mb-4">Encuestas ({encuestas.length})</h3>
+        {notifOk && (
+          <div className={`text-xs rounded-lg p-2 mb-3 ${notifOk.startsWith("✅") ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>
+            {notifOk}
+          </div>
+        )}
         {encuestas.length === 0 ? (
           <p className="text-sm text-gray-400">Aún no hay encuestas.</p>
         ) : (
@@ -763,6 +879,14 @@ function EncuestasAdminTab({ partidos }: { partidos: Partido[] }) {
                   </div>
                   <div className="flex gap-2 flex-shrink-0 items-center">
                     <button
+                      onClick={() => notificar(enc)}
+                      disabled={notificando === enc.id}
+                      title="Enviar email a todos los abonados"
+                      className="text-xs px-2 py-1 rounded-full font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 transition disabled:opacity-50"
+                    >
+                      {notificando === enc.id ? "⏳" : "📧"}
+                    </button>
+                    <button
                       onClick={() => toggleActiva(enc)}
                       className={`text-xs px-2 py-1 rounded-full font-bold ${enc.activa ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}
                     >
@@ -773,31 +897,27 @@ function EncuestasAdminTab({ partidos }: { partidos: Partido[] }) {
                 </div>
 
                 {/* Ver resultados */}
-                {(() => {
-                  const res = resultados[enc.id];
-                  if (!res) return (
-                    <button
-                      onClick={() => cargarResultados(enc.id)}
-                      className="text-xs text-candas-rojo hover:underline"
-                    >
-                      Ver resultados
-                    </button>
-                  );
-                  return (
-                    <div className="space-y-1 mt-2">
-                      {res.slice(0, 5).map((r, i) => (
-                        <div key={i} className="flex items-center gap-2 text-xs">
-                          <span className="text-gray-400 w-4">{i + 1}º</span>
-                          <span className="flex-1 truncate">{r.nombre}</span>
-                          <span className="font-bold text-candas-rojo">{r.votos}</span>
-                        </div>
-                      ))}
-                      {res.length === 0 && (
-                        <p className="text-xs text-gray-400">Sin votos todavía.</p>
-                      )}
-                    </div>
-                  );
-                })()}
+                {resultados[enc.id] ? (
+                  <div className="space-y-1 mt-2">
+                    {resultados[enc.id].slice(0, 5).map((r, i) => (
+                      <div key={i} className="flex items-center gap-2 text-xs">
+                        <span className="text-gray-400 w-4">{i + 1}º</span>
+                        <span className="flex-1 truncate">{r.nombre}</span>
+                        <span className="font-bold text-candas-rojo">{r.votos}</span>
+                      </div>
+                    ))}
+                    {resultados[enc.id].length === 0 && (
+                      <p className="text-xs text-gray-400">Sin votos todavía.</p>
+                    )}
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => cargarResultados(enc.id)}
+                    className="text-xs text-candas-rojo hover:underline"
+                  >
+                    Ver resultados
+                  </button>
+                )}
               </div>
             ))}
           </div>
