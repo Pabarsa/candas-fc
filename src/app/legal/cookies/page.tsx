@@ -18,11 +18,7 @@ export default function CookiesPage() {
 
         <section>
           <h2 className="text-lg font-bold text-gray-900 mb-2">¿Qué son las cookies?</h2>
-          <p>
-            Las cookies son pequeños archivos de texto que los sitios web almacenan en tu
-            dispositivo cuando los visitas. Permiten que el sitio recuerde tus preferencias
-            y que tu sesión se mantenga activa entre visitas.
-          </p>
+          <p>Las cookies son pequeños archivos de texto que los sitios web almacenan en tu dispositivo cuando los visitas. Permiten que el sitio recuerde tus preferencias y que tu sesión se mantenga activa entre visitas.</p>
         </section>
 
         <section>
@@ -60,43 +56,21 @@ export default function CookiesPage() {
               </tbody>
             </table>
           </div>
-          <p className="mt-3 text-xs text-gray-500">
-            ℹ️ No usamos cookies de publicidad, rastreo de terceros ni redes sociales.
-          </p>
+          <p className="mt-3 text-xs text-gray-500">ℹ️ No usamos cookies de publicidad, rastreo de terceros ni redes sociales.</p>
         </section>
 
         <section>
           <h2 className="text-lg font-bold text-gray-900 mb-2">Cookies técnicas (exentas de consentimiento)</h2>
-          <p>
-            Las cookies de sesión de Supabase son <strong>estrictamente necesarias</strong>
-            para que puedas iniciar sesión y acceder a la zona de abonados. Sin ellas,
-            la web no funciona correctamente. Según el artículo 22.2 de la LSSI-CE,
-            las cookies técnicas no requieren tu consentimiento previo.
-          </p>
+          <p>Las cookies de sesión de Supabase son <strong>estrictamente necesarias</strong> para que puedas iniciar sesión y acceder a la zona de abonados. Sin ellas, la web no funciona correctamente. Según el artículo 22.2 de la LSSI-CE, las cookies técnicas no requieren tu consentimiento previo.</p>
         </section>
 
         <section>
           <h2 className="text-lg font-bold text-gray-900 mb-2">Cómo gestionar o eliminar cookies</h2>
-          <p>
-            Puedes configurar tu navegador para bloquear o eliminar cookies en cualquier momento.
-            Ten en cuenta que si eliminas las cookies de sesión, tendrás que volver a iniciar sesión.
-          </p>
+          <p>Puedes configurar tu navegador para bloquear o eliminar cookies en cualquier momento. Ten en cuenta que si eliminas las cookies de sesión, tendrás que volver a iniciar sesión.</p>
           <ul className="list-disc pl-5 mt-2 space-y-1">
-            <li>
-              <a href="https://support.google.com/chrome/answer/95647" target="_blank" rel="noopener noreferrer" className="text-candas-rojo underline">
-                Google Chrome
-              </a>
-            </li>
-            <li>
-              <a href="https://support.mozilla.org/es/kb/habilitar-y-deshabilitar-cookies-sitios-web-rastrear-preferencias" target="_blank" rel="noopener noreferrer" className="text-candas-rojo underline">
-                Mozilla Firefox
-              </a>
-            </li>
-            <li>
-              <a href="https://support.apple.com/es-es/guide/safari/sfri11471/mac" target="_blank" rel="noopener noreferrer" className="text-candas-rojo underline">
-                Safari
-              </a>
-            </li>
+            <li><a href="https://support.google.com/chrome/answer/95647" target="_blank" rel="noopener noreferrer" className="text-candas-rojo underline">Google Chrome</a></li>
+            <li><a href="https://support.mozilla.org/es/kb/habilitar-y-deshabilitar-cookies-sitios-web-rastrear-preferencias" target="_blank" rel="noopener noreferrer" className="text-candas-rojo underline">Mozilla Firefox</a></li>
+            <li><a href="https://support.apple.com/es-es/guide/safari/sfri11471/mac" target="_blank" rel="noopener noreferrer" className="text-candas-rojo underline">Safari</a></li>
           </ul>
         </section>
 
@@ -105,12 +79,10 @@ export default function CookiesPage() {
           <p>
             Para cualquier consulta sobre el uso de cookies, puedes contactarnos en{" "}
             <strong>pablo.aramendi.sanchez@outlook.com</strong>. También puedes consultar la guía sobre cookies de la{" "}
-            <a href="https://www.aepd.es/guias/guia-cookies.pdf" target="_blank" rel="noopener noreferrer" className="text-candas-rojo underline">
-              AEPD
-            </a>
-            .
+            <a href="https://www.aepd.es/guias/guia-cookies.pdf" target="_blank" rel="noopener noreferrer" className="text-candas-rojo underline">AEPD</a>.
           </p>
         </section>
+
       </div>
 
       <div className="mt-10 pt-6 border-t border-gray-200 flex gap-6 text-sm">

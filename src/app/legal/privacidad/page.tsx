@@ -32,9 +32,7 @@ export default function PrivacidadPage() {
             <li><strong>Correo electrónico</strong> — para el inicio de sesión y comunicaciones relacionadas con la cuenta.</li>
             <li><strong>Contraseña</strong> — almacenada de forma segura y encriptada (nunca en texto plano).</li>
           </ul>
-          <p className="mt-2">
-            No recogemos datos de pago, tarjetas de crédito ni información sensible adicional.
-          </p>
+          <p className="mt-2">No recogemos datos de pago, tarjetas de crédito ni información sensible adicional.</p>
         </section>
 
         <section>
@@ -69,24 +67,14 @@ export default function PrivacidadPage() {
           <h2 className="text-lg font-bold text-gray-900 mb-2">4. Encargados del tratamiento (terceros)</h2>
           <p>Utilizamos los siguientes servicios de terceros que pueden procesar tus datos:</p>
           <ul className="list-disc pl-5 mt-2 space-y-1">
-            <li>
-              <strong>Supabase Inc.</strong> (EE.UU.) — base de datos y autenticación. Datos almacenados
-              en servidores de AWS en Europa (eu-west-1, Irlanda). Cumple con el RGPD mediante
-              cláusulas contractuales estándar (SCCs).
-            </li>
-            <li>
-              <strong>Vercel Inc.</strong> (EE.UU.) — alojamiento web. Cumple con el RGPD mediante SCCs.
-            </li>
+            <li><strong>Supabase Inc.</strong> (EE.UU.) — base de datos y autenticación. Datos almacenados en servidores de AWS en Europa (eu-west-1, Irlanda). Cumple con el RGPD mediante cláusulas contractuales estándar (SCCs).</li>
+            <li><strong>Vercel Inc.</strong> (EE.UU.) — alojamiento web. Cumple con el RGPD mediante SCCs.</li>
           </ul>
         </section>
 
         <section>
           <h2 className="text-lg font-bold text-gray-900 mb-2">5. Conservación de datos</h2>
-          <p>
-            Tus datos se conservan mientras mantengas la cuenta activa. Si solicitas la baja,
-            eliminamos tu cuenta y todos tus datos personales en un plazo máximo de 30 días,
-            salvo que exista obligación legal de conservarlos.
-          </p>
+          <p>Tus datos se conservan mientras mantengas la cuenta activa. Si solicitas la baja, eliminamos tu cuenta y todos tus datos personales en un plazo máximo de 30 días, salvo que exista obligación legal de conservarlos.</p>
         </section>
 
         <section>
@@ -103,34 +91,22 @@ export default function PrivacidadPage() {
             Puedes ejercer estos derechos enviando un email a{" "}
             <strong>pablo.aramendi.sanchez@outlook.com</strong> con el asunto "Protección de datos".
             También puedes reclamar ante la{" "}
-            <a
-              href="https://www.aepd.es"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-candas-rojo underline"
-            >
+            <a href="https://www.aepd.es" target="_blank" rel="noopener noreferrer" className="text-candas-rojo underline">
               Agencia Española de Protección de Datos (AEPD)
-            </a>
-            .
+            </a>.
           </p>
         </section>
 
         <section>
           <h2 className="text-lg font-bold text-gray-900 mb-2">7. Menores de edad</h2>
-          <p>
-            Esta web no está dirigida a menores de 14 años. Si eres menor de 14 años,
-            necesitas el consentimiento de tu padre, madre o tutor legal para registrarte.
-          </p>
+          <p>Esta web no está dirigida a menores de 14 años. Si eres menor de 14 años, necesitas el consentimiento de tu padre, madre o tutor legal para registrarte.</p>
         </section>
 
         <section>
           <h2 className="text-lg font-bold text-gray-900 mb-2">8. Cambios en esta política</h2>
-          <p>
-            Nos reservamos el derecho a actualizar esta política. Te notificaremos cambios
-            relevantes por email. La fecha de la última actualización siempre estará visible
-            en la cabecera de este documento.
-          </p>
+          <p>Nos reservamos el derecho a actualizar esta política. Te notificaremos cambios relevantes por email. La fecha de la última actualización siempre estará visible en la cabecera de este documento.</p>
         </section>
+
       </div>
 
       <div className="mt-10 pt-6 border-t border-gray-200 flex gap-6 text-sm">
