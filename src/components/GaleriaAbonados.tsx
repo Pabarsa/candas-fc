@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 type Post = {
@@ -12,11 +12,66 @@ type Post = {
   created_at: string;
 };
 
+const PATRON: { col: string; aspect: string }[] = [
+  { col: "col-span-2 row-span-2", aspect: "aspect-square" },
+  { col: "col-span-1 row-span-1", aspect: "aspect-square" },
+  { col: "col-span-1 row-span-1", aspect: "aspect-square" },
+  { col: "col-span-1 row-span-2", aspect: "aspect-[3/4]" },
+  { col: "col-span-2 row-span-1", aspect: "aspect-video" },
+  { col: "col-span-1 row-span-1", aspect: "aspect-square" },
+  { col: "col-span-1 row-span-1", aspect: "aspect-square" },
+  { col: "col-span-1 row-span-1", aspect: "aspect-square" },
+];
+
+function FotoCard({
+  post,
+  indicePatron,
+  onClick,
+}: {
+  post: Post;
+  indicePatron: number;
+  onClick: () => void;
+}) {
+  const [cargada, setCargada] = useState(false);
+  const { col, aspect } = PATRON[indicePatron % PATRON.length];
+
+  return (
+    <button
+      onClick={onClick}
+      className={`${col} group relative overflow-hidden rounded-xl bg-gray-200 focus:outline-none focus:ring-2 focus:ring-candas-rojo ${aspect}`}
+    >
+      {!cargada && (
+        <div className="absolute inset-0 bg-gray-200 animate-pulse rounded-xl" />
+      )}
+      <img
+        src={post.foto_url}
+        alt={post.titulo}
+        onLoad={() => setCargada(true)}
+        className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-105
+          ${cargada ? "opacity-100 blur-0" : "opacity-0 blur-sm"}`}
+      />
+      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/45 transition-all duration-300 flex flex-col justify-end p-3">
+        <div className="translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+          <p className="text-white font-bold text-xs sm:text-sm leading-tight line-clamp-2">
+            {post.titulo}
+          </p>
+          {post.instagram_fotografa && (
+            <p className="text-white/70 text-xs mt-0.5">
+              📸 @{post.instagram_fotografa}
+            </p>
+          )}
+        </div>
+      </div>
+    </button>
+  );
+}
+
 export default function GaleriaAbonados() {
   const supabase = createClient();
   const [posts, setPosts] = useState<Post[]>([]);
   const [cargando, setCargando] = useState(true);
   const [indice, setIndice] = useState<number | null>(null);
+  const touchStartX = useRef(0);
 
   useEffect(() => {
     const cargar = async () => {
@@ -31,10 +86,14 @@ export default function GaleriaAbonados() {
   }, []);
 
   const cerrar = useCallback(() => setIndice(null), []);
-  const anterior = useCallback(() =>
-    setIndice((i) => (i !== null ? (i - 1 + posts.length) % posts.length : null)), [posts.length]);
-  const siguiente = useCallback(() =>
-    setIndice((i) => (i !== null ? (i + 1) % posts.length : null)), [posts.length]);
+  const anterior = useCallback(
+    () => setIndice((i) => (i !== null ? (i - 1 + posts.length) % posts.length : null)),
+    [posts.length]
+  );
+  const siguiente = useCallback(
+    () => setIndice((i) => (i !== null ? (i + 1) % posts.length : null)),
+    [posts.length]
+  );
 
   useEffect(() => {
     if (indice === null) return;
@@ -50,6 +109,16 @@ export default function GaleriaAbonados() {
       document.body.style.overflow = "";
     };
   }, [indice, cerrar, anterior, siguiente]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      diff > 0 ? siguiente() : anterior();
+    }
+  };
 
   if (cargando)
     return (
@@ -71,52 +140,38 @@ export default function GaleriaAbonados() {
 
   return (
     <>
-      {/* Grid de fotos */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+      <p className="text-sm text-gray-400 mb-4">
+        {posts.length} {posts.length === 1 ? "foto" : "fotos"}
+      </p>
+
+      <div className="grid grid-cols-3 auto-rows-[180px] sm:auto-rows-[220px] gap-2 sm:gap-3">
         {posts.map((post, i) => (
-          <button
+          <FotoCard
             key={post.id}
+            post={post}
+            indicePatron={i}
             onClick={() => setIndice(i)}
-            className="group relative aspect-square overflow-hidden rounded-xl bg-gray-100 focus:outline-none focus:ring-2 focus:ring-candas-rojo"
-          >
-            <img
-              src={post.foto_url}
-              alt={post.titulo}
-              className="w-full h-full object-cover transition duration-300 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex flex-col justify-end p-3">
-              <div className="translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-                <p className="text-white font-bold text-xs sm:text-sm leading-tight line-clamp-2">
-                  {post.titulo}
-                </p>
-                {post.instagram_fotografa && (
-                  <p className="text-white/70 text-xs mt-0.5">
-                    📸 @{post.instagram_fotografa}
-                  </p>
-                )}
-              </div>
-            </div>
-          </button>
+          />
         ))}
       </div>
 
-      {/* Modal lightbox */}
       {actual !== null && indice !== null && (
         <div
-          className="fixed inset-0 z-50 bg-black/95 flex flex-col"
+          className="fixed inset-0 z-50 bg-black/95 flex flex-col select-none"
           onClick={cerrar}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
         >
-          {/* Barra superior */}
           <div
             className="flex items-center justify-between px-4 py-3 flex-shrink-0"
             onClick={(e) => e.stopPropagation()}
           >
-            <span className="text-white/50 text-sm tabular-nums">
+            <span className="text-white/50 text-sm tabular-nums font-medium">
               {indice + 1} / {posts.length}
             </span>
             <button
               onClick={cerrar}
-              className="text-white/70 hover:text-white transition p-2 hover:bg-white/10 rounded-full"
+              className="text-white/70 hover:text-white p-2 hover:bg-white/10 rounded-full transition"
               aria-label="Cerrar"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -125,12 +180,11 @@ export default function GaleriaAbonados() {
             </button>
           </div>
 
-          {/* Foto + flechas */}
-          <div className="flex-1 flex items-center justify-center relative min-h-0 px-12 sm:px-16">
+          <div className="flex-1 flex items-center justify-center relative min-h-0 px-10 sm:px-16">
             {posts.length > 1 && (
               <button
                 onClick={(e) => { e.stopPropagation(); anterior(); }}
-                className="absolute left-2 sm:left-4 text-white/60 hover:text-white bg-white/5 hover:bg-white/15 rounded-full p-2 sm:p-3 transition"
+                className="absolute left-2 sm:left-4 text-white/60 hover:text-white bg-white/5 hover:bg-white/15 rounded-full p-2 sm:p-3 transition z-10"
                 aria-label="Anterior"
               >
                 <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -151,7 +205,7 @@ export default function GaleriaAbonados() {
             {posts.length > 1 && (
               <button
                 onClick={(e) => { e.stopPropagation(); siguiente(); }}
-                className="absolute right-2 sm:right-4 text-white/60 hover:text-white bg-white/5 hover:bg-white/15 rounded-full p-2 sm:p-3 transition"
+                className="absolute right-2 sm:right-4 text-white/60 hover:text-white bg-white/5 hover:bg-white/15 rounded-full p-2 sm:p-3 transition z-10"
                 aria-label="Siguiente"
               >
                 <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -161,7 +215,6 @@ export default function GaleriaAbonados() {
             )}
           </div>
 
-          {/* Info pie */}
           <div
             className="flex-shrink-0 px-4 py-4 flex items-center justify-between gap-4"
             onClick={(e) => e.stopPropagation()}

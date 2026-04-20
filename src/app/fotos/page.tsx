@@ -29,7 +29,7 @@ export default async function FotosPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">
-      <div className="mb-8">
+      <div className="mb-6">
         <h1 className="text-3xl md:text-4xl font-black mb-1">📸 Fotos</h1>
         <p className="text-gray-500">Momentos del Candás CF captados por nuestra afición</p>
       </div>
@@ -41,7 +41,7 @@ export default async function FotosPage() {
           <p className="text-sm mt-1">¡Vamos Canijo! 🔴⚪</p>
         </div>
       ) : (
-        <GaleriaPublica fotos={fotos} />
+        <GaleriaPublica fotos={fotos} titulo={true} />
       )}
     </div>
   );
