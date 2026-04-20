@@ -116,8 +116,9 @@ export default async function Home() {
               {proximoPartido.fecha ? (
                 <div className="flex flex-col items-end gap-1">
                   <p className="text-white/60 text-xs">
-                    {new Date(proximoPartido.fecha).toLocaleDateString("es-ES", {
+                    {new Date(proximoPartido.fecha).toLocaleString("es-ES", {
                       weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit",
+                      timeZone: "Europe/Madrid",
                     })}
                   </p>
                   <CuentaAtras fecha={proximoPartido.fecha} />

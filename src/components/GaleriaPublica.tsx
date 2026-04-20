@@ -12,15 +12,15 @@ type Post = {
 };
 
 // Patrón de collage: define col-span y aspect por posición en ciclo de 8
-const PATRON: { col: string; aspect: string }[] = [
-  { col: "col-span-2 row-span-2", aspect: "aspect-square" }, // grande
-  { col: "col-span-1 row-span-1", aspect: "aspect-square" },
-  { col: "col-span-1 row-span-1", aspect: "aspect-square" },
-  { col: "col-span-1 row-span-2", aspect: "aspect-[3/4]" },  // alta
-  { col: "col-span-2 row-span-1", aspect: "aspect-video" },  // ancha
-  { col: "col-span-1 row-span-1", aspect: "aspect-square" },
-  { col: "col-span-1 row-span-1", aspect: "aspect-square" },
-  { col: "col-span-1 row-span-1", aspect: "aspect-square" },
+const PATRON: string[] = [
+  "col-span-2 row-span-2",
+  "col-span-1 row-span-1",
+  "col-span-1 row-span-1",
+  "col-span-1 row-span-2",
+  "col-span-2 row-span-1",
+  "col-span-1 row-span-1",
+  "col-span-1 row-span-1",
+  "col-span-1 row-span-1",
 ];
 
 function FotoCard({
@@ -33,12 +33,12 @@ function FotoCard({
   onClick: () => void;
 }) {
   const [cargada, setCargada] = useState(false);
-  const { col, aspect } = PATRON[indicePatron % PATRON.length];
+  const col = PATRON[indicePatron % PATRON.length];
 
   return (
     <button
       onClick={onClick}
-      className={`${col} group relative overflow-hidden rounded-xl bg-gray-200 focus:outline-none focus:ring-2 focus:ring-candas-rojo ${aspect}`}
+      className={`${col} group relative overflow-hidden rounded-xl bg-gray-200 focus:outline-none focus:ring-2 focus:ring-candas-rojo`}
     >
       {/* Placeholder blur mientras carga */}
       {!cargada && (
