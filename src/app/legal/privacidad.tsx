@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Política de Privacidad — La Peña Canijo",
+  title: "Política de Privacidad — Fondo Sur Canijo",
 };
 
 export default function PrivacidadPage() {
@@ -26,7 +26,7 @@ export default function PrivacidadPage() {
 
         <section>
           <h2 className="text-lg font-bold text-gray-900 mb-2">2. Datos que recogemos</h2>
-          <p>Al registrarte en La Peña Canijo, recogemos:</p>
+          <p>Al registrarte en Fondo Sur Canijo, recogemos:</p>
           <ul className="list-disc pl-5 mt-2 space-y-1">
             <li><strong>Nombre completo</strong> — para identificarte en el chat y la zona de abonados.</li>
             <li><strong>Correo electrónico</strong> — para el inicio de sesión y comunicaciones relacionadas con la cuenta.</li>

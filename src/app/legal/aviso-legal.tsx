@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Aviso Legal — La Peña Canijo",
+  title: "Aviso Legal — Fondo Sur Canijo",
 };
 
 export default function AvisoLegalPage() {
@@ -32,7 +32,7 @@ export default function AvisoLegalPage() {
         <section>
           <h2 className="text-lg font-bold text-gray-900 mb-2">2. Objeto y naturaleza del sitio</h2>
           <p>
-            <strong>La Peña Canijo</strong> es una web de aficionados no oficial del Candás CF,
+            <strong>Fondo Sur Canijo</strong> es una web de aficionados no oficial del Candás CF,
             creada con fines informativos y de comunidad para los seguidores del equipo.
             No tiene relación oficial con el Candás CF ni con ninguna federación deportiva.
           </p>

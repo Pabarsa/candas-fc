@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Política de Cookies — La Peña Canijo",
+  title: "Política de Cookies — Fondo Sur Canijo",
 };
 
 export default function CookiesPage() {
@@ -55,7 +55,7 @@ export default function CookiesPage() {
                   </td>
                   <td className="border border-gray-200 px-3 py-2">Recordar tu preferencia sobre cookies</td>
                   <td className="border border-gray-200 px-3 py-2">1 año</td>
-                  <td className="border border-gray-200 px-3 py-2">La Peña Canijo</td>
+                  <td className="border border-gray-200 px-3 py-2">Fondo Sur Canijo</td>
                 </tr>
               </tbody>
             </table>

@@ -5,7 +5,7 @@ import CookieBanner from "@/components/CookieBanner";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "La Peña Canijo — Aficionados del Candás CF",
+  title: "Fondo Sur Canijo — Aficionados del Candás CF",
   description:
     "Web de aficionados del Candás CF. Clasificación en directo, simulador de liga, zona de abonados y galería de fotos. ¡Vamos Canijo! 🔴⚪",
 };
@@ -25,7 +25,7 @@ export default function RootLayout({
           <div className="max-w-6xl mx-auto px-4 py-8">
             <div className="flex flex-col md:flex-row justify-between gap-4">
               <div>
-                <p className="font-bold text-white mb-1">La Peña Canijo</p>
+                <p className="font-bold text-white mb-1">Fondo Sur Canijo</p>
                 <p className="text-xs text-white/50">
                   Web no oficial de aficionados del Candás CF · ¡Vamos Canijo! 🔴⚪
                 </p>
@@ -43,7 +43,7 @@ export default function RootLayout({
               </div>
             </div>
             <p className="text-xs text-white/30 mt-6 text-center">
-              © {new Date().getFullYear()} Fondo Sur Canijo · Hecho en Candás
+              © {new Date().getFullYear()} Fondo Sur Canijo · Hecho con ❤️ en Candás
             </p>
           </div>
         </footer>
