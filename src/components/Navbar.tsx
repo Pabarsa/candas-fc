@@ -119,6 +119,7 @@ export default function Navbar() {
         <nav className="hidden md:flex items-center gap-1">
           {link("/", "Inicio")}
           {link("/clasificacion", "Clasificación")}
+          {link("/fotos", "Fotos")}
           {user && link("/simulador", "Simulador")}
           {user && link("/abonados", "Abonados")}
           {rol === "admin" && link("/admin", "Admin")}
@@ -144,6 +145,7 @@ export default function Navbar() {
         <nav className="md:hidden px-4 pb-3 flex flex-col gap-1">
           {link("/", "Inicio")}
           {link("/clasificacion", "Clasificación")}
+          {link("/fotos", "Fotos")}
           {user && link("/simulador", "Simulador")}
           {user && link("/abonados", "Abonados")}
           {rol === "admin" && link("/admin", "Admin")}

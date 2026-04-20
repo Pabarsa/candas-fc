@@ -1,219 +1,242 @@
-# ⚽ Candás CF — Web de aficionados
+# 🔴⚪ Fondo Sur Canijo — Web de Aficionados del Candás CF
 
-Web de aficionados del **Candás CF** (Segunda Asturfútbol Grupo 1) con:
-
-- 🏠 **Home** con presentación del equipo.
-- 📊 **Clasificación** en tiempo real con los partidos jugados por el admin.
-- 🔮 **Simulador**: mete los resultados de las jornadas pendientes y mira en qué puesto acaba el Candás.
-- 🔐 **Zona de abonados** (solo logueados con carnet):
-  - 💬 Chat en vivo para quedar y hablar.
-  - 🚗 Tablón de viajes compartidos al campo.
-- 🛠️ **Panel de admin** para meter resultados, crear jornadas y gestionar equipos.
-
-Hecho con **Next.js 14** (App Router) + **Supabase** (auth + DB + Realtime) + **Tailwind**. Despliegue en **Vercel**.
-
-> 📸 **La web arranca con la tabla real tras la jornada 30 (temporada 25/26)**. El SQL incluye los 18 equipos del Grupo 1 con sus estadísticas actuales (PJ, G, E, P, GF, GC). A medida que se jueguen las jornadas 31, 32, 33 y 34, el admin solo tiene que meter los nuevos resultados desde `/admin` y la tabla se actualizará sola. Para simular las jornadas que quedan, mete las parejas pendientes también en `/admin` y úsalas en `/simulador`.
+Web no oficial de aficionados del Candás CF. Clasificación en tiempo real, simulador de liga, zona exclusiva de abonados, galería de fotos y chat.
 
 ---
 
-## 🚀 Guía rápida de despliegue (paso a paso)
+## 🛠️ Tecnologías
 
-### 1. Prepara tu máquina
+- **Next.js 14** (App Router) — framework web
+- **Supabase** — base de datos, autenticación y almacenamiento de fotos
+- **Vercel** — despliegue automático
+- **Tailwind CSS** — estilos
 
-Necesitas tener instalado:
+---
 
-- [Node.js 18+](https://nodejs.org)
-- [Git](https://git-scm.com)
-- Cuenta en [GitHub](https://github.com), [Supabase](https://supabase.com) y [Vercel](https://vercel.com) (todo gratis).
+## 📋 Requisitos previos
 
-### 2. Descomprime este proyecto
+- Node.js 18 o superior
+- Cuenta en [Supabase](https://supabase.com) (gratis)
+- Cuenta en [Vercel](https://vercel.com) (gratis)
+- Cuenta en [GitHub](https://github.com) (gratis)
 
-Pon la carpeta `candas-fc/` donde quieras. Abre una terminal dentro:
+---
+
+## 🚀 Instalación desde cero
+
+### 1. Clonar el repositorio
 
 ```bash
+git clone https://github.com/TU_USUARIO/candas-fc.git
 cd candas-fc
+```
+
+### 2. Instalar dependencias
+
+```bash
 npm install
 ```
 
-### 3. Crea el proyecto en Supabase
+### 3. Configurar Supabase
 
-1. Ve a [supabase.com](https://supabase.com) → **New Project**.
-2. Dale un nombre (por ejemplo `candas-fc`), elige región **West EU (Ireland)** y ponle una contraseña a la base de datos (guárdala).
-3. Espera ~2 minutos a que se cree.
-4. En el menú izquierdo, entra en **SQL Editor → New query**.
-5. **Copia TODO el contenido del archivo `supabase/schema.sql`** de este proyecto y pégalo. Dale a **Run**. Esto crea todas las tablas, políticas de seguridad y precarga los equipos.
-6. Ve a **Database → Replication** y activa la publicación `supabase_realtime` para la tabla **`mensajes`** (el SQL ya lo intenta pero conviene confirmarlo para que el chat funcione en vivo).
+1. Entra en [supabase.com](https://supabase.com) y crea un proyecto nuevo
+2. Ve a **SQL Editor → New Query**
+3. Copia y pega todo el contenido de `supabase/schema.sql` y pulsa **Run**
+4. Ve a **Project Settings → API**
+5. Copia la **Project URL** y la **anon public key**
 
-### 4. Copia tus credenciales de Supabase
+### 4. Configurar variables de entorno
 
-1. En Supabase ve a **Project Settings → API**.
-2. Copia:
-   - **Project URL** (algo como `https://xxxx.supabase.co`)
-   - **anon public key**
-
-3. En el proyecto, copia `.env.local.example` como `.env.local`:
-
-```bash
-cp .env.local.example .env.local
-```
-
-4. Edita `.env.local` y pon tus valores:
+Crea un archivo `.env.local` en la raíz del proyecto:
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOi...
+NEXT_PUBLIC_SUPABASE_URL=https://XXXXXXXX.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6...
 ```
 
-### 5. Prueba en local
+### 5. Arrancar en local
 
 ```bash
 npm run dev
 ```
 
-Abre [http://localhost:3000](http://localhost:3000). Todo debería funcionar menos la parte de abonados, que requiere registrarse.
+Abre [http://localhost:3000](http://localhost:3000) en el navegador.
 
-### 6. Regístrate y conviértete en admin
+---
 
-1. En [http://localhost:3000/registro](http://localhost:3000/registro) crea tu cuenta con nombre, número de carnet, email y contraseña.
-2. Supabase te envía un email de confirmación. Ábrelo y haz clic.
-   - ⚠️ Si no llega: en Supabase ve a **Authentication → Providers → Email** y desactiva "Confirm email" para desarrollo.
-3. Para convertirte en **admin**, en Supabase → **SQL Editor** ejecuta:
+## 👤 Crear el primer usuario admin
+
+1. Entra en tu web y regístrate en `/registro` con tu cuenta
+2. Confirma el email (revisa la bandeja de entrada)
+3. Ve a Supabase → **SQL Editor** y ejecuta:
 
 ```sql
-update public.profiles set rol = 'admin' where carnet = 'TU_NUMERO_DE_CARNET';
+UPDATE public.profiles
+SET rol = 'admin'
+WHERE id = (
+  SELECT id FROM auth.users WHERE email = 'TU_EMAIL@ejemplo.com'
+);
 ```
 
-4. Cierra sesión y vuelve a entrar. Ya verás el botón **Admin** en la barra.
-5. En `/admin` empieza a crear partidos (jornada, local, visitante) y a meter resultados.
+A partir de ahí verás la pestaña **Admin** en la navbar.
 
-### 7. Sube el repo a GitHub
+---
 
+## 📸 Dar acceso admin a la fotógrafa (u otro usuario)
+
+1. La persona se registra normalmente en `/registro`
+2. Confirma su email
+3. Ejecuta en Supabase → SQL Editor:
+
+```sql
+UPDATE public.profiles
+SET rol = 'admin'
+WHERE id = (
+  SELECT id FROM auth.users WHERE email = 'EMAIL_DE_LA_PERSONA@gmail.com'
+);
+```
+
+---
+
+## ⚽ Gestión de la clasificación
+
+### Actualizar resultados de jornadas
+
+En el panel de **Admin → Resultados** puedes introducir los marcadores directamente desde la web.
+
+Para actualizar el snapshot inicial de la clasificación (cuando ya han jugado todos), ve a Supabase → SQL Editor:
+
+```sql
+UPDATE public.equipos SET
+  pj_inicial=30, pg_inicial=19, pe_inicial=8, pp_inicial=3
+WHERE nombre = 'Real Avilés B';
+-- Repite para cada equipo con los datos nuevos
+```
+
+### Añadir partidos nuevos de jornadas futuras
+
+Desde **Admin → Crear partido**, selecciona local, visitante, jornada y fecha.
+
+---
+
+## 🖼️ Subir fotos a la galería
+
+1. Entra con una cuenta **admin**
+2. Ve a **Admin → 📸 Galería**
+3. Sube la foto, añade título, descripción y el **@instagram** de la fotógrafa
+4. Los abonados registrados la verán automáticamente en **Abonados → Galería**
+
+---
+
+## 🌐 Despliegue en Vercel
+
+### Primera vez
+
+1. Sube el proyecto a GitHub:
 ```bash
-cd candas-fc
-git init
 git add .
-git commit -m "Primer commit: web del Candás CF"
-git branch -M main
+git commit -m "primer commit"
+git push origin main
 ```
 
-Crea un nuevo repositorio en [github.com/new](https://github.com/new) (por ejemplo `candas-fc`), **sin README ni .gitignore** (ya los tenemos). Copia la URL que te da y:
-
-```bash
-git remote add origin https://github.com/TU_USUARIO/candas-fc.git
-git push -u origin main
-```
-
-### 8. Despliega en Vercel
-
-1. Entra en [vercel.com](https://vercel.com) y dale a **Add New → Project**.
-2. Conecta tu GitHub y selecciona el repo `candas-fc`.
-3. Vercel detecta Next.js automáticamente. **No toques la configuración**.
-4. En **Environment Variables**, añade las dos variables:
+2. Entra en [vercel.com](https://vercel.com) → **Add New Project**
+3. Importa tu repositorio de GitHub
+4. En **Environment Variables** añade las mismas variables que en `.env.local`:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-5. **Deploy**. En ~1 minuto tienes la web publicada en `https://candas-fc.vercel.app` (o similar).
+5. Pulsa **Deploy**
 
-### 9. Configura la URL en Supabase
+### Actualizaciones posteriores
 
-Muy importante para que los emails y redirecciones funcionen:
+Cada vez que hagas cambios:
 
-1. En Supabase → **Authentication → URL Configuration**.
-2. En **Site URL** pon tu URL de Vercel: `https://candas-fc.vercel.app`.
-3. En **Redirect URLs** añade: `https://candas-fc.vercel.app/auth/callback`.
+```bash
+git add .
+git commit -m "descripción del cambio"
+git push
+```
 
-¡Listo! 🎉
+Vercel lo despliega automáticamente en menos de 2 minutos.
 
 ---
 
 ## 📁 Estructura del proyecto
 
 ```
-candas-fc/
-├── src/
-│   ├── app/
-│   │   ├── page.tsx                 # Home
-│   │   ├── layout.tsx
-│   │   ├── globals.css
-│   │   ├── clasificacion/page.tsx
-│   │   ├── simulador/page.tsx
-│   │   ├── abonados/page.tsx        # Chat + viajes
-│   │   ├── admin/page.tsx
-│   │   ├── login/page.tsx
-│   │   ├── registro/page.tsx
-│   │   └── auth/callback/route.ts
-│   ├── components/
-│   │   ├── Navbar.tsx
-│   │   ├── TablaClasificacion.tsx
-│   │   ├── Simulador.tsx
-│   │   ├── ChatAbonados.tsx
-│   │   ├── TablonViajes.tsx
-│   │   └── AdminPanel.tsx
-│   └── lib/
-│       ├── supabase/{client,server,middleware}.ts
-│       └── types.ts                 # Tipos + lógica de clasificación
-├── supabase/
-│   └── schema.sql                   # ⚠️ Ejecutar en Supabase
-├── middleware.ts                    # Protege /abonados y /admin
-├── .env.local.example
-├── package.json
-└── README.md
+src/
+├── app/
+│   ├── abonados/        → Zona privada de abonados (chat, viajes, galería)
+│   ├── admin/           → Panel de administración
+│   ├── auth/callback/   → Callback de autenticación Supabase
+│   ├── clasificacion/   → Tabla de clasificación
+│   ├── legal/
+│   │   ├── aviso-legal/     → Aviso legal
+│   │   ├── privacidad/      → Política de privacidad
+│   │   └── cookies/         → Política de cookies
+│   ├── login/           → Inicio de sesión
+│   ├── registro/        → Registro de nuevos usuarios
+│   ├── simulador/       → Simulador de jornadas
+│   ├── layout.tsx       → Layout global (navbar, footer, banner cookies)
+│   └── page.tsx         → Página de inicio
+├── components/
+│   ├── AdminPanel.tsx       → Panel admin (resultados, partidos, equipos, galería)
+│   ├── ChatAbonados.tsx     → Chat en tiempo real para abonados
+│   ├── CookieBanner.tsx     → Banner de cookies (RGPD)
+│   ├── GaleriaAbonados.tsx  → Galería de fotos para abonados
+│   ├── Navbar.tsx           → Barra de navegación
+│   ├── ProximosPartidos.tsx → Próximos partidos del Candás
+│   ├── Simulador.tsx        → Componente simulador
+│   ├── TablaClasificacion.tsx → Tabla de clasificación
+│   └── TablonViajes.tsx     → Tablón de viajes compartidos
+└── lib/
+    ├── supabase/
+    │   ├── client.ts    → Cliente Supabase (lado cliente)
+    │   ├── server.ts    → Cliente Supabase (lado servidor)
+    │   └── middleware.ts
+    └── types.ts         → Tipos TypeScript
 ```
 
 ---
 
-## 📊 Datos iniciales cargados (Segunda Asturfútbol Grupo 1 · 25/26)
+## 🗄️ Base de datos (tablas principales)
 
-El esquema SQL viene con el **snapshot de la Jornada 30** precargado. Al abrir la web verás directamente la tabla con el Candás **6º con 53 puntos**.
-
-Cómo funciona internamente:
-- Cada equipo tiene unas **estadísticas iniciales** (PJ, G, E, P, GF, GC) guardadas en la base de datos.
-- La clasificación mostrada = estadísticas iniciales **+** los partidos que vaya metiendo el admin.
-- Por tanto, **el admin solo debe meter partidos de la Jornada 31 en adelante** para que la tabla evolucione correctamente (si mete resultados de J1-J30 se sumarían por segunda vez).
-
-Si quieres empezar desde cero (tabla vacía, sin el snapshot), edita `supabase/schema.sql` y pon todas las estadísticas iniciales a 0.
-
----
-
-## 🎨 Personalización rápida
-
-- **Colores**: `tailwind.config.ts` → sección `candas`.
-- **Criterios de clasificación** (cuántos suben, play-off, descienden): `src/components/TablaClasificacion.tsx`, props `ascensoDirecto`, `playoff`, `descienden`. Valor por defecto ajustado a 25/26: **1 directo, 5 play-off, 3 descienden**.
-- **Equipos de la liga**: desde `/admin` o editando el SQL inicial.
-- **Nombre del club**: buscar `Candás CF` en el proyecto.
+| Tabla | Descripción |
+|-------|-------------|
+| `profiles` | Usuarios registrados (nombre, rol: abonado/admin) |
+| `equipos` | Equipos de la liga con stats iniciales |
+| `partidos` | Partidos con resultado y jornada |
+| `mensajes` | Mensajes del chat de abonados |
+| `viajes` | Tablón de viajes compartidos |
+| `posts` | Publicaciones de la galería de fotos |
 
 ---
 
-## 🔒 Sobre la seguridad
+## ⚖️ Legal
 
-Las **Row Level Security (RLS)** de Supabase están configuradas así:
-
-- Cualquiera puede **ver** la clasificación, equipos y partidos.
-- Solo los usuarios con rol `admin` pueden **modificar** partidos y equipos.
-- Solo los usuarios con rol `abonado` o `admin` (y que tengan `carnet`) pueden entrar al chat y al tablón de viajes.
-- Cada usuario solo puede **borrar/editar sus propios** mensajes y viajes.
-
-Aunque un usuario intente saltarse el middleware, la base de datos rechaza la operación. 👍
+- **Titular:** Pablo Aramendi Sánchez
+- **Contacto:** pablo.aramendi.sanchez@outlook.com
+- Web no oficial de aficionados, sin relación con el Candás CF ni ninguna federación deportiva
+- Consulta `/legal/aviso-legal`, `/legal/privacidad` y `/legal/cookies`
 
 ---
 
-## ❓ Problemas comunes
+## 🆘 Problemas frecuentes
 
-**"No recibo el email de confirmación"**
-→ Supabase → Authentication → Providers → Email → desactiva "Confirm email" para desarrollo. En producción puedes conectar un SMTP propio.
+**Error "Database error saving new user" al registrarse**
+→ El trigger de Supabase puede haber fallado. Ejecuta en SQL Editor:
+```sql
+UPDATE public.profiles SET carnet = null WHERE carnet = '';
+```
 
-**"El chat no se actualiza en vivo"**
-→ Asegúrate de haber añadido la tabla `mensajes` a la publicación realtime (paso 3.6 del tutorial, o ejecuta `alter publication supabase_realtime add table public.mensajes;`).
+**Las páginas legales dan 404**
+→ Asegúrate de que la estructura de carpetas sea `src/app/legal/aviso-legal/page.tsx` (con subcarpeta), no `src/app/legal/aviso-legal.tsx`
 
-**"La clasificación aparece vacía"**
-→ El admin aún no ha metido resultados en `/admin`. Mete al menos un resultado y refresca.
+**La clasificación no se actualiza**
+→ Comprueba que los partidos estén marcados como `jugado = true` desde el panel Admin
 
-**"Me redirige fuera de /admin"**
-→ Tu usuario no tiene rol `admin`. Ejecuta en SQL: `update public.profiles set rol = 'admin' where carnet = 'TU_CARNET';` y vuelve a hacer login.
+**El bucket de fotos no deja subir**
+→ Verifica en Supabase → Storage que existe el bucket `galeria` y que las políticas RLS están activas
 
 ---
 
-## 📝 Licencia
-
-Proyecto personal para la afición. Úsalo libremente.
-
-¡Hala Candás! 🔴⚪
+*¡Vamos Canijo! 🔴⚪ — Hecho con ❤️ en Candás*
