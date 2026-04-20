@@ -80,7 +80,7 @@ export default function PerfilAbonado({
             <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide">Email</p>
             <p className="font-bold text-gray-900">{email}</p>
           </div>
-          {perfil.carnet && (
+          {perfil.carnet && perfil.carnet.trim() !== "" && (
             <div>
               <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide">Nº carnet</p>
               <p className="font-bold text-gray-900">{perfil.carnet}</p>
