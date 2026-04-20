@@ -103,7 +103,7 @@ export default function Navbar() {
               priority
             />
           </div>
-          <span className="hidden sm:inline">Candás CF</span>
+          <span className="hidden sm:inline">Fondo Sur Canijo</span>
         </Link>
 
         <button
