@@ -96,7 +96,7 @@ export default function Navbar() {
         <Link href="/" className="flex items-center gap-3 font-bold text-xl hover:opacity-90 transition">
           <div className="w-10 h-10 flex-shrink-0">
             <Image
-              src="/Candas.webp"
+              src="/630.png"
               alt="Candás CF"
               width={40}
               height={40}
