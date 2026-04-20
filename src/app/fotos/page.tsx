@@ -20,7 +20,9 @@ type Post = {
 export default async function FotosPage() {
   const supabase = createClient();
 
-  // Las fotos son públicas — no hace falta estar logado
+  const { data: { user } } = await supabase.auth.getUser();
+  const esAbonado = !!user;
+
   const { data: posts } = await supabase
     .from("posts")
     .select("*")
@@ -35,12 +37,14 @@ export default async function FotosPage() {
           <h1 className="text-3xl md:text-4xl font-black mb-1">📸 Fotos</h1>
           <p className="text-gray-500">Momentos del Candás CF captados por nuestra afición</p>
         </div>
-        <Link
-          href="/registro"
-          className="flex-shrink-0 bg-candas-rojo text-white font-bold px-5 py-2.5 rounded-xl hover:bg-candas-rojoOscuro transition text-sm text-center"
-        >
-          🔴 Hazte abonado para descargarlas
-        </Link>
+        {!esAbonado && (
+          <Link
+            href="/registro"
+            className="flex-shrink-0 bg-candas-rojo text-white font-bold px-5 py-2.5 rounded-xl hover:bg-candas-rojoOscuro transition text-sm text-center"
+          >
+            🔴 Hazte abonado para descargarlas
+          </Link>
+        )}
       </div>
 
       {fotos.length === 0 ? (
@@ -70,25 +74,39 @@ export default async function FotosPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-white/80 text-xs mt-1 hover:text-white"
-                    onClick={(e) => e.stopPropagation()}
                   >
                     📸 @{post.instagram_fotografa}
                   </a>
                 )}
+                {/* Descarga solo si es abonado */}
+                {esAbonado && (
+                  <a
+                    href={post.foto_url}
+                    download
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 inline-flex items-center gap-1 bg-white/20 hover:bg-white/30 text-white text-xs font-bold px-2 py-1 rounded-lg transition w-fit"
+                  >
+                    ⬇️ Descargar
+                  </a>
+                )}
               </div>
 
-              {/* Candado — solo abonados descargan */}
-              <div className="absolute top-2 right-2 bg-black/50 rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition">
-                <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                </svg>
-              </div>
+              {/* Candado si no es abonado */}
+              {!esAbonado && (
+                <div className="absolute top-2 right-2 bg-black/50 rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition">
+                  <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              )}
             </div>
           ))}
         </div>
       )}
 
-      {fotos.length > 0 && (
+      {/* CTA solo para no abonados */}
+      {fotos.length > 0 && !esAbonado && (
         <div className="mt-12 text-center bg-candas-crema border border-red-100 rounded-2xl p-8">
           <p className="text-lg font-black text-gray-900 mb-1">¿Quieres descargar las fotos?</p>
           <p className="text-gray-500 text-sm mb-4">Regístrate como abonado, es gratis y tienes acceso a todo.</p>

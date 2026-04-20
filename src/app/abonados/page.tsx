@@ -4,15 +4,25 @@ import { Partido } from "@/lib/types";
 import ChatAbonados from "@/components/ChatAbonados";
 import TablonViajes from "@/components/TablonViajes";
 import GaleriaAbonados from "@/components/GaleriaAbonados";
+import EncuestaAbonados from "@/components/EncuestaAbonados";
 
 export const dynamic = "force-dynamic";
 
 export default async function AbonadosPage() {
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   if (!user) redirect("/login?redirectTo=/abonados");
 
-  const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .single();
+
+  // Próximos partidos del Candás para el selector de viajes
   const { data: equipos } = await supabase.from("equipos").select("*");
   const candas = equipos?.find((e) => e.nombre === "Candás CF");
 
@@ -20,7 +30,9 @@ export default async function AbonadosPage() {
   if (candas) {
     const { data } = await supabase
       .from("partidos")
-      .select("*, local:equipos!partidos_local_id_fkey(*), visitante:equipos!partidos_visitante_id_fkey(*)")
+      .select(
+        "*, local:equipos!partidos_local_id_fkey(*), visitante:equipos!partidos_visitante_id_fkey(*)"
+      )
       .eq("jugado", false)
       .or(`local_id.eq.${candas.id},visitante_id.eq.${candas.id}`)
       .order("jornada", { ascending: true })
@@ -36,14 +48,31 @@ export default async function AbonadosPage() {
           Hola <strong>{profile?.nombre || "abonado"}</strong> · ¡Vamos Canijo! 🔴⚪
         </p>
       </div>
+
+      {/* Chat + Viajes */}
       <div className="grid lg:grid-cols-2 gap-6 mb-10">
         <ChatAbonados usuarioId={user.id} />
         <TablonViajes usuarioId={user.id} proximosPartidos={proximos} />
       </div>
+
+      {/* Encuesta */}
+      <section className="mb-10">
+        <div className="flex items-center gap-3 mb-5">
+          <h2 className="text-2xl font-black">🗳️ Encuesta</h2>
+          <span className="text-sm text-gray-500 font-normal">Vota al mejor jugador</span>
+        </div>
+        <div className="bg-white rounded-xl shadow p-6 max-w-xl">
+          <EncuestaAbonados usuarioId={user.id} />
+        </div>
+      </section>
+
+      {/* Galería de fotos */}
       <section>
         <div className="flex items-center gap-3 mb-5">
           <h2 className="text-2xl font-black">📸 Galería</h2>
-          <span className="text-sm text-gray-500 font-normal">Fotos exclusivas para abonados</span>
+          <span className="text-sm text-gray-500 font-normal">
+            Fotos exclusivas para abonados
+          </span>
         </div>
         <GaleriaAbonados />
       </section>

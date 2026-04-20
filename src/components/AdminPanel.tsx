@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Equipo, Partido } from "@/lib/types";
 import { useRouter } from "next/navigation";
@@ -13,7 +13,7 @@ type Props = {
 export default function AdminPanel({ equipos, partidos }: Props) {
   const supabase = createClient();
   const router = useRouter();
-  const [tab, setTab] = useState<"resultados" | "crear" | "equipos" | "galeria">("resultados");
+  const [tab, setTab] = useState<"resultados" | "crear" | "equipos" | "galeria" | "encuestas">("resultados");
 
   return (
     <div>
@@ -30,6 +30,9 @@ export default function AdminPanel({ equipos, partidos }: Props) {
         <TabBtn activo={tab === "galeria"} onClick={() => setTab("galeria")}>
           📸 Galería
         </TabBtn>
+        <TabBtn activo={tab === "encuestas"} onClick={() => setTab("encuestas")}>
+          🗳️ Encuestas
+        </TabBtn>
       </div>
 
       {tab === "resultados" && (
@@ -42,6 +45,7 @@ export default function AdminPanel({ equipos, partidos }: Props) {
         <EquiposTab equipos={equipos} onSave={() => router.refresh()} />
       )}
       {tab === "galeria" && <GaleriaAdminTab />}
+      {tab === "encuestas" && <EncuestasAdminTab partidos={partidos} />}
     </div>
   );
 }
@@ -58,11 +62,10 @@ function TabBtn({
   return (
     <button
       onClick={onClick}
-      className={`px-4 py-2 font-medium border-b-2 transition -mb-px ${
-        activo
+      className={`px-4 py-2 font-medium border-b-2 transition -mb-px ${activo
           ? "border-candas-rojo text-candas-rojo"
           : "border-transparent text-gray-600 hover:text-gray-900"
-      }`}
+        }`}
     >
       {children}
     </button>
@@ -367,7 +370,7 @@ function GaleriaAdminTab() {
     setCargando(false);
   };
 
-  useEffect(() => { cargar(); }, []);
+  useEffect(() => { cargar(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onArchivo = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0] ?? null;
@@ -619,6 +622,186 @@ function EquiposTab({
             </li>
           ))}
         </ul>
+      </div>
+    </div>
+  );
+}
+
+// =====================================================
+// TAB: Encuestas
+// =====================================================
+type Encuesta = { id: number; titulo: string; activa: boolean; created_at: string };
+type Jugador = { id: number; nombre: string };
+type VotoRes = { jugador_id: number; jugadores: { nombre: string } | null; count: number };
+
+function EncuestasAdminTab({ partidos }: { partidos: Partido[] }) {
+  const supabase = createClient();
+  const [encuestas, setEncuestas] = useState<Encuesta[]>([]);
+  const [jugadores, setJugadores] = useState<Jugador[]>([]);
+  const [titulo, setTitulo] = useState("⭐ ¿Quién fue el mejor jugador?");
+  const [creando, setCreando] = useState(false);
+  const [ok, setOk] = useState<string | null>(null);
+  const [resultados, setResultados] = useState<{ [id: number]: { nombre: string; votos: number }[] }>({});
+
+  const cargar = async () => {
+    const { data: enc } = await supabase
+      .from("encuestas")
+      .select("*")
+      .order("created_at", { ascending: false });
+    setEncuestas((enc ?? []) as Encuesta[]);
+
+    const { data: jug } = await supabase
+      .from("jugadores")
+      .select("id, nombre")
+      .eq("activo", true)
+      .order("nombre");
+    setJugadores((jug ?? []) as Jugador[]);
+  };
+
+  useEffect(() => { cargar(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const cargarResultados = async (encuestaId: number) => {
+    const { data } = await supabase
+      .from("votos")
+      .select("jugador_id, jugadores(nombre)")
+      .eq("encuesta_id", encuestaId);
+
+    const conteo = new Map<number, { nombre: string; votos: number }>();
+    (data ?? []).forEach((v: any) => {
+      const id = v.jugador_id;
+      const nombre = v.jugadores?.nombre ?? "?";
+      if (!conteo.has(id)) conteo.set(id, { nombre, votos: 0 });
+      conteo.get(id)!.votos++;
+    });
+
+    const sorted = Array.from(conteo.values()).sort((a, b) => b.votos - a.votos);
+    setResultados((prev) => ({ ...prev, [encuestaId]: sorted }));
+  };
+
+  const crear = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!titulo.trim()) return;
+    setCreando(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    await supabase.from("encuestas").insert({
+      titulo: titulo.trim(),
+      activa: true,
+      created_by: user?.id,
+    });
+    setOk("✅ Encuesta creada y activa.");
+    setTitulo("⭐ ¿Quién fue el mejor jugador?");
+    setCreando(false);
+    cargar();
+  };
+
+  const toggleActiva = async (enc: Encuesta) => {
+    await supabase.from("encuestas").update({ activa: !enc.activa }).eq("id", enc.id);
+    cargar();
+  };
+
+  const borrarEncuesta = async (id: number) => {
+    if (!confirm("¿Borrar esta encuesta y todos sus votos?")) return;
+    await supabase.from("encuestas").delete().eq("id", id);
+    cargar();
+  };
+
+  return (
+    <div className="grid lg:grid-cols-2 gap-6">
+      {/* Crear encuesta */}
+      <div className="bg-white rounded-xl shadow p-6">
+        <h3 className="font-black text-lg mb-4">🗳️ Nueva encuesta</h3>
+        <form onSubmit={crear} className="space-y-4">
+          <div>
+            <label className="block text-sm font-semibold mb-1">Título</label>
+            <input
+              type="text"
+              value={titulo}
+              onChange={(e) => setTitulo(e.target.value)}
+              className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-candas-rojo focus:outline-none"
+              placeholder="⭐ ¿Quién fue el mejor jugador?"
+            />
+            <p className="text-xs text-gray-400 mt-1">
+              Los abonados votan entre los 23 jugadores de la plantilla.
+            </p>
+          </div>
+          {ok && <div className="bg-green-50 text-green-700 rounded-lg p-3 text-sm">{ok}</div>}
+          <button
+            type="submit"
+            disabled={creando}
+            className="w-full bg-candas-rojo text-white font-black py-3 rounded-xl hover:bg-candas-rojoOscuro transition disabled:opacity-50"
+          >
+            {creando ? "Creando..." : "🗳️ Crear encuesta"}
+          </button>
+        </form>
+
+        {/* Plantilla */}
+        <div className="mt-6">
+          <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Plantilla ({jugadores.length} jugadores)</p>
+          <div className="max-h-48 overflow-y-auto space-y-1">
+            {jugadores.map((j) => (
+              <p key={j.id} className="text-xs text-gray-600 px-2 py-0.5 hover:bg-gray-50 rounded">{j.nombre}</p>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Lista encuestas */}
+      <div className="bg-white rounded-xl shadow p-6">
+        <h3 className="font-black text-lg mb-4">Encuestas ({encuestas.length})</h3>
+        {encuestas.length === 0 ? (
+          <p className="text-sm text-gray-400">Aún no hay encuestas.</p>
+        ) : (
+          <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
+            {encuestas.map((enc) => (
+              <div key={enc.id} className="border border-gray-100 rounded-xl p-3">
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-sm truncate">{enc.titulo}</p>
+                    <p className="text-xs text-gray-400">
+                      {new Date(enc.created_at).toLocaleDateString("es-ES")}
+                    </p>
+                  </div>
+                  <div className="flex gap-2 flex-shrink-0 items-center">
+                    <button
+                      onClick={() => toggleActiva(enc)}
+                      className={`text-xs px-2 py-1 rounded-full font-bold ${enc.activa ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}
+                    >
+                      {enc.activa ? "Activa" : "Cerrada"}
+                    </button>
+                    <button onClick={() => borrarEncuesta(enc.id)} className="text-red-400 hover:text-red-600 text-xs">✕</button>
+                  </div>
+                </div>
+
+                {/* Ver resultados */}
+                {(() => {
+                  const res = resultados[enc.id];
+                  if (!res) return (
+                    <button
+                      onClick={() => cargarResultados(enc.id)}
+                      className="text-xs text-candas-rojo hover:underline"
+                    >
+                      Ver resultados
+                    </button>
+                  );
+                  return (
+                    <div className="space-y-1 mt-2">
+                      {res.slice(0, 5).map((r, i) => (
+                        <div key={i} className="flex items-center gap-2 text-xs">
+                          <span className="text-gray-400 w-4">{i + 1}º</span>
+                          <span className="flex-1 truncate">{r.nombre}</span>
+                          <span className="font-bold text-candas-rojo">{r.votos}</span>
+                        </div>
+                      ))}
+                      {res.length === 0 && (
+                        <p className="text-xs text-gray-400">Sin votos todavía.</p>
+                      )}
+                    </div>
+                  );
+                })()}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
