@@ -6,14 +6,13 @@ import TablonViajes from "@/components/TablonViajes";
 import GaleriaAbonados from "@/components/GaleriaAbonados";
 import EncuestaAbonados from "@/components/EncuestaAbonados";
 import HistorialEncuestas from "@/components/HistorialEncuestas";
+import PerfilAbonado from "@/components/PerfilAbonado";
 
 export const dynamic = "force-dynamic";
 
 export default async function AbonadosPage() {
   const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) redirect("/login?redirectTo=/abonados");
 
@@ -31,9 +30,7 @@ export default async function AbonadosPage() {
   if (candas) {
     const { data } = await supabase
       .from("partidos")
-      .select(
-        "*, local:equipos!partidos_local_id_fkey(*), visitante:equipos!partidos_visitante_id_fkey(*)"
-      )
+      .select("*, local:equipos!partidos_local_id_fkey(*), visitante:equipos!partidos_visitante_id_fkey(*)")
       .eq("jugado", false)
       .or(`local_id.eq.${candas.id},visitante_id.eq.${candas.id}`)
       .order("jornada", { ascending: true })
@@ -59,7 +56,6 @@ export default async function AbonadosPage() {
 
   if (encuestasCerradas && encuestasCerradas.length > 0) {
     const ids = encuestasCerradas.map((e) => e.id);
-
     const { data: votos } = await supabase
       .from("votos")
       .select("encuesta_id, jugador_id, jugadores(nombre)")
@@ -70,7 +66,6 @@ export default async function AbonadosPage() {
         const votosEnc = votos.filter((v) => v.encuesta_id === enc.id);
         if (votosEnc.length === 0) continue;
 
-        // Contar votos por jugador
         const conteo = new Map<number, { nombre: string; votos: number }>();
         votosEnc.forEach((v: any) => {
           const id = v.jugador_id;
@@ -94,6 +89,13 @@ export default async function AbonadosPage() {
       }
     }
   }
+
+  // Votos del usuario para el perfil
+  const { data: misVotos } = await supabase
+    .from("votos")
+    .select("encuesta:encuestas(titulo), jugadores(nombre), created_at")
+    .eq("usuario_id", user.id)
+    .order("created_at", { ascending: false });
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">
@@ -121,18 +123,33 @@ export default async function AbonadosPage() {
         </div>
       </section>
 
-      {/* Historial de encuestas cerradas */}
+      {/* Historial encuestas */}
       <HistorialEncuestas historial={historialEncuestas} />
 
-      {/* Galería de fotos */}
-      <section>
+      {/* Galería */}
+      <section className="mb-10">
         <div className="flex items-center gap-3 mb-5">
           <h2 className="text-2xl font-black">📸 Galería</h2>
-          <span className="text-sm text-gray-500 font-normal">
-            Fotos exclusivas para abonados
-          </span>
+          <span className="text-sm text-gray-500 font-normal">Fotos exclusivas para abonados</span>
         </div>
         <GaleriaAbonados />
+      </section>
+
+      {/* Perfil */}
+      <section>
+        <div className="flex items-center gap-3 mb-5">
+          <h2 className="text-2xl font-black">👤 Tu perfil</h2>
+        </div>
+        <PerfilAbonado
+          perfil={{
+            nombre: profile?.nombre ?? null,
+            carnet: profile?.carnet ?? null,
+            rol: profile?.rol ?? "abonado",
+          }}
+          email={user.email ?? ""}
+          usuarioId={user.id}
+          votos={(misVotos ?? []) as any}
+        />
       </section>
     </div>
   );
