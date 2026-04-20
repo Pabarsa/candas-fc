@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Equipo, Partido } from "@/lib/types";
 import { useRouter } from "next/navigation";
