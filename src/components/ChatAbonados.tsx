@@ -15,40 +15,50 @@ export default function ChatAbonados({ usuarioId }: Props) {
   const [enviando, setEnviando] = useState(false);
   const finRef = useRef<HTMLDivElement>(null);
 
+  const enriquecerConPerfil = async (msgs: any[]) => {
+    if (msgs.length === 0) return [];
+    const ids = [...new Set(msgs.map((m) => m.usuario_id))];
+    const { data: perfiles } = await supabase
+      .from("profiles")
+      .select("id, nombre, carnet")
+      .in("id", ids);
+    const mapaPerfiles = new Map((perfiles ?? []).map((p: any) => [p.id, p]));
+    return msgs.map((m) => ({
+      ...m,
+      profiles: mapaPerfiles.get(m.usuario_id) ?? null,
+    }));
+  };
+
   useEffect(() => {
-    // Cargar últimos 100 mensajes
     const cargar = async () => {
       const { data } = await supabase
         .from("mensajes")
-        .select("*, profiles(nombre, carnet)")
+        .select("*")
         .order("created_at", { ascending: true })
         .limit(100);
-      if (data) setMensajes(data as Mensaje[]);
+      const msgs = await enriquecerConPerfil(data ?? []);
+      setMensajes(msgs as Mensaje[]);
     };
     cargar();
 
-    // Suscribirse a nuevos mensajes en tiempo real
     const canal = supabase
       .channel("mensajes-realtime")
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "mensajes" },
         async (payload) => {
-          const nuevo = payload.new as Mensaje;
-          // traemos el perfil asociado
+          const nuevo = payload.new as any;
           const { data } = await supabase
             .from("profiles")
-            .select("nombre, carnet")
+            .select("id, nombre, carnet")
             .eq("id", nuevo.usuario_id)
             .single();
-          setMensajes((prev) => [...prev, { ...nuevo, profiles: data ?? undefined }]);
+          setMensajes((prev) => [...prev, { ...nuevo, profiles: data ?? null }]);
         }
       )
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(canal);
-    };
+    return () => { supabase.removeChannel(canal); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -90,40 +100,22 @@ export default function ChatAbonados({ usuarioId }: Props) {
           const nombre = m.profiles?.nombre || "Abonado";
           const carnet = m.profiles?.carnet;
           return (
-            <div
-              key={m.id}
-              className={`flex ${esMio ? "justify-end" : "justify-start"}`}
-            >
-              <div
-                className={`max-w-[75%] rounded-lg px-3 py-2 text-sm ${
-                  esMio
-                    ? "bg-candas-rojo text-white"
-                    : "bg-gray-100 text-gray-900"
-                }`}
-              >
+            <div key={m.id} className={`flex ${esMio ? "justify-end" : "justify-start"}`}>
+              <div className={`max-w-[75%] rounded-lg px-3 py-2 text-sm ${
+                esMio ? "bg-candas-rojo text-white" : "bg-gray-100 text-gray-900"
+              }`}>
                 {!esMio && (
                   <div className="text-xs font-bold mb-1">
                     {nombre}
-                    {carnet && (
-                      <span className="opacity-60 font-normal"> · #{carnet}</span>
-                    )}
+                    {carnet && <span className="opacity-60 font-normal"> · #{carnet}</span>}
                   </div>
                 )}
-                {esMio && (
-                  <div className="text-xs font-bold mb-1 text-white/80">
-                    Tú
-                  </div>
-                )}
+                {esMio && <div className="text-xs font-bold mb-1 text-white/80">Tú</div>}
                 <div className="whitespace-pre-wrap break-words">{m.contenido}</div>
                 <div className="flex items-center justify-between gap-2">
-                  <div
-                    className={`text-[10px] ${
-                      esMio ? "text-white/70" : "text-gray-500"
-                    }`}
-                  >
+                  <div className={`text-[10px] ${esMio ? "text-white/70" : "text-gray-500"}`}>
                     {new Date(m.created_at).toLocaleTimeString("es-ES", {
-                      hour: "2-digit",
-                      minute: "2-digit",
+                      hour: "2-digit", minute: "2-digit",
                     })}
                   </div>
                   {esMio && (

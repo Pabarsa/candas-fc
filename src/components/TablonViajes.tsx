@@ -25,10 +25,24 @@ export default function TablonViajes({ usuarioId, proximosPartidos }: Props) {
     const { data } = await supabase
       .from("viajes")
       .select(
-        "*, profiles(nombre, carnet), partidos(*, local:equipos!partidos_local_id_fkey(*), visitante:equipos!partidos_visitante_id_fkey(*))"
+        "*, partidos(*, local:equipos!partidos_local_id_fkey(*), visitante:equipos!partidos_visitante_id_fkey(*))"
       )
       .order("hora_salida", { ascending: true });
-    if (data) setViajes(data as Viaje[]);
+
+    if (!data) return;
+
+    // Cargar perfiles por separado
+    const ids = [...new Set(data.map((v: any) => v.usuario_id))];
+    const { data: perfiles } = await supabase
+      .from("profiles")
+      .select("id, nombre, carnet")
+      .in("id", ids);
+    const mapaPerfiles = new Map((perfiles ?? []).map((p: any) => [p.id, p]));
+    const viajesConPerfil = data.map((v: any) => ({
+      ...v,
+      profiles: mapaPerfiles.get(v.usuario_id) ?? null,
+    }));
+    setViajes(viajesConPerfil as Viaje[]);
   };
 
   useEffect(() => {
