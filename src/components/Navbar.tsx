@@ -121,6 +121,7 @@ export default function Navbar() {
           {link("/clasificacion", "Clasificación")}
           {link("/fotos", "Fotos")}
           {link("/campo", "El Campo")}
+          {link("/equipo", "Equipo")}
           {user && link("/simulador", "Simulador")}
           {user && link("/abonados", "Abonados")}
           {rol === "admin" && link("/admin", "Admin")}
@@ -148,6 +149,7 @@ export default function Navbar() {
           {link("/clasificacion", "Clasificación")}
           {link("/fotos", "Fotos")}
           {link("/campo", "El Campo")}
+          {link("/equipo", "Equipo")}
           {user && link("/simulador", "Simulador")}
           {user && link("/abonados", "Abonados")}
           {rol === "admin" && link("/admin", "Admin")}
