@@ -96,7 +96,7 @@ function TarjetaJugador({ jugador }: { jugador: Jugador }) {
           <img
             src={jugador.foto_url}
             alt={jugador.nombre}
-            className="w-full h-full object-cover object-top group-hover:scale-105 transition duration-300"
+            className="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-candas-rojo to-candas-rojoOscuro">
