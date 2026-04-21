@@ -91,7 +91,7 @@ function TarjetaJugador({ jugador }: { jugador: Jugador }) {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition group">
       {/* Foto */}
-      <div className="relative aspect-square bg-gray-100 overflow-hidden">
+      <div className="relative aspect-[3/4] bg-gray-100 overflow-hidden">
         {jugador.foto_url ? (
           <img
             src={jugador.foto_url}
