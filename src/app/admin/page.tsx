@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 import { Equipo, Partido } from "@/lib/types";
 import AdminPanel from "@/components/AdminPanel";
 
@@ -7,6 +8,16 @@ export const revalidate = 0;
 
 export default async function AdminPage() {
   const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login?redirectTo=/admin");
+
+  const { data: perfil } = await supabase
+    .from("profiles")
+    .select("rol")
+    .eq("id", user.id)
+    .single();
+
+  if (perfil?.rol !== "admin") redirect("/");
 
   const [
     { data: equipos },

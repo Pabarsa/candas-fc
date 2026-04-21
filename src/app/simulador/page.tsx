@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 import { Equipo, Partido } from "@/lib/types";
 import Simulador from "@/components/Simulador";
 
@@ -7,6 +8,10 @@ export const revalidate = 0;
 
 export default async function SimuladorPage() {
   const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    redirect("/login?redirectTo=/simulador");
+  }
 
   const { data: equipos } = await supabase
     .from("equipos")
