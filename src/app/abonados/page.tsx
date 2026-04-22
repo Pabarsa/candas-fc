@@ -109,7 +109,7 @@ export default async function AbonadosPage() {
       {/* Chat + Viajes */}
       <div className="grid lg:grid-cols-2 gap-6 mb-10">
         <ChatAbonados usuarioId={user.id} />
-        <TablonViajes usuarioId={user.id} proximosPartidos={proximos} />
+        <TablonViajes usuarioId={user.id} esAdmin={profile?.rol === "admin"} proximosPartidos={proximos} />
       </div>
 
       {/* Encuesta activa */}
