@@ -7,6 +7,14 @@ export const metadata = {
 
 export const dynamic = "force-dynamic";
 
+type MiembroCT = {
+  id: number;
+  nombre: string;
+  cargo: string;
+  foto_url: string | null;
+  orden: number;
+};
+
 type Jugador = {
   id: number;
   nombre: string;
@@ -27,13 +35,13 @@ const COLOR_POSICION: Record<string, string> = {
 export default async function EquipoPage() {
   const supabase = createClient();
 
-  const { data } = await supabase
-    .from("jugadores")
-    .select("id, nombre, dorsal, posicion, foto_url")
-    .eq("activo", true)
-    .order("dorsal", { ascending: true, nullsFirst: false });
+  const [{ data }, { data: dataCT }] = await Promise.all([
+    supabase.from("jugadores").select("id, nombre, dorsal, posicion, foto_url").eq("activo", true).order("dorsal", { ascending: true, nullsFirst: false }),
+    supabase.from("cuerpo_tecnico").select("id, nombre, cargo, foto_url, orden").eq("activo", true).order("orden", { ascending: true }),
+  ]);
 
   const jugadores = (data as Jugador[]) ?? [];
+  const cuerpoTecnico = (dataCT as MiembroCT[]) ?? [];
 
   // Agrupar por posición
   const grupos = ORDEN_POSICION.map((pos) => ({
@@ -53,6 +61,34 @@ export default async function EquipoPage() {
           Candás CF · Temporada 2025/26 · {jugadores.length} jugadores
         </p>
       </div>
+
+      {/* Cuerpo técnico */}
+      {cuerpoTecnico.length > 0 && (
+        <section className="mb-10">
+          <h2 className="text-xl font-black mb-4">🧑‍💼 Cuerpo técnico</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {cuerpoTecnico.map((m) => (
+              <div key={m.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="relative aspect-[3/4] bg-gray-100 overflow-hidden">
+                  {m.foto_url ? (
+                    <img src={m.foto_url} alt={m.nombre} className="w-full h-full object-cover object-center" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-700 to-gray-900">
+                      <span className="text-5xl opacity-30">🧑‍💼</span>
+                    </div>
+                  )}
+                </div>
+                <div className="p-3">
+                  <p className="font-black text-sm leading-tight text-gray-900">{m.nombre}</p>
+                  <span className="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                    {m.cargo}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Grupos por posición */}
       <div className="space-y-10">

@@ -13,7 +13,7 @@ type Props = {
 export default function AdminPanel({ equipos, partidos }: Props) {
   const supabase = createClient();
   const router = useRouter();
-  const [tab, setTab] = useState<"resultados" | "crear" | "equipos" | "galeria" | "encuestas" | "plantilla">("resultados");
+  const [tab, setTab] = useState<"resultados" | "crear" | "equipos" | "galeria" | "encuestas" | "plantilla" | "cuerpo">("resultados");
 
   return (
     <div>
@@ -36,6 +36,9 @@ export default function AdminPanel({ equipos, partidos }: Props) {
         <TabBtn activo={tab === "plantilla"} onClick={() => setTab("plantilla")}>
           👟 Plantilla
         </TabBtn>
+        <TabBtn activo={tab === "cuerpo"} onClick={() => setTab("cuerpo")}>
+          🧑‍💼 Cuerpo técnico
+        </TabBtn>
       </div>
 
       {tab === "resultados" && (
@@ -50,6 +53,7 @@ export default function AdminPanel({ equipos, partidos }: Props) {
       {tab === "galeria" && <GaleriaAdminTab />}
       {tab === "encuestas" && <EncuestasAdminTab partidos={partidos} />}
       {tab === "plantilla" && <PlantillaAdminTab />}
+      {tab === "cuerpo" && <CuerpoTecnicoAdminTab />}
     </div>
   );
 }
@@ -1283,6 +1287,264 @@ function PlantillaAdminTab() {
                   onClick={() => toggleActivo(j)}
                   className="text-green-600 hover:text-green-700 text-xs font-medium flex-shrink-0"
                 >
+                  Reactivar
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// =====================================================
+// TAB: Cuerpo técnico
+// =====================================================
+type MiembroCT = {
+  id: number;
+  nombre: string;
+  cargo: string;
+  foto_url: string | null;
+  orden: number;
+  activo: boolean;
+};
+
+const CARGOS = [
+  "Primer entrenador",
+  "Segundo entrenador",
+  "Preparador físico",
+  "Entrenador de porteros",
+  "Delegado",
+  "Segundo delegado",
+  "Utillero",
+  "Médico",
+  "Fisioterapeuta",
+];
+
+function CuerpoTecnicoAdminTab() {
+  const supabase = createClient();
+  const [miembros, setMiembros] = useState<MiembroCT[]>([]);
+  const [cargando, setCargando] = useState(true);
+  const [editandoId, setEditandoId] = useState<number | null>(null);
+  const [editNombre, setEditNombre] = useState("");
+  const [editCargo, setEditCargo] = useState("");
+  const [editOrden, setEditOrden] = useState("");
+  const [guardando, setGuardando] = useState(false);
+  const [subiendoFotoId, setSubiendoFotoId] = useState<number | null>(null);
+  const [mostrarForm, setMostrarForm] = useState(false);
+  const [nuevoNombre, setNuevoNombre] = useState("");
+  const [nuevoCargo, setNuevoCargo] = useState("");
+  const [nuevoOrden, setNuevoOrden] = useState("");
+  const [añadiendo, setAñadiendo] = useState(false);
+  const [ok, setOk] = useState<string | null>(null);
+
+  const cargar = async () => {
+    const { data } = await supabase
+      .from("cuerpo_tecnico")
+      .select("*")
+      .order("orden", { ascending: true });
+    setMiembros((data as MiembroCT[]) ?? []);
+    setCargando(false);
+  };
+
+  useEffect(() => { cargar(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const empezarEdicion = (m: MiembroCT) => {
+    setEditandoId(m.id);
+    setEditNombre(m.nombre);
+    setEditCargo(m.cargo);
+    setEditOrden(m.orden?.toString() ?? "0");
+  };
+
+  const cancelarEdicion = () => setEditandoId(null);
+
+  const guardarEdicion = async (id: number) => {
+    if (!editNombre.trim() || !editCargo) return;
+    setGuardando(true);
+    await supabase.from("cuerpo_tecnico").update({
+      nombre: editNombre.trim(),
+      cargo: editCargo,
+      orden: editOrden ? parseInt(editOrden) : 0,
+    }).eq("id", id);
+    setGuardando(false);
+    setEditandoId(null);
+    cargar();
+  };
+
+  const toggleActivo = async (m: MiembroCT) => {
+    await supabase.from("cuerpo_tecnico").update({ activo: !m.activo }).eq("id", m.id);
+    cargar();
+  };
+
+  const subirFoto = async (id: number, archivo: File) => {
+    setSubiendoFotoId(id);
+    const ext = archivo.name.split(".").pop();
+    const nombre = `cuerpo_${id}_${Date.now()}.${ext}`;
+    const { error } = await supabase.storage
+      .from("galeria")
+      .upload(`cuerpo/${nombre}`, archivo, { contentType: archivo.type, upsert: true });
+    if (!error) {
+      const { data: urlData } = supabase.storage.from("galeria").getPublicUrl(`cuerpo/${nombre}`);
+      await supabase.from("cuerpo_tecnico").update({ foto_url: urlData.publicUrl }).eq("id", id);
+      cargar();
+    }
+    setSubiendoFotoId(null);
+  };
+
+  const añadir = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nuevoNombre.trim() || !nuevoCargo) return;
+    setAñadiendo(true);
+    await supabase.from("cuerpo_tecnico").insert({
+      nombre: nuevoNombre.trim(),
+      cargo: nuevoCargo,
+      orden: nuevoOrden ? parseInt(nuevoOrden) : 0,
+      activo: true,
+    });
+    setNuevoNombre(""); setNuevoCargo(""); setNuevoOrden("");
+    setMostrarForm(false);
+    setOk("✅ Miembro añadido.");
+    setTimeout(() => setOk(null), 3000);
+    setAñadiendo(false);
+    cargar();
+  };
+
+  const activos = miembros.filter(m => m.activo);
+  const inactivos = miembros.filter(m => !m.activo);
+
+  if (cargando) return <p className="text-gray-400 text-sm">Cargando...</p>;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-gray-500">
+          <strong>{activos.length}</strong> miembros activos
+        </p>
+        <button
+          onClick={() => setMostrarForm(!mostrarForm)}
+          className="bg-candas-rojo text-white font-bold px-4 py-2 rounded-xl text-sm hover:bg-candas-rojoOscuro transition"
+        >
+          {mostrarForm ? "Cancelar" : "➕ Añadir miembro"}
+        </button>
+      </div>
+
+      {mostrarForm && (
+        <form onSubmit={añadir} className="bg-white rounded-xl shadow p-5 border border-gray-100">
+          <h3 className="font-black mb-4">Nuevo miembro</h3>
+          <div className="grid sm:grid-cols-3 gap-3 mb-3">
+            <div>
+              <label className="text-xs font-semibold text-gray-500 mb-1 block">Nombre *</label>
+              <input type="text" value={nuevoNombre} onChange={(e) => setNuevoNombre(e.target.value)}
+                placeholder="Nombre completo" autoFocus
+                className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-candas-rojo focus:outline-none" />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-gray-500 mb-1 block">Cargo *</label>
+              <select value={nuevoCargo} onChange={(e) => setNuevoCargo(e.target.value)}
+                className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-candas-rojo focus:outline-none">
+                <option value="">Selecciona cargo</option>
+                {CARGOS.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-gray-500 mb-1 block">Orden (1=primero)</label>
+              <input type="number" value={nuevoOrden} onChange={(e) => setNuevoOrden(e.target.value)}
+                placeholder="0" min={0}
+                className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-candas-rojo focus:outline-none" />
+            </div>
+          </div>
+          <button type="submit" disabled={añadiendo}
+            className="bg-candas-rojo text-white font-black px-6 py-2 rounded-xl text-sm hover:bg-candas-rojoOscuro transition disabled:opacity-50">
+            {añadiendo ? "Añadiendo..." : "Añadir"}
+          </button>
+        </form>
+      )}
+
+      {ok && <p className="text-green-600 text-sm font-semibold">{ok}</p>}
+
+      <div className="bg-white rounded-xl shadow overflow-hidden border border-gray-100">
+        <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
+          <h3 className="font-black text-sm">Cuerpo técnico activo ({activos.length})</h3>
+        </div>
+        <ul className="divide-y divide-gray-50">
+          {activos.map((m) => (
+            <li key={m.id} className="px-4 py-3">
+              {editandoId === m.id ? (
+                <div className="space-y-2">
+                  <div className="grid sm:grid-cols-3 gap-2">
+                    <input type="text" value={editNombre} onChange={(e) => setEditNombre(e.target.value)} autoFocus
+                      className="border-2 border-candas-rojo rounded-lg px-2 py-1.5 text-sm focus:outline-none" />
+                    <select value={editCargo} onChange={(e) => setEditCargo(e.target.value)}
+                      className="border-2 border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:border-candas-rojo focus:outline-none">
+                      <option value="">Cargo</option>
+                      {CARGOS.map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                    <input type="number" value={editOrden} onChange={(e) => setEditOrden(e.target.value)}
+                      placeholder="Orden" min={0}
+                      className="border-2 border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:border-candas-rojo focus:outline-none" />
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={() => guardarEdicion(m.id)} disabled={guardando}
+                      className="bg-candas-rojo text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-candas-rojoOscuro transition disabled:opacity-50">
+                      {guardando ? "..." : "✓ Guardar"}
+                    </button>
+                    <button onClick={cancelarEdicion}
+                      className="text-gray-500 text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-gray-100 transition">
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  {m.foto_url ? (
+                    <img src={m.foto_url} alt={m.nombre} className="w-10 h-10 rounded-lg object-cover flex-shrink-0 border border-gray-100" />
+                  ) : (
+                    <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <span className="text-xl">🧑‍💼</span>
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-sm">{m.nombre}</p>
+                    <p className="text-xs text-gray-400">{m.cargo}</p>
+                  </div>
+                  <div className="flex gap-2 flex-shrink-0 items-center">
+                    <label className={`cursor-pointer text-xs font-medium transition ${subiendoFotoId === m.id ? "text-gray-300" : "text-purple-500 hover:text-purple-700"}`}>
+                      {subiendoFotoId === m.id ? "Subiendo..." : m.foto_url ? "📷 Cambiar" : "📷 Foto"}
+                      <input type="file" accept="image/*" className="hidden" disabled={subiendoFotoId !== null}
+                        onChange={(e) => { const f = e.target.files?.[0]; if (f) subirFoto(m.id, f); e.target.value = ""; }} />
+                    </label>
+                    <button onClick={() => empezarEdicion(m)} className="text-blue-500 hover:text-blue-700 text-xs font-medium">Editar</button>
+                    <button onClick={() => toggleActivo(m)} className="text-gray-400 hover:text-red-500 text-xs font-medium">Desactivar</button>
+                  </div>
+                </div>
+              )}
+            </li>
+          ))}
+          {activos.length === 0 && (
+            <li className="px-4 py-8 text-center text-gray-400 text-sm">
+              No hay miembros. Añade el primer entrenador.
+            </li>
+          )}
+        </ul>
+      </div>
+
+      {inactivos.length > 0 && (
+        <div className="bg-white rounded-xl shadow overflow-hidden border border-gray-100">
+          <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
+            <h3 className="font-black text-sm text-gray-400">Inactivos ({inactivos.length})</h3>
+          </div>
+          <ul className="divide-y divide-gray-50">
+            {inactivos.map((m) => (
+              <li key={m.id} className="px-4 py-3 flex items-center gap-3 opacity-50">
+                <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <span className="text-xl">🧑‍💼</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm line-through">{m.nombre}</p>
+                  <p className="text-xs text-gray-400">{m.cargo}</p>
+                </div>
+                <button onClick={() => toggleActivo(m)} className="text-green-600 hover:text-green-700 text-xs font-medium flex-shrink-0">
                   Reactivar
                 </button>
               </li>
