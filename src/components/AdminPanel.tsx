@@ -1317,6 +1317,7 @@ const CARGOS = [
   "Entrenador de porteros",
   "Delegado",
   "Segundo delegado",
+  "Delegado de campo",
   "Utillero",
   "Médico",
   "Fisioterapeuta",
