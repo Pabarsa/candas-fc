@@ -124,7 +124,7 @@ export default function Navbar() {
           {link("/campo", "El Campo")}
           {link("/equipo", "Equipo")}
           {user && link("/simulador", "Simulador")}
-          {user && link("/abonados", "Abonados")}
+          {user && link("/abonados", "Mi zona")}
           {rol === "admin" && link("/admin", "Admin")}
           {user ? (
             <button
@@ -153,7 +153,7 @@ export default function Navbar() {
           {link("/campo", "El Campo")}
           {link("/equipo", "Equipo")}
           {user && link("/simulador", "Simulador")}
-          {user && link("/abonados", "Abonados")}
+          {user && link("/abonados", "Mi zona")}
           {rol === "admin" && link("/admin", "Admin")}
           {user ? (
             <button

@@ -76,7 +76,7 @@ export default async function Home() {
                 </Link>
                 {!user && (
                   <Link href="/registro" className="bg-candas-negro text-white font-bold px-5 py-2.5 rounded-xl hover:bg-black transition text-sm">
-                    Hazte abonado
+                    Únete gratis
                   </Link>
                 )}
               </div>
@@ -136,7 +136,7 @@ export default async function Home() {
         <section className="bg-amber-50 border-b border-amber-200">
           <div className="max-w-6xl mx-auto px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-amber-800 text-sm font-semibold">
-              🔒 El chat, los viajes, el simulador y las encuestas son exclusivos para abonados
+              💬 El chat, los viajes, el simulador y las encuestas son gratis — solo necesitas registrarte
             </p>
             <div className="flex gap-2 flex-shrink-0">
               <Link href="/registro" className="bg-candas-rojo text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-candas-rojoOscuro transition">
@@ -251,7 +251,7 @@ export default async function Home() {
               { href: "/clasificacion", icon: "📊", title: "Clasificación", desc: "Segunda Asturfútbol Grupo 1 actualizada", libre: true },
               { href: "/fotos", icon: "📸", title: "Fotos", desc: "Galería de imágenes de los partidos", libre: true },
               { href: user ? "/simulador" : "/login", icon: "🔮", title: "Simulador", desc: "Simula cómo puede terminar la liga", libre: false },
-              { href: user ? "/abonados" : "/login", icon: "🚗", title: "Abonados", desc: "Chat, viajes y encuestas del partido", libre: false },
+              { href: user ? "/abonados" : "/login", icon: "🚗", title: "Zona miembros", desc: "Chat, viajes y encuestas del partido", libre: false },
             ].map((item) => (
               <Link key={item.title} href={item.href}
                 className="bg-white rounded-xl p-5 shadow hover:shadow-lg hover:-translate-y-0.5 transition border border-gray-100 block">
@@ -259,7 +259,7 @@ export default async function Home() {
                 <p className="font-black mb-1">{item.title}</p>
                 <p className="text-gray-500 text-xs leading-relaxed">{item.desc}</p>
                 {!item.libre && !user && (
-                  <span className="inline-block mt-2 text-xs text-candas-rojo bg-red-50 px-2 py-0.5 rounded-full font-semibold">🔒 Solo abonados</span>
+                  <span className="inline-block mt-2 text-xs text-candas-rojo bg-red-50 px-2 py-0.5 rounded-full font-semibold">🆓 Gratis — regístrate</span>
                 )}
               </Link>
             ))}
@@ -269,8 +269,8 @@ export default async function Home() {
         {/* CTA REGISTRO — solo para no logados, al fondo */}
         {!user && (
           <section className="bg-gradient-to-br from-candas-rojo to-candas-rojoOscuro rounded-2xl p-8 text-white text-center">
-            <p className="text-2xl font-black mb-2">¿Aún no eres abonado?</p>
-            <p className="text-white/80 mb-5 text-sm">Regístrate gratis y accede al simulador, el chat, los viajes y las encuestas del mejor jugador.</p>
+            <p className="text-2xl font-black mb-2">¿Aún no tienes cuenta?</p>
+            <p className="text-white/80 mb-5 text-sm">Crear una cuenta es completamente gratis. Accede al simulador, el chat, los viajes y las encuestas del mejor jugador.</p>
             <div className="flex gap-3 justify-center flex-wrap">
               <Link href="/registro" className="bg-white text-candas-rojo font-black px-8 py-3 rounded-xl hover:bg-candas-crema transition inline-block">
                 Crear cuenta gratis

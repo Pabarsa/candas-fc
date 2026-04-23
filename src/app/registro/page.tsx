@@ -64,7 +64,7 @@ export default function RegistroPage() {
         <div className="text-center mb-8">
           <h1 className="text-3xl font-black text-candas-rojo mb-2">Crear cuenta</h1>
           <p className="text-sm text-gray-600">
-            Regístrate para acceder al simulador y a la zona de abonados
+            Regístrate gratis para acceder al simulador, el chat y mucho más
           </p>
         </div>
 
