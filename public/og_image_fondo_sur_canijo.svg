@@ -1,0 +1,53 @@
+<svg width="100%" viewBox="0 0 1200 630" role="img" xmlns="http://www.w3.org/2000/svg">
+  <title style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">Fondo Sur Canijo — Aficionados del Candás CF</title>
+  <desc style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">Imagen Open Graph para compartir en redes sociales</desc>
+
+  <!-- Fondo rojo -->
+  <rect width="1200" height="630" fill="#c1121f" style="fill:rgb(193, 18, 31);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+  <!-- Patrón diagonal sutil -->
+  <defs>
+    <pattern id="diag" width="40" height="40" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="40" height="40" fill="none"/>
+      <rect width="2" height="40" fill="#8b0a17" opacity="0.4"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" fill="url(#diag)" style="stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+  <!-- Franja blanca inferior -->
+  <rect x="0" y="540" width="1200" height="90" fill="white" opacity="0.08" style="fill:rgb(255, 255, 255);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.08;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+  <!-- Círculo decorativo fondo -->
+  <circle cx="950" cy="315" r="280" fill="#8b0a17" opacity="0.5" style="fill:rgb(139, 10, 23);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.5;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <circle cx="950" cy="315" r="200" fill="#8b0a17" opacity="0.4" style="fill:rgb(139, 10, 23);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.4;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+  <!-- Escudo placeholder (círculo con letras) -->
+  <circle cx="200" cy="270" r="110" fill="white" opacity="0.12" style="fill:rgb(255, 255, 255);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.12;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <circle cx="200" cy="270" r="95" fill="white" opacity="0.1" style="fill:rgb(255, 255, 255);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <text x="200" y="250" text-anchor="middle" font-family="Arial Black, sans-serif" font-weight="900" font-size="52" fill="white" opacity="0.9" style="fill:rgb(255, 255, 255);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.9;font-family:&quot;Arial Black&quot;, sans-serif;font-size:52px;font-weight:900;text-anchor:middle;dominant-baseline:auto">FSC</text>
+  <text x="200" y="300" text-anchor="middle" font-family="Arial, sans-serif" font-weight="400" font-size="18" fill="white" opacity="0.6" style="fill:rgb(255, 255, 255);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.6;font-family:Arial, sans-serif;font-size:18px;font-weight:400;text-anchor:middle;dominant-baseline:auto">1948</text>
+
+  <!-- Línea divisoria vertical -->
+  <rect x="340" y="140" width="3" height="310" fill="white" opacity="0.25" style="fill:rgb(255, 255, 255);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.25;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+  <!-- Título principal -->
+  <text x="390" y="220" font-family="Arial Black, sans-serif" font-weight="900" font-size="72" fill="white" style="fill:rgb(255, 255, 255);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Arial Black&quot;, sans-serif;font-size:72px;font-weight:900;text-anchor:start;dominant-baseline:auto">Fondo Sur</text>
+  <text x="390" y="310" font-family="Arial Black, sans-serif" font-weight="900" font-size="72" fill="white" style="fill:rgb(255, 255, 255);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Arial Black&quot;, sans-serif;font-size:72px;font-weight:900;text-anchor:start;dominant-baseline:auto">Canijo</text>
+
+  <!-- Subtítulo -->
+  <text x="392" y="370" font-family="Arial, sans-serif" font-weight="400" font-size="28" fill="white" opacity="0.8" style="fill:rgb(255, 255, 255);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.8;font-family:Arial, sans-serif;font-size:28px;font-weight:400;text-anchor:start;dominant-baseline:auto">Aficionados del Candás CF</text>
+
+  <!-- Línea separadora -->
+  <rect x="390" y="400" width="120" height="4" fill="white" opacity="0.5" style="fill:rgb(255, 255, 255);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.5;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+  <!-- Info inferior -->
+  <text x="392" y="445" font-family="Arial, sans-serif" font-weight="400" font-size="22" fill="white" opacity="0.65" style="fill:rgb(255, 255, 255);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.65;font-family:Arial, sans-serif;font-size:22px;font-weight:400;text-anchor:start;dominant-baseline:auto">Segunda Asturfútbol · Grupo 1 · Temporada 2025/26</text>
+
+  <!-- URL -->
+  <text x="392" y="500" font-family="Arial, sans-serif" font-weight="700" font-size="24" fill="white" opacity="0.5" style="fill:rgb(255, 255, 255);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.5;font-family:Arial, sans-serif;font-size:24px;font-weight:700;text-anchor:start;dominant-baseline:auto">fondosurcanijo.com</text>
+
+  <!-- Pelota decorativa -->
+  <circle cx="1050" cy="200" r="55" fill="white" opacity="0.08" style="fill:rgb(255, 255, 255);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.08;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <circle cx="1050" cy="200" r="40" fill="white" opacity="0.06" style="fill:rgb(255, 255, 255);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.06;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+</svg>

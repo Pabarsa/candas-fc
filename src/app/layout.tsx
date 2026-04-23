@@ -5,9 +5,55 @@ import CookieBanner from "@/components/CookieBanner";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Fondo Sur Canijo — Aficionados del Candás CF",
+  metadataBase: new URL("https://fondosurcanijo.com"),
+  title: {
+    default: "Fondo Sur Canijo — Aficionados del Candás CF",
+    template: "%s — Fondo Sur Canijo",
+  },
   description:
-    "Web de aficionados del Candás CF. Clasificación en directo, simulador de liga, zona de abonados y galería de fotos. ¡Vamos Canijo! 🔴⚪",
+    "Web oficial de la afición del Candás CF. Clasificación en directo, simulador de liga, galería de fotos, plantilla, zona de abonados y más. ¡Vamos Canijo! 🔴⚪",
+  keywords: [
+    "Candás CF", "Fondo Sur Canijo", "Segunda Asturfútbol", "fútbol Asturias",
+    "Candás fútbol", "Carreño", "clasificación Asturfútbol", "Candás CF resultados",
+  ],
+  authors: [{ name: "Fondo Sur Canijo", url: "https://fondosurcanijo.com" }],
+  creator: "Fondo Sur Canijo",
+  openGraph: {
+    type: "website",
+    locale: "es_ES",
+    url: "https://fondosurcanijo.com",
+    siteName: "Fondo Sur Canijo",
+    title: "Fondo Sur Canijo — Aficionados del Candás CF",
+    description:
+      "Web oficial de la afición del Candás CF. Clasificación, fotos, plantilla y zona de abonados. ¡Vamos Canijo! 🔴⚪",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Fondo Sur Canijo — Aficionados del Candás CF",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Fondo Sur Canijo — Aficionados del Candás CF",
+    description: "Web oficial de la afición del Candás CF. ¡Vamos Canijo! 🔴⚪",
+    images: ["/og-image.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  alternates: {
+    canonical: "https://fondosurcanijo.com",
+  },
 };
 
 export default function RootLayout({
