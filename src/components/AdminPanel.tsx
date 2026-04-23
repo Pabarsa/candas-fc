@@ -13,7 +13,7 @@ type Props = {
 export default function AdminPanel({ equipos, partidos }: Props) {
   const supabase = createClient();
   const router = useRouter();
-  const [tab, setTab] = useState<"resultados" | "crear" | "equipos" | "galeria" | "encuestas" | "plantilla" | "cuerpo">("resultados");
+  const [tab, setTab] = useState<"resultados" | "crear" | "equipos" | "galeria" | "encuestas" | "plantilla" | "cuerpo" | "directo">("resultados");
 
   return (
     <div>
@@ -39,6 +39,9 @@ export default function AdminPanel({ equipos, partidos }: Props) {
         <TabBtn activo={tab === "cuerpo"} onClick={() => setTab("cuerpo")}>
           🧑‍💼 Cuerpo técnico
         </TabBtn>
+        <TabBtn activo={tab === "directo"} onClick={() => setTab("directo")}>
+          📺 Directo
+        </TabBtn>
       </div>
 
       {tab === "resultados" && (
@@ -54,6 +57,7 @@ export default function AdminPanel({ equipos, partidos }: Props) {
       {tab === "encuestas" && <EncuestasAdminTab partidos={partidos} />}
       {tab === "plantilla" && <PlantillaAdminTab />}
       {tab === "cuerpo" && <CuerpoTecnicoAdminTab />}
+      {tab === "directo" && <DirectoAdminTab />}
     </div>
   );
 }
@@ -1553,6 +1557,215 @@ function CuerpoTecnicoAdminTab() {
           </ul>
         </div>
       )}
+    </div>
+  );
+}
+
+// =====================================================
+// TAB: Gestión de retransmisiones (directo + grabados)
+// =====================================================
+type Retransmision = {
+  id: number;
+  titulo: string;
+  descripcion: string | null;
+  url_tiivii: string;
+  miniatura_url: string | null;
+  fecha: string | null;
+  es_directo: boolean;
+  activo: boolean;
+};
+
+function DirectoAdminTab() {
+  const supabase = createClient();
+  const [items, setItems] = useState<Retransmision[]>([]);
+  const [cargando, setCargando] = useState(true);
+  const [mostrarForm, setMostrarForm] = useState(false);
+  const [guardando, setGuardando] = useState(false);
+  const [ok, setOk] = useState<string | null>(null);
+
+  // Form
+  const [titulo, setTitulo] = useState("");
+  const [descripcion, setDescripcion] = useState("");
+  const [url, setUrl] = useState("");
+  const [fecha, setFecha] = useState("");
+  const [esDireto, setEsDirecto] = useState(false);
+
+  const cargar = async () => {
+    const { data } = await supabase
+      .from("retransmisiones")
+      .select("*")
+      .order("fecha", { ascending: false });
+    setItems((data as Retransmision[]) ?? []);
+    setCargando(false);
+  };
+
+  useEffect(() => { cargar(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const añadir = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!titulo.trim() || !url.trim()) return;
+    setGuardando(true);
+    await supabase.from("retransmisiones").insert({
+      titulo: titulo.trim(),
+      descripcion: descripcion.trim() || null,
+      url_tiivii: url.trim(),
+      fecha: fecha ? new Date(fecha).toISOString() : null,
+      es_directo: esDireto,
+      activo: true,
+    });
+    setTitulo(""); setDescripcion(""); setUrl(""); setFecha(""); setEsDirecto(false);
+    setMostrarForm(false);
+    setOk("✅ Retransmisión añadida.");
+    setTimeout(() => setOk(null), 3000);
+    setGuardando(false);
+    cargar();
+  };
+
+  const toggleDirecto = async (item: Retransmision) => {
+    // Si lo activamos como directo, desactivamos el anterior directo
+    if (!item.es_directo) {
+      await supabase.from("retransmisiones").update({ es_directo: false }).eq("es_directo", true);
+    }
+    await supabase.from("retransmisiones").update({ es_directo: !item.es_directo }).eq("id", item.id);
+    cargar();
+  };
+
+  const toggleActivo = async (item: Retransmision) => {
+    await supabase.from("retransmisiones").update({ activo: !item.activo }).eq("id", item.id);
+    cargar();
+  };
+
+  const borrar = async (id: number) => {
+    if (!confirm("¿Borrar esta retransmisión?")) return;
+    await supabase.from("retransmisiones").delete().eq("id", id);
+    cargar();
+  };
+
+  const directo = items.find(i => i.es_directo && i.activo);
+
+  if (cargando) return <p className="text-gray-400 text-sm">Cargando...</p>;
+
+  return (
+    <div className="space-y-6">
+      {/* Estado actual */}
+      <div className={`rounded-xl p-4 flex items-center gap-3 ${directo ? "bg-red-50 border border-red-200" : "bg-gray-50 border border-gray-200"}`}>
+        {directo ? (
+          <>
+            <span className="w-3 h-3 bg-red-500 rounded-full animate-pulse flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="font-black text-sm text-red-700">En directo ahora: {directo.titulo}</p>
+              <p className="text-xs text-red-500 truncate">{directo.url_tiivii}</p>
+            </div>
+            <button onClick={() => toggleDirecto(directo)} className="text-xs text-red-600 font-bold hover:underline flex-shrink-0">
+              Quitar directo
+            </button>
+          </>
+        ) : (
+          <>
+            <span className="w-3 h-3 bg-gray-300 rounded-full flex-shrink-0" />
+            <p className="text-sm text-gray-500">No hay partido en directo activo ahora mismo</p>
+          </>
+        )}
+      </div>
+
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-gray-500"><strong>{items.length}</strong> retransmisiones</p>
+        <button
+          onClick={() => setMostrarForm(!mostrarForm)}
+          className="bg-candas-rojo text-white font-bold px-4 py-2 rounded-xl text-sm hover:bg-candas-rojoOscuro transition"
+        >
+          {mostrarForm ? "Cancelar" : "➕ Añadir retransmisión"}
+        </button>
+      </div>
+
+      {mostrarForm && (
+        <form onSubmit={añadir} className="bg-white rounded-xl shadow p-5 border border-gray-100 space-y-3">
+          <h3 className="font-black mb-2">Nueva retransmisión</h3>
+
+          {/* Es directo toggle */}
+          <label className="flex items-center gap-3 cursor-pointer">
+            <div
+              onClick={() => setEsDirecto(!esDireto)}
+              className={`w-10 h-6 rounded-full transition-colors ${esDireto ? "bg-red-500" : "bg-gray-300"} relative`}
+            >
+              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${esDireto ? "translate-x-5" : "translate-x-1"}`} />
+            </div>
+            <span className="text-sm font-semibold">{esDireto ? "🔴 Partido en directo" : "🎬 Partido grabado"}</span>
+          </label>
+
+          <div>
+            <label className="text-xs font-semibold text-gray-500 mb-1 block">Título *</label>
+            <input type="text" value={titulo} onChange={(e) => setTitulo(e.target.value)}
+              placeholder="Ej: Candás CF vs Vegadeo CF" autoFocus
+              className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-candas-rojo focus:outline-none" />
+          </div>
+
+          <div>
+            <label className="text-xs font-semibold text-gray-500 mb-1 block">URL de tiivii.tv *</label>
+            <input type="url" value={url} onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://tiivii.tv/..."
+              className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-candas-rojo focus:outline-none" />
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-semibold text-gray-500 mb-1 block">Fecha del partido</label>
+              <input type="datetime-local" value={fecha} onChange={(e) => setFecha(e.target.value)}
+                className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-candas-rojo focus:outline-none" />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-gray-500 mb-1 block">Descripción (opcional)</label>
+              <input type="text" value={descripcion} onChange={(e) => setDescripcion(e.target.value)}
+                placeholder="Jornada 30 · Segunda Asturfútbol"
+                className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-candas-rojo focus:outline-none" />
+            </div>
+          </div>
+
+          <button type="submit" disabled={guardando}
+            className="bg-candas-rojo text-white font-black px-6 py-2 rounded-xl text-sm hover:bg-candas-rojoOscuro transition disabled:opacity-50">
+            {guardando ? "Añadiendo..." : "Añadir"}
+          </button>
+        </form>
+      )}
+
+      {ok && <p className="text-green-600 text-sm font-semibold">{ok}</p>}
+
+      {/* Lista */}
+      <div className="bg-white rounded-xl shadow overflow-hidden border border-gray-100">
+        <ul className="divide-y divide-gray-50">
+          {items.length === 0 && (
+            <li className="px-4 py-8 text-center text-gray-400 text-sm">
+              No hay retransmisiones. Añade el primer partido.
+            </li>
+          )}
+          {items.map((item) => (
+            <li key={item.id} className={`px-4 py-3 flex items-start gap-3 ${!item.activo ? "opacity-40" : ""}`}>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-0.5">
+                  {item.es_directo && <span className="text-xs bg-red-100 text-red-600 font-bold px-2 py-0.5 rounded-full">🔴 Directo</span>}
+                  <p className="font-bold text-sm truncate">{item.titulo}</p>
+                </div>
+                {item.fecha && (
+                  <p className="text-xs text-gray-400">
+                    {new Date(item.fecha).toLocaleDateString("es-ES", { day: "numeric", month: "short", year: "numeric", timeZone: "Europe/Madrid" })}
+                  </p>
+                )}
+                <p className="text-xs text-blue-500 truncate">{item.url_tiivii}</p>
+              </div>
+              <div className="flex gap-2 flex-shrink-0 text-xs font-medium">
+                <button onClick={() => toggleDirecto(item)}
+                  className={`${item.es_directo ? "text-red-500 hover:text-red-700" : "text-gray-400 hover:text-red-500"}`}>
+                  {item.es_directo ? "Quitar directo" : "Poner directo"}
+                </button>
+                <button onClick={() => toggleActivo(item)} className="text-gray-400 hover:text-gray-600">
+                  {item.activo ? "Ocultar" : "Mostrar"}
+                </button>
+                <button onClick={() => borrar(item.id)} className="text-red-400 hover:text-red-600">Borrar</button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }

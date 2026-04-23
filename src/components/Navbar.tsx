@@ -120,6 +120,7 @@ export default function Navbar() {
           {link("/", "Inicio")}
           {link("/clasificacion", "Clasificación")}
           {link("/fotos", "Fotos")}
+          {link("/directo", "📺 Directo")}
           {link("/campo", "El Campo")}
           {link("/equipo", "Equipo")}
           {user && link("/simulador", "Simulador")}
@@ -148,6 +149,7 @@ export default function Navbar() {
           {link("/", "Inicio")}
           {link("/clasificacion", "Clasificación")}
           {link("/fotos", "Fotos")}
+          {link("/directo", "📺 Directo")}
           {link("/campo", "El Campo")}
           {link("/equipo", "Equipo")}
           {user && link("/simulador", "Simulador")}
