@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import CookieBanner from "@/components/CookieBanner";
+import ScrollToTop from "@/components/ScrollToTop";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -68,6 +69,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className="min-h-screen flex flex-col">
+        <ScrollToTop />
         <Navbar />
         <main className="flex-1">{children}</main>
 
