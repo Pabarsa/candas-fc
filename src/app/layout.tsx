@@ -54,6 +54,10 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://fondosurcanijo.com",
   },
+  icons: {
+    icon: "/630.png",
+    apple: "/630.png",
+  },
 };
 
 export default function RootLayout({
