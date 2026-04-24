@@ -683,7 +683,7 @@ function GaleriaAdminTab() {
                       {post.instagram_fotografa && (
                         <p className="text-xs text-pink-500">@{post.instagram_fotografa}</p>
                       )}
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-white/30">
                         {new Date(post.created_at).toLocaleDateString("es-ES")}
                       </p>
                     </div>
@@ -941,7 +941,7 @@ function EncuestasAdminTab({ partidos }: { partidos: Partido[] }) {
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-sm truncate">{enc.titulo}</p>
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-white/30">
                       {new Date(enc.created_at).toLocaleDateString("es-ES")}
                     </p>
                   </div>
@@ -969,13 +969,13 @@ function EncuestasAdminTab({ partidos }: { partidos: Partido[] }) {
                   <div className="space-y-1 mt-2">
                     {resultados[enc.id].slice(0, 5).map((r, i) => (
                       <div key={i} className="flex items-center gap-2 text-xs">
-                        <span className="text-gray-400 w-4">{i + 1}º</span>
+                        <span className="text-white/20 w-4">{i + 1}º</span>
                         <span className="flex-1 truncate">{r.nombre}</span>
                         <span className="font-bold text-candas-rojo">{r.votos}</span>
                       </div>
                     ))}
                     {resultados[enc.id].length === 0 && (
-                      <p className="text-xs text-gray-400">Sin votos todavía.</p>
+                      <p className="text-xs text-white/30">Sin votos todavía.</p>
                     )}
                   </div>
                 ) : (
@@ -1166,14 +1166,14 @@ function PlantillaAdminTab() {
         </form>
       )}
 
-      {ok && <p className="text-green-600 text-sm font-semibold">{ok}</p>}
+      {ok && <p className="text-green-400 text-sm font-semibold">{ok}</p>}
 
       {/* Lista activos */}
       <div className="card-dark rounded-xl overflow-hidden">
         <div className="px-4 py-3 bg-white/3 border-b border-white/5">
           <h3 className="font-black text-sm">Plantilla activa ({activos.length})</h3>
         </div>
-        <ul className="divide-y divide-gray-50">
+        <ul className="divide-y divide-white/5">
           {activos.map((j) => (
             <li key={j.id} className="px-4 py-3">
               {editandoId === j.id ? (
@@ -1231,13 +1231,13 @@ function PlantillaAdminTab() {
                   )}
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-sm">{j.nombre}</p>
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-white/30">
                       {j.dorsal ? `#${j.dorsal}` : ""}{j.dorsal && j.posicion ? " · " : ""}{j.posicion ?? ""}
                     </p>
                   </div>
                   <div className="flex gap-2 flex-shrink-0 items-center">
                     {/* Subir foto */}
-                    <label className={`cursor-pointer text-xs font-medium transition ${subiendoFotoId === j.id ? "text-gray-300" : "text-purple-500 hover:text-purple-700"}`}>
+                    <label className={`cursor-pointer text-xs font-medium transition ${subiendoFotoId === j.id ? "text-white/30" : "text-candas-rojo hover:text-white"}`}>
                       {subiendoFotoId === j.id ? "Subiendo..." : j.foto_url ? " Cambiar" : " Foto"}
                       <input
                         type="file"
@@ -1259,7 +1259,7 @@ function PlantillaAdminTab() {
                     </button>
                     <button
                       onClick={() => toggleActivo(j)}
-                      className="text-gray-400 hover:text-red-500 text-xs font-medium"
+                      className="text-xs font-medium text-white/20 hover:text-red-400 transition-colors"
                     >
                       Desactivar
                     </button>
@@ -1277,7 +1277,7 @@ function PlantillaAdminTab() {
           <div className="px-4 py-3 bg-white/3 border-b border-white/5">
             <h3 className="font-black text-sm text-gray-400">Inactivos / baja ({inactivos.length})</h3>
           </div>
-          <ul className="divide-y divide-gray-50">
+          <ul className="divide-y divide-white/5">
             {inactivos.map((j) => (
               <li key={j.id} className="px-4 py-3 flex items-center gap-3 opacity-50">
                 <div className="w-8 h-8 bg-gray-300 text-white rounded-lg flex items-center justify-center font-black text-sm flex-shrink-0">
@@ -1285,7 +1285,7 @@ function PlantillaAdminTab() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-sm line-through">{j.nombre}</p>
-                  {j.posicion && <p className="text-xs text-gray-400">{j.posicion}</p>}
+                  {j.posicion && <p className="text-xs text-white/30">{j.posicion}</p>}
                 </div>
                 <button
                   onClick={() => toggleActivo(j)}
@@ -1466,13 +1466,13 @@ function CuerpoTecnicoAdminTab() {
         </form>
       )}
 
-      {ok && <p className="text-green-600 text-sm font-semibold">{ok}</p>}
+      {ok && <p className="text-green-400 text-sm font-semibold">{ok}</p>}
 
       <div className="card-dark rounded-xl overflow-hidden">
         <div className="px-4 py-3 bg-white/3 border-b border-white/5">
           <h3 className="font-black text-sm">Cuerpo técnico activo ({activos.length})</h3>
         </div>
-        <ul className="divide-y divide-gray-50">
+        <ul className="divide-y divide-white/5">
           {activos.map((m) => (
             <li key={m.id} className="px-4 py-3">
               {editandoId === m.id ? (
@@ -1505,29 +1505,29 @@ function CuerpoTecnicoAdminTab() {
                   {m.foto_url ? (
                     <img src={m.foto_url} alt={m.nombre} className="w-10 h-10 rounded-lg object-cover flex-shrink-0 border border-gray-100" />
                   ) : (
-                    <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <div className="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center flex-shrink-0">
                       <span className="text-xl"></span>
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-sm">{m.nombre}</p>
-                    <p className="text-xs text-gray-400">{m.cargo}</p>
+                    <p className="text-xs text-white/30">{m.cargo}</p>
                   </div>
                   <div className="flex gap-2 flex-shrink-0 items-center">
-                    <label className={`cursor-pointer text-xs font-medium transition ${subiendoFotoId === m.id ? "text-gray-300" : "text-purple-500 hover:text-purple-700"}`}>
+                    <label className={`cursor-pointer text-xs font-medium transition ${subiendoFotoId === m.id ? "text-white/30" : "text-candas-rojo hover:text-white"}`}>
                       {subiendoFotoId === m.id ? "Subiendo..." : m.foto_url ? " Cambiar" : " Foto"}
                       <input type="file" accept="image/*" className="hidden" disabled={subiendoFotoId !== null}
                         onChange={(e) => { const f = e.target.files?.[0]; if (f) subirFoto(m.id, f); e.target.value = ""; }} />
                     </label>
                     <button onClick={() => empezarEdicion(m)} className="text-blue-500 hover:text-blue-700 text-xs font-medium">Editar</button>
-                    <button onClick={() => toggleActivo(m)} className="text-gray-400 hover:text-red-500 text-xs font-medium">Desactivar</button>
+                    <button onClick={() => toggleActivo(m)} className="text-xs font-medium text-white/20 hover:text-red-400 transition-colors">Desactivar</button>
                   </div>
                 </div>
               )}
             </li>
           ))}
           {activos.length === 0 && (
-            <li className="px-4 py-8 text-center text-gray-400 text-sm">
+            <li className="px-4 py-8 text-center text-white/20 text-sm">
               No hay miembros. Añade el primer entrenador.
             </li>
           )}
@@ -1539,15 +1539,15 @@ function CuerpoTecnicoAdminTab() {
           <div className="px-4 py-3 bg-white/3 border-b border-white/5">
             <h3 className="font-black text-sm text-gray-400">Inactivos ({inactivos.length})</h3>
           </div>
-          <ul className="divide-y divide-gray-50">
+          <ul className="divide-y divide-white/5">
             {inactivos.map((m) => (
               <li key={m.id} className="px-4 py-3 flex items-center gap-3 opacity-50">
-                <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center flex-shrink-0">
                   <span className="text-xl"></span>
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-sm line-through">{m.nombre}</p>
-                  <p className="text-xs text-gray-400">{m.cargo}</p>
+                  <p className="text-xs text-white/30">{m.cargo}</p>
                 </div>
                 <button onClick={() => toggleActivo(m)} className="text-green-600 hover:text-green-700 text-xs font-medium flex-shrink-0">
                   Reactivar
@@ -1653,23 +1653,23 @@ function DirectoAdminTab() {
           <>
             <span className="w-3 h-3 bg-red-500 rounded-full animate-pulse flex-shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className="font-black text-sm text-red-700">En directo ahora: {directo.titulo}</p>
+              <p className="font-black text-sm text-red-400">En directo ahora: {directo.titulo}</p>
               <p className="text-xs text-red-500 truncate">{directo.url_tiivii}</p>
             </div>
-            <button onClick={() => toggleDirecto(directo)} className="text-xs text-red-600 font-bold hover:underline flex-shrink-0">
+            <button onClick={() => toggleDirecto(directo)} className="text-xs text-red-400 font-bold hover:text-white flex-shrink-0">
               Quitar directo
             </button>
           </>
         ) : (
           <>
-            <span className="w-3 h-3 bg-gray-300 rounded-full flex-shrink-0" />
-            <p className="text-sm text-gray-500">No hay partido en directo activo ahora mismo</p>
+            <span className="w-3 h-3 bg-white/20 rounded-full flex-shrink-0" />
+            <p className="text-sm text-white/30">No hay partido en directo activo ahora mismo</p>
           </>
         )}
       </div>
 
       <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-500"><strong>{items.length}</strong> retransmisiones</p>
+        <p className="text-sm text-white/40"><strong className="text-white">{items.length}</strong> retransmisiones</p>
         <button
           onClick={() => setMostrarForm(!mostrarForm)}
           className="bg-candas-rojo text-white font-bold px-4 py-2 rounded-xl text-sm hover:bg-candas-rojoOscuro transition"
@@ -1679,8 +1679,8 @@ function DirectoAdminTab() {
       </div>
 
       {mostrarForm && (
-        <form onSubmit={añadir} className="bg-white rounded-xl shadow p-5 border border-gray-100 space-y-3">
-          <h3 className="font-black mb-2">Nueva retransmisión</h3>
+        <form onSubmit={añadir} className="card-dark rounded-xl p-5 border border-white/5 space-y-3">
+          <p className="text-xs font-semibold text-white/40 uppercase tracking-wide mb-3">Nueva retransmisión</p>
 
           {/* Es directo toggle */}
           <label className="flex items-center gap-3 cursor-pointer">
@@ -1690,18 +1690,18 @@ function DirectoAdminTab() {
             >
               <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${esDireto ? "translate-x-5" : "translate-x-1"}`} />
             </div>
-            <span className="text-sm font-semibold">{esDireto ? " Partido en directo" : " Partido grabado"}</span>
+            <span className="text-sm font-semibold text-white/70">{esDireto ? "Partido en directo" : "Partido grabado"}</span>
           </label>
 
           <div>
-            <label className="text-xs font-semibold text-gray-500 mb-1 block">Título *</label>
+            <label className="text-xs font-semibold text-white/40 uppercase tracking-wide mb-1 block">Título *</label>
             <input type="text" value={titulo} onChange={(e) => setTitulo(e.target.value)}
               placeholder="Ej: Candás CF vs Vegadeo CF" autoFocus
               className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:border-candas-rojo focus:outline-none" />
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-gray-500 mb-1 block">URL de tiivii.tv *</label>
+            <label className="text-xs font-semibold text-white/40 uppercase tracking-wide mb-1 block">URL de tiivii.tv *</label>
             <input type="url" value={url} onChange={(e) => setUrl(e.target.value)}
               placeholder="https://tiivii.tv/..."
               className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:border-candas-rojo focus:outline-none" />
@@ -1709,12 +1709,12 @@ function DirectoAdminTab() {
 
           <div className="grid sm:grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-semibold text-gray-500 mb-1 block">Fecha del partido</label>
+              <label className="text-xs font-semibold text-white/40 uppercase tracking-wide mb-1 block">Fecha del partido</label>
               <input type="datetime-local" value={fecha} onChange={(e) => setFecha(e.target.value)}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:border-candas-rojo focus:outline-none" />
             </div>
             <div>
-              <label className="text-xs font-semibold text-gray-500 mb-1 block">Descripción (opcional)</label>
+              <label className="text-xs font-semibold text-white/40 uppercase tracking-wide mb-1 block">Descripción (opcional)</label>
               <input type="text" value={descripcion} onChange={(e) => setDescripcion(e.target.value)}
                 placeholder="Jornada 30 · Segunda Asturfútbol"
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:border-candas-rojo focus:outline-none" />
@@ -1728,36 +1728,36 @@ function DirectoAdminTab() {
         </form>
       )}
 
-      {ok && <p className="text-green-600 text-sm font-semibold">{ok}</p>}
+      {ok && <p className="text-green-400 text-sm font-semibold">{ok}</p>}
 
       {/* Lista */}
       <div className="card-dark rounded-xl overflow-hidden">
-        <ul className="divide-y divide-gray-50">
+        <ul className="divide-y divide-white/5">
           {items.length === 0 && (
-            <li className="px-4 py-8 text-center text-gray-400 text-sm">
+            <li className="px-4 py-8 text-center text-white/20 text-sm">
               No hay retransmisiones. Añade el primer partido.
             </li>
           )}
           {items.map((item) => (
             <li key={item.id} className={`px-4 py-3 flex items-start gap-3 ${!item.activo ? "opacity-40" : ""}`}>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-0.5">
-                  {item.es_directo && <span className="text-xs bg-red-100 text-red-600 font-bold px-2 py-0.5 rounded-full"> Directo</span>}
-                  <p className="font-bold text-sm truncate">{item.titulo}</p>
+                <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                  {item.es_directo && <span className="text-xs bg-red-500/10 text-red-400 border border-red-500/20 font-bold px-2 py-0.5 rounded-full">Directo</span>}
+                  <p className="font-bold text-sm truncate text-white">{item.titulo}</p>
                 </div>
                 {item.fecha && (
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-white/30">
                     {new Date(item.fecha).toLocaleDateString("es-ES", { day: "numeric", month: "short", year: "numeric", timeZone: "Europe/Madrid" })}
                   </p>
                 )}
-                <p className="text-xs text-blue-500 truncate">{item.url_tiivii}</p>
+                <p className="text-xs text-candas-rojo/60 truncate">{item.url_tiivii}</p>
               </div>
               <div className="flex gap-2 flex-shrink-0 text-xs font-medium">
                 <button onClick={() => toggleDirecto(item)}
-                  className={`${item.es_directo ? "text-red-500 hover:text-red-700" : "text-gray-400 hover:text-red-500"}`}>
+                  className={`text-xs font-medium transition-colors ${item.es_directo ? "text-red-400 hover:text-white" : "text-white/30 hover:text-red-400"}`}>
                   {item.es_directo ? "Quitar directo" : "Poner directo"}
                 </button>
-                <button onClick={() => toggleActivo(item)} className="text-gray-400 hover:text-gray-600">
+                <button onClick={() => toggleActivo(item)} className="text-xs font-medium text-white/30 hover:text-white transition-colors">
                   {item.activo ? "Ocultar" : "Mostrar"}
                 </button>
                 <button onClick={() => borrar(item.id)} className="text-red-400 hover:text-red-600">Borrar</button>
