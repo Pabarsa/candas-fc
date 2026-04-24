@@ -45,7 +45,7 @@ export default function CuentaAtras({ fecha }: { fecha: string }) {
   return (
     <div className="flex items-center gap-1.5 flex-wrap">
       <span className="text-white/50 text-xs font-semibold uppercase tracking-wide mr-1">
-        ⏱ Faltan
+        Faltan
       </span>
       {bloques.map(({ val, label }, i) => (
         <span key={label} className="flex items-baseline gap-0.5">

@@ -1,32 +1,16 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function LoginPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="max-w-md mx-auto px-4 py-16 text-center text-gray-500">
-          Cargando...
-        </div>
-      }
-    >
-      <LoginForm />
-    </Suspense>
-  );
-}
-
-function LoginForm() {
   const supabase = createClient();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") || "/simulador";
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPass, setShowPass] = useState(false);
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,101 +18,104 @@ function LoginForm() {
     e.preventDefault();
     setError(null);
     setCargando(true);
-
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) {
-        setError(error.message || "Email o contraseña incorrectos.");
-        return;
-      }
-
-      // Esperar un poco para que la sesión se establezca
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      // Verificar que la sesión se creó correctamente
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        setError("No se pudo establecer la sesión. Inténtalo de nuevo.");
-        return;
-      }
-
-      router.push(redirectTo);
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) { setError("Email o contraseña incorrectos."); return; }
+      router.push("/abonados");
       router.refresh();
-    } catch (caught) {
-      setError(
-        caught instanceof Error
-          ? caught.message
-          : "Ha ocurrido un error al iniciar sesión."
-      );
+    } catch {
+      setError("Ha ocurrido un error. Inténtalo de nuevo.");
     } finally {
       setCargando(false);
     }
   };
 
   return (
-    <div className="max-w-md mx-auto px-4 py-12 md:py-16">
-      <div className="bg-white rounded-xl shadow-lg p-8 md:p-10">
+    <div className="min-h-screen flex flex-col items-center justify-center px-5 sm:px-6 py-12 pt-20">
+      <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-black text-candas-rojo mb-2">Entrar</h1>
-          <p className="text-sm text-gray-600">
-            Acceso a la zona exclusiva de socios
-          </p>
+          <p className="text-white/30 text-xs uppercase tracking-widest mb-3">Bienvenido</p>
+          <h1 className="font-poppins font-black text-3xl text-white mb-2">Entrar</h1>
+          <p className="text-white/40 text-sm">Acceso gratuito para todos los aficionados</p>
         </div>
 
-        <form onSubmit={onSubmit} className="space-y-5">
-          <div>
-            <label className="block text-sm font-semibold text-gray-800 mb-2">📧 Correo</label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="tu.email@ejemplo.com"
-              autoComplete="email"
-              className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-candas-rojo focus:ring-1 focus:ring-candas-rojo transition bg-gray-50 hover:bg-white"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-800 mb-2">🔐 Contraseña</label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Tu contraseña"
-              autoComplete="current-password"
-              className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-candas-rojo focus:ring-1 focus:ring-candas-rojo transition bg-gray-50 hover:bg-white"
-            />
-          </div>
-
-          {error && (
-            <div className="bg-red-50 border-l-4 border-red-500 text-red-700 rounded p-4 text-sm">
-              <strong>⚠️ Error:</strong> {error}
+        <div className="card-dark rounded-2xl p-8 border border-white/5">
+          <form onSubmit={onSubmit} className="space-y-5">
+            {/* Email */}
+            <div>
+              <label className="block text-xs font-semibold text-white/40 uppercase tracking-wide mb-2">
+                Correo electrónico
+              </label>
+              <input
+                type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+                required placeholder="tu@email.com" autoComplete="email"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-candas-rojo focus:ring-1 focus:ring-candas-rojo/50 transition"
+              />
             </div>
-          )}
 
-          <button
-            type="submit"
-            disabled={cargando}
-            className="w-full bg-gradient-to-r from-candas-rojo to-candas-rojoOscuro text-white font-bold py-3 rounded-lg hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed mt-6"
-          >
-            {cargando ? "🔄 Entrando..." : "✓ Entrar"}
-          </button>
-        </form>
+            {/* Contraseña con ojo */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-xs font-semibold text-white/40 uppercase tracking-wide">
+                  Contraseña
+                </label>
+                <Link href="/recuperar-contrasena"
+                  className="text-xs text-white/30 hover:text-candas-rojo transition-colors">
+                  ¿Olvidaste la contraseña?
+                </Link>
+              </div>
+              <div className="relative">
+                <input
+                  type={showPass ? "text" : "password"}
+                  value={password} onChange={(e) => setPassword(e.target.value)}
+                  required placeholder="Tu contraseña" autoComplete="current-password"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 pr-12 text-sm text-white placeholder-white/20 focus:outline-none focus:border-candas-rojo focus:ring-1 focus:ring-candas-rojo/50 transition"
+                />
+                <button
+                  type="button" onClick={() => setShowPass(!showPass)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/70 transition-colors p-1"
+                  aria-label={showPass ? "Ocultar contraseña" : "Ver contraseña"}
+                >
+                  {showPass ? (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                      <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/>
+                      <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/>
+                      <line x1="1" y1="1" x2="23" y2="23"/>
+                    </svg>
+                  ) : (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                  )}
+                </button>
+              </div>
+            </div>
 
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <p className="text-sm text-gray-600 text-center">
-            ¿Aún no eres socio?{" "}
-            <Link href="/registro" className="text-candas-rojo font-bold hover:underline">
-              Regístrate
-            </Link>
-          </p>
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl p-4 text-sm">
+                {error}
+              </div>
+            )}
+
+            <button type="submit" disabled={cargando}
+              className="w-full bg-candas-rojo hover:bg-candas-rojoOscuro text-white font-bold py-3.5 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed mt-2 btn-primary text-sm">
+              {cargando ? "Entrando..." : "Entrar"}
+            </button>
+          </form>
+
+          <div className="mt-7 pt-6 border-t border-white/5 text-center">
+            <p className="text-sm text-white/30">
+              ¿Aún no tienes cuenta?{" "}
+              <Link href="/registro" className="text-white font-semibold hover:text-candas-rojo transition-colors">
+                Regístrate gratis
+              </Link>
+            </p>
+          </div>
         </div>
-      </div>
 
-      <p className="text-xs text-gray-500 text-center mt-6">
-        Solo socios con carnet | Datos protegidos
-      </p>
+        <p className="text-xs text-white/20 text-center mt-6">Registro gratuito · Datos protegidos</p>
+      </div>
     </div>
   );
 }

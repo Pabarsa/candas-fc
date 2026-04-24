@@ -84,14 +84,14 @@ export default function ChatAbonados({ usuarioId }: Props) {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow flex flex-col h-[500px]">
-      <div className="bg-candas-negro text-white px-4 py-3 rounded-t-xl font-bold">
+    <div className="card-dark rounded-2xl flex flex-col h-[500px]">
+      <div className="border-b border-white/5 px-4 py-3 font-semibold text-white/70 text-sm">
         💬 Chat de abonados
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-3 chat-scroll">
         {mensajes.length === 0 && (
-          <p className="text-center text-gray-400 text-sm mt-10">
+          <p className="text-center text-white/20 text-sm mt-10">
             Sé el primero en escribir. ¿Alguien va al campo el domingo?
           </p>
         )}
@@ -102,7 +102,7 @@ export default function ChatAbonados({ usuarioId }: Props) {
           return (
             <div key={m.id} className={`flex ${esMio ? "justify-end" : "justify-start"}`}>
               <div className={`max-w-[75%] rounded-lg px-3 py-2 text-sm ${
-                esMio ? "bg-candas-rojo text-white" : "bg-gray-100 text-gray-900"
+                esMio ? "bg-candas-rojo text-white" : "bg-white/5 text-white/80"
               }`}>
                 {!esMio && (
                   <div className="text-xs font-bold mb-1">
@@ -134,13 +134,13 @@ export default function ChatAbonados({ usuarioId }: Props) {
         <div ref={finRef} />
       </div>
 
-      <form onSubmit={enviar} className="border-t p-3 flex gap-2">
+      <form onSubmit={enviar} className="border-t border-white/5 p-3 flex gap-2">
         <input
           type="text"
           value={texto}
           onChange={(e) => setTexto(e.target.value)}
           placeholder="Escribe un mensaje..."
-          className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-candas-rojo text-sm"
+          className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-candas-rojo text-sm text-white placeholder-white/20"
           maxLength={500}
         />
         <button

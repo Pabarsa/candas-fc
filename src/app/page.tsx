@@ -1,25 +1,22 @@
 import Link from "next/link";
-import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { calcularClasificacion, Equipo, Partido } from "@/lib/types";
 import CuentaAtras from "@/components/CuentaAtras";
+import RevealSection from "@/components/RevealSection";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
-
   const { data: equipos } = await supabase.from("equipos").select("*").order("nombre");
   const { data: partidos } = await supabase
     .from("partidos")
     .select("*, local:equipos!partidos_local_id_fkey(*), visitante:equipos!partidos_visitante_id_fkey(*)")
     .order("jornada", { ascending: true });
   const { data: posts } = await supabase
-    .from("posts")
-    .select("id, titulo, foto_url, created_at")
-    .order("created_at", { ascending: false })
-    .limit(4);
+    .from("posts").select("id, titulo, foto_url, created_at")
+    .order("created_at", { ascending: false }).limit(6);
 
   const eqs = (equipos ?? []) as Equipo[];
   const pts = (partidos ?? []) as Partido[];
@@ -50,249 +47,304 @@ export default async function Home() {
 
   const rival = (p: Partido) =>
     candas ? (p.local_id === candas.id ? p.visitante?.nombre ?? "" : p.local?.nombre ?? "") : "";
-
   const marcador = (p: Partido) =>
-    p.goles_local != null ? `${p.goles_local} - ${p.goles_visitante}` : "- - -";
+    p.goles_local != null ? `${p.goles_local} - ${p.goles_visitante}` : "vs";
 
   return (
-    <div>
-      {/* HERO */}
-      <section className="bg-gradient-to-br from-candas-rojo to-candas-rojoOscuro text-white">
-        <div className="max-w-6xl mx-auto px-4 py-14">
-          <div className="flex flex-col md:flex-row items-center gap-10">
-            <div className="text-center md:text-left flex-1">
-              <div className="flex justify-center md:justify-start mb-5">
-                <Image src="/630.png" alt="Fondo Sur Canijo" width={90} height={90} priority className="drop-shadow-xl" />
-              </div>
-              <h1 className="text-4xl md:text-5xl font-black mb-2 leading-tight">Fondo Sur Canijo</h1>
-              <p className="text-white/80 text-lg mb-1">Web de aficionados del Candás CF</p>
-              <p className="text-white/60 text-sm mb-6">Segunda Asturfútbol · Grupo 1 · Temporada 2025/26</p>
-              <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-                <Link href="/clasificacion" className="bg-white text-candas-rojo font-bold px-5 py-2.5 rounded-xl hover:bg-candas-crema transition text-sm">
-                  📊 Clasificación
-                </Link>
-                <Link href="/fotos" className="bg-white/15 text-white font-bold px-5 py-2.5 rounded-xl hover:bg-white/25 transition text-sm border border-white/30">
-                  📸 Fotos
-                </Link>
-                {!user && (
-                  <Link href="/registro" className="bg-candas-negro text-white font-bold px-5 py-2.5 rounded-xl hover:bg-black transition text-sm">
-                    Únete gratis
-                  </Link>
-                )}
-              </div>
+    <div className="bg-site">
+
+      {/* ─── HERO ─────────────────────────────────────────────── */}
+      <section className="relative min-h-[100svh] flex flex-col justify-end overflow-hidden">
+        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: "url('/campo/foto5.jpg')" }} />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/50 to-site" />
+        <div className="absolute inset-0 bg-gradient-to-r from-candas-rojo/10 via-transparent to-transparent" />
+
+        {/* Texto hero */}
+        <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 pb-6 pt-24 w-full">
+          <div className="max-w-2xl">
+            <p className="inline-block text-white/70 font-medium text-[11px] tracking-[0.15em] uppercase mb-4 select-none bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full">
+              Segunda Asturfútbol · Grupo 1 · 2025/26
+            </p>
+            <h1 className="font-poppins font-black text-display-xl text-white mb-3 leading-none">
+              Fondo Sur<br />Canijo
+            </h1>
+            <p className="text-white/50 text-base sm:text-lg mb-8 max-w-sm leading-relaxed">
+              El corazón de la afición del Candás CF.
+            </p>
+            <div className="flex flex-col xs:flex-row gap-3">
+              <Link href="/clasificacion"
+                className="btn-primary bg-candas-rojo text-white font-semibold px-6 py-3 rounded-xl text-sm text-center">
+                Ver clasificación
+              </Link>
+              <Link href="/fotos"
+                className="text-white/70 hover:text-white font-semibold px-6 py-3 rounded-xl text-sm border border-white/10 hover:border-white/20 transition-all duration-200 text-center">
+                Galería de fotos
+              </Link>
             </div>
-            {statsCandas && (
-              <div className="bg-white/10 border border-white/20 rounded-2xl p-6 text-center min-w-[200px]">
-                <p className="text-white/60 text-xs font-semibold uppercase tracking-widest mb-1">Posición actual</p>
-                <p className="text-6xl font-black mb-1">{posCandas}º</p>
-                <p className="text-white/80 font-bold text-lg mb-4">{statsCandas.pts} pts</p>
-                <div className="grid grid-cols-3 gap-2 text-xs">
-                  {([["G", statsCandas.g], ["E", statsCandas.e], ["D", statsCandas.p]] as [string, number][]).map(([label, val]) => (
-                    <div key={label} className="bg-white/10 rounded-lg py-1.5">
-                      <p className="font-black text-lg">{val}</p>
-                      <p className="text-white/60">{label}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </div>
+
+        {/* Stats */}
+        {statsCandas && (
+          <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 pb-10 w-full">
+            <div className="flex gap-5 sm:gap-10 mt-8">
+              <div>
+                <p className="text-3xl sm:text-4xl font-poppins font-black text-white">{posCandas}º</p>
+                <p className="text-white/30 text-[10px] uppercase tracking-widest mt-0.5">Posición</p>
+              </div>
+              <div className="w-px bg-white/10" />
+              <div>
+                <p className="text-3xl sm:text-4xl font-poppins font-black text-white">{statsCandas.pts}</p>
+                <p className="text-white/30 text-[10px] uppercase tracking-widest mt-0.5">Puntos</p>
+              </div>
+              <div className="w-px bg-white/10" />
+              <div>
+                <p className="text-3xl sm:text-4xl font-poppins font-black text-white">{statsCandas.g}</p>
+                <p className="text-white/30 text-[10px] uppercase tracking-widest mt-0.5">Victorias</p>
+              </div>
+              <div className="w-px bg-white/10 hidden sm:block" />
+              <div className="hidden sm:block">
+                <p className="text-3xl sm:text-4xl font-poppins font-black text-white">{statsCandas.pj}</p>
+                <p className="text-white/30 text-[10px] uppercase tracking-widest mt-0.5">Jugados</p>
+              </div>
+            </div>
+          </div>
+        )}
       </section>
 
-      {/* PRÓXIMO PARTIDO con cuenta atrás */}
+      {/* ─── PRÓXIMO PARTIDO ──────────────────────────────────── */}
       {proximoPartido && (
-        <section className="bg-candas-negro text-white">
-          <div className="max-w-6xl mx-auto px-4 py-4">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-              <p className="text-white/50 text-xs font-semibold uppercase tracking-widest">
-                🗓️ Próximo partido · Jornada {proximoPartido.jornada}
+        <RevealSection>
+          <section className="py-10 sm:py-14 px-5 sm:px-6">
+            <div className="max-w-7xl mx-auto">
+              <p className="text-white/30 text-xs uppercase tracking-widest mb-5">
+                Próximo partido · Jornada {proximoPartido.jornada}
               </p>
-              <div className="flex items-center gap-4 text-center">
-                <p className="font-bold text-sm">{proximoPartido.local?.nombre}</p>
-                <span className="bg-white/10 px-4 py-1.5 rounded-lg font-black text-lg">VS</span>
-                <p className="font-bold text-sm">{proximoPartido.visitante?.nombre}</p>
+              <div className="card-dark rounded-2xl p-6 sm:p-10">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+                  {/* Equipos */}
+                  <div className="flex items-center gap-4 sm:gap-8 w-full sm:w-auto justify-center">
+                    <p className="font-poppins font-bold text-base sm:text-xl text-white text-right flex-1 sm:flex-none">
+                      {proximoPartido.local?.nombre}
+                    </p>
+                    <div className="px-3 sm:px-5 py-1.5 sm:py-2 rounded-xl bg-white/5 border border-white/10 flex-shrink-0">
+                      <span className="font-poppins font-black text-white/40 text-base">vs</span>
+                    </div>
+                    <p className="font-poppins font-bold text-base sm:text-xl text-white flex-1 sm:flex-none">
+                      {proximoPartido.visitante?.nombre}
+                    </p>
+                  </div>
+                  {/* Fecha */}
+                  <div className="text-center sm:text-right flex-shrink-0 w-full sm:w-auto">
+                    {proximoPartido.fecha ? (
+                      <>
+                        <p className="text-white/40 text-xs sm:text-sm mb-2">
+                          {new Date(proximoPartido.fecha).toLocaleString("es-ES", {
+                            weekday: "long", day: "numeric", month: "long",
+                            hour: "2-digit", minute: "2-digit", timeZone: "Europe/Madrid",
+                          })}
+                        </p>
+                        <CuentaAtras fecha={proximoPartido.fecha} />
+                      </>
+                    ) : (
+                      <p className="text-white/30 text-sm">Fecha por confirmar</p>
+                    )}
+                  </div>
+                </div>
               </div>
-              {proximoPartido.fecha ? (
-                <div className="flex flex-col items-end gap-1">
-                  <p className="text-white/60 text-xs">
-                    {new Date(proximoPartido.fecha).toLocaleString("es-ES", {
-                      weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit",
-                      timeZone: "Europe/Madrid",
+            </div>
+          </section>
+        </RevealSection>
+      )}
+
+      {/* ─── ÚLTIMOS RESULTADOS ───────────────────────────────── */}
+      {ultimosResultados.length > 0 && (
+        <RevealSection>
+          <section className="py-4 px-5 sm:px-6">
+            <div className="max-w-7xl mx-auto">
+              <p className="text-white/30 text-xs uppercase tracking-widest mb-4">Últimos resultados</p>
+              <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                {ultimosResultados.map((p) => {
+                  const res = getResultado(p);
+                  const color =
+                    res === "V" ? "bg-green-500/10 border-green-500/20 text-green-400" :
+                    res === "D" ? "bg-red-500/10 border-red-500/20 text-red-400" :
+                    "bg-yellow-500/10 border-yellow-500/20 text-yellow-400";
+                  return (
+                    <div key={p.id} className="flex-shrink-0 card-dark rounded-xl p-3 sm:p-4 min-w-[110px] sm:min-w-[130px] text-center">
+                      <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full border mb-1.5 ${color}`}>
+                        {res === "V" ? "Victoria" : res === "D" ? "Derrota" : "Empate"}
+                      </span>
+                      <p className="font-poppins font-black text-white text-lg sm:text-xl">{marcador(p)}</p>
+                      <p className="text-white/30 text-[10px] mt-0.5 truncate">vs {rival(p)}</p>
+                      <p className="text-white/20 text-[10px]">J{p.jornada}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+        </RevealSection>
+      )}
+
+      {/* ─── CLASIFICACIÓN + FOTOS ────────────────────────────── */}
+      <RevealSection>
+        <section className="py-10 sm:py-14 px-5 sm:px-6">
+          <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-8 sm:gap-12">
+            {/* Clasificación */}
+            <div>
+              <div className="flex items-center justify-between mb-5">
+                <p className="text-white/30 text-xs uppercase tracking-widest">Clasificación</p>
+                <Link href="/clasificacion" className="text-candas-rojo text-xs font-medium hover:text-white transition-colors duration-200">
+                  Ver completa →
+                </Link>
+              </div>
+              <div className="card-dark rounded-2xl overflow-hidden">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-white/5">
+                      <th className="px-3 sm:px-4 py-3 text-left text-xs text-white/20 font-medium w-8">#</th>
+                      <th className="px-3 sm:px-4 py-3 text-left text-xs text-white/20 font-medium">Equipo</th>
+                      <th className="px-3 sm:px-4 py-3 text-center text-xs text-white/20 font-medium">PJ</th>
+                      <th className="px-3 sm:px-4 py-3 text-center text-xs text-white/20 font-medium text-candas-rojo">Pts</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {clasificacion.slice(0, 8).map((fila, i) => {
+                      const esCandas = fila.equipo.nombre === "Candás CF";
+                      return (
+                        <tr key={fila.equipo.id}
+                          className={`border-b border-white/5 last:border-0 ${esCandas ? "bg-candas-rojo/[0.08]" : "hover:bg-white/[0.02]"}`}>
+                          <td className="px-3 sm:px-4 py-2.5 text-white/20 text-xs">{i + 1}</td>
+                          <td className="px-3 sm:px-4 py-2.5">
+                            <span className={`text-xs sm:text-sm font-medium ${esCandas ? "text-white font-bold" : "text-white/60"}`}>
+                              {fila.equipo.nombre}
+                            </span>
+                            {esCandas && <span className="ml-1.5 w-1.5 h-1.5 rounded-full bg-candas-rojo inline-block align-middle" />}
+                          </td>
+                          <td className="px-3 sm:px-4 py-2.5 text-center text-white/30 text-xs">{fila.pj}</td>
+                          <td className="px-3 sm:px-4 py-2.5 text-center">
+                            <span className={`text-xs sm:text-sm font-bold ${esCandas ? "text-white" : "text-white/60"}`}>{fila.pts}</span>
+                          </td>
+                        </tr>
+                      );
                     })}
-                  </p>
-                  <CuentaAtras fecha={proximoPartido.fecha} />
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Fotos */}
+            <div>
+              <div className="flex items-center justify-between mb-5">
+                <p className="text-white/30 text-xs uppercase tracking-widest">Últimas fotos</p>
+                <Link href="/fotos" className="text-candas-rojo text-xs font-medium hover:text-white transition-colors duration-200">
+                  Ver todas →
+                </Link>
+              </div>
+              {fotos.length === 0 ? (
+                <div className="card-dark rounded-2xl h-40 flex items-center justify-center">
+                  <p className="text-white/20 text-sm">Pronto habrá fotos aquí</p>
                 </div>
               ) : (
-                <p className="text-white/40 text-xs">Fecha por confirmar</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {fotos.slice(0, 6).map((post: any, i) => (
+                    <Link key={post.id} href="/fotos"
+                      className={`group relative overflow-hidden rounded-xl bg-surface ${i === 0 ? "col-span-2 row-span-2" : ""} aspect-square`}>
+                      <img src={post.foto_url} alt={post.titulo}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300" />
+                    </Link>
+                  ))}
+                </div>
               )}
             </div>
           </div>
         </section>
-      )}
+      </RevealSection>
 
-      {/* BANNER REGISTRO — solo para no logados, antes del contenido */}
-      {!user && (
-        <section className="bg-amber-50 border-b border-amber-200">
-          <div className="max-w-6xl mx-auto px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p className="text-amber-800 text-sm font-semibold">
-              💬 El chat, los viajes, el simulador y las encuestas son gratis — solo necesitas registrarte
-            </p>
-            <div className="flex gap-2 flex-shrink-0">
-              <Link href="/registro" className="bg-candas-rojo text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-candas-rojoOscuro transition">
-                Crear cuenta gratis
-              </Link>
-              <Link href="/login" className="bg-white text-gray-700 text-xs font-semibold px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition">
-                Iniciar sesión
-              </Link>
+      {/* ─── STATS EQUIPO ─────────────────────────────────────── */}
+      <RevealSection>
+        <section className="py-10 sm:py-14 px-5 sm:px-6 border-y border-white/5">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-10 text-center">
+              {[
+                { valor: "1948",    label: "Año de fundación" },
+                { valor: "Carreño", label: "Concejo" },
+                { valor: "2ª",      label: "Asturfútbol" },
+                { valor: "La Mata", label: "Estadio" },
+              ].map((d) => (
+                <div key={d.label}>
+                  <p className="font-poppins font-black text-2xl sm:text-3xl text-white">{d.valor}</p>
+                  <p className="text-white/30 text-xs uppercase tracking-widest mt-1">{d.label}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
-      )}
+      </RevealSection>
 
-      <div className="max-w-6xl mx-auto px-4 py-10 space-y-10">
-
-        {/* ÚLTIMOS RESULTADOS */}
-        {ultimosResultados.length > 0 && (
-          <section>
-            <h2 className="text-xl font-black mb-4">Últimos resultados del Candás</h2>
-            <div className="flex gap-3 overflow-x-auto pb-2">
-              {ultimosResultados.map((p) => {
-                const res = getResultado(p);
-                const color = res === "V" ? "bg-green-500" : res === "D" ? "bg-red-500" : "bg-yellow-400";
-                const textColor = res === "E" ? "text-gray-900" : "text-white";
-                return (
-                  <div key={p.id} className="flex-shrink-0 bg-white rounded-xl shadow p-4 min-w-[140px] text-center border border-gray-100">
-                    <span className={`inline-block ${color} ${textColor} font-black text-xs px-3 py-0.5 rounded-full mb-2`}>
-                      {res === "V" ? "Victoria" : res === "D" ? "Derrota" : "Empate"}
+      {/* ─── SECCIONES ────────────────────────────────────────── */}
+      <RevealSection>
+        <section className="py-10 sm:py-14 px-5 sm:px-6">
+          <div className="max-w-7xl mx-auto">
+            <p className="text-white/30 text-xs uppercase tracking-widest mb-5">Explorar</p>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              {[
+                { href: "/clasificacion", title: "Clasificación", desc: "Segunda Asturfútbol actualizada" },
+                { href: "/fotos",         title: "Fotos",         desc: "Galería de imágenes del equipo" },
+                { href: user ? "/simulador" : "/login", title: "Simulador", desc: "Simula el final de la liga", locked: !user },
+                { href: user ? "/abonados"  : "/login", title: "Mi zona",   desc: "Chat, viajes y encuestas",  locked: !user },
+              ].map((item) => (
+                <Link key={item.title} href={item.href}
+                  className="card-dark rounded-2xl p-4 sm:p-6 group hover:border-white/10 transition-all duration-200">
+                  <p className="font-poppins font-bold text-white text-sm sm:text-base mb-1">{item.title}</p>
+                  <p className="text-white/30 text-xs leading-relaxed">{item.desc}</p>
+                  {item.locked && (
+                    <span className="inline-block mt-2 text-[10px] text-white/20 border border-white/10 px-2 py-0.5 rounded-full">
+                      Registro gratuito
                     </span>
-                    <p className="font-black text-xl mb-1">{marcador(p)}</p>
-                    <p className="text-xs text-gray-500 truncate">vs {rival(p)}</p>
-                    <p className="text-xs text-gray-400 mt-1">J{p.jornada}</p>
-                  </div>
-                );
-              })}
+                  )}
+                </Link>
+              ))}
             </div>
-          </section>
-        )}
-
-        {/* CLASIFICACIÓN + FOTOS */}
-        <div className="grid lg:grid-cols-2 gap-8">
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-black">Clasificación</h2>
-              <Link href="/clasificacion" className="text-candas-rojo text-sm font-bold hover:underline">Ver completa →</Link>
-            </div>
-            <div className="bg-white rounded-xl shadow overflow-hidden border border-gray-100">
-              <table className="w-full text-sm">
-                <thead className="bg-gray-50 text-xs text-gray-500 uppercase">
-                  <tr>
-                    <th className="px-3 py-2 text-left w-7">#</th>
-                    <th className="px-3 py-2 text-left">Equipo</th>
-                    <th className="px-3 py-2 text-center">PJ</th>
-                    <th className="px-3 py-2 text-center font-black text-candas-rojo">Pts</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {clasificacion.slice(0, 8).map((fila, i) => {
-                    const esCandas = fila.equipo.nombre === "Candás CF";
-                    const border = i === 0 ? "border-l-4 border-green-500" : i < 5 ? "border-l-4 border-blue-400" : "";
-                    return (
-                      <tr key={fila.equipo.id} className={`border-t border-gray-50 ${esCandas ? "bg-red-50" : "hover:bg-gray-50"} ${border}`}>
-                        <td className="px-3 py-2 text-gray-400 text-xs">{i + 1}</td>
-                        <td className="px-3 py-2">
-                          <span className={esCandas ? "text-candas-rojo font-black" : ""}>{fila.equipo.nombre}</span>
-                          {esCandas && <span className="ml-1 text-xs">⚽</span>}
-                        </td>
-                        <td className="px-3 py-2 text-center text-gray-500">{fila.pj}</td>
-                        <td className="px-3 py-2 text-center font-black">{fila.pts}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-              <div className="px-3 py-2 bg-gray-50 flex gap-4 text-xs text-gray-500">
-                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-500 inline-block"></span>Ascenso</span>
-                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-400 inline-block"></span>Play-off</span>
-              </div>
-            </div>
-          </section>
-
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-black">📸 Últimas fotos</h2>
-              <Link href="/fotos" className="text-candas-rojo text-sm font-bold hover:underline">Ver todas →</Link>
-            </div>
-            {fotos.length === 0 ? (
-              <div className="bg-white rounded-xl shadow border border-gray-100 h-48 flex flex-col items-center justify-center text-gray-400">
-                <p className="text-3xl mb-2">📷</p>
-                <p className="text-sm">Pronto habrá fotos aquí</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-3">
-                {fotos.map((post: any) => (
-                  <Link key={post.id} href="/fotos" className="group relative rounded-xl overflow-hidden shadow aspect-square bg-gray-100 block">
-                    <img src={post.foto_url} alt={post.titulo} className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition flex items-end p-2">
-                      <p className="text-white text-xs font-bold leading-tight">{post.titulo}</p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </section>
-        </div>
-
-        {/* SECCIONES */}
-        <section>
-          <h2 className="text-xl font-black mb-4">Todo lo que puedes hacer aquí</h2>
-          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { href: "/clasificacion", icon: "📊", title: "Clasificación", desc: "Segunda Asturfútbol Grupo 1 actualizada", libre: true },
-              { href: "/fotos", icon: "📸", title: "Fotos", desc: "Galería de imágenes de los partidos", libre: true },
-              { href: user ? "/simulador" : "/login", icon: "🔮", title: "Simulador", desc: "Simula cómo puede terminar la liga", libre: false },
-              { href: user ? "/abonados" : "/login", icon: "🚗", title: "Zona miembros", desc: "Chat, viajes y encuestas del partido", libre: false },
-            ].map((item) => (
-              <Link key={item.title} href={item.href}
-                className="bg-white rounded-xl p-5 shadow hover:shadow-lg hover:-translate-y-0.5 transition border border-gray-100 block">
-                <p className="text-2xl mb-2">{item.icon}</p>
-                <p className="font-black mb-1">{item.title}</p>
-                <p className="text-gray-500 text-xs leading-relaxed">{item.desc}</p>
-                {!item.libre && !user && (
-                  <span className="inline-block mt-2 text-xs text-candas-rojo bg-red-50 px-2 py-0.5 rounded-full font-semibold">🆓 Gratis — regístrate</span>
-                )}
-              </Link>
-            ))}
           </div>
         </section>
+      </RevealSection>
 
-        {/* CTA REGISTRO — solo para no logados, al fondo */}
-        {!user && (
-          <section className="bg-gradient-to-br from-candas-rojo to-candas-rojoOscuro rounded-2xl p-8 text-white text-center">
-            <p className="text-2xl font-black mb-2">¿Aún no tienes cuenta?</p>
-            <p className="text-white/80 mb-5 text-sm">Crear una cuenta es completamente gratis. Accede al simulador, el chat, los viajes y las encuestas del mejor jugador.</p>
-            <div className="flex gap-3 justify-center flex-wrap">
-              <Link href="/registro" className="bg-white text-candas-rojo font-black px-8 py-3 rounded-xl hover:bg-candas-crema transition inline-block">
-                Crear cuenta gratis
-              </Link>
-              <Link href="/login" className="bg-white/15 text-white font-bold px-8 py-3 rounded-xl hover:bg-white/25 transition inline-block border border-white/30">
-                Ya tengo cuenta
-              </Link>
+      {/* ─── CTA REGISTRO ─────────────────────────────────────── */}
+      {!user && (
+        <RevealSection delay={100}>
+          <section className="py-10 sm:py-16 px-5 sm:px-6">
+            <div className="max-w-7xl mx-auto">
+              <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-candas-rojo p-8 sm:p-14">
+                <div className="absolute inset-0 bg-gradient-to-br from-candas-rojo via-candas-rojo to-candas-rojoOscuro" />
+                <div className="absolute top-0 right-0 w-64 h-64 sm:w-96 sm:h-96 bg-white/5 rounded-full translate-x-24 -translate-y-24" />
+                <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full -translate-x-12 translate-y-12" />
+                <div className="relative z-10 text-center max-w-lg mx-auto">
+                  <h2 className="font-poppins font-black text-2xl sm:text-display-md text-white mb-3">
+                    Únete a la afición
+                  </h2>
+                  <p className="text-white/70 mb-7 text-sm sm:text-base leading-relaxed">
+                    Crea una cuenta gratis y accede al simulador, el chat, los viajes y las encuestas del mejor jugador.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <Link href="/registro"
+                      className="bg-white text-candas-rojo font-bold px-7 py-3.5 rounded-xl hover:bg-white/90 transition-all duration-200 text-sm">
+                      Crear cuenta gratis
+                    </Link>
+                    <Link href="/login"
+                      className="text-white/70 hover:text-white font-medium px-7 py-3.5 rounded-xl border border-white/20 hover:border-white/40 transition-all duration-200 text-sm">
+                      Ya tengo cuenta
+                    </Link>
+                  </div>
+                </div>
+              </div>
             </div>
           </section>
-        )}
-      </div>
-
-      {/* PIE */}
-      <section className="bg-candas-crema mt-10">
-        <div className="max-w-4xl mx-auto px-4 py-12 text-center">
-          <h2 className="text-2xl font-black mb-3">Desde 1948 · ¡Vamos Canijo! 🔴⚪</h2>
-          <p className="text-gray-600 text-sm leading-relaxed">
-            El Candás CF se fundó en 1948 y juega sus partidos en el campo de <strong>La Mata</strong>.
-            Esta web es una iniciativa de la afición, sin ánimo de lucro, para seguir de cerca la temporada del equipo rojiblanco.
-          </p>
-        </div>
-      </section>
+        </RevealSection>
+      )}
     </div>
   );
 }

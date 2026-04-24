@@ -33,18 +33,18 @@ export default function HistorialEncuestas({
           return (
             <div
               key={item.encuestaId}
-              className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex gap-3 items-start"
+              className="card-dark rounded-xl p-4 flex gap-3 items-start"
             >
               {/* Trofeo */}
-              <div className="bg-yellow-50 rounded-lg p-2 flex-shrink-0">
-                <span className="text-xl">🏆</span>
+              <div className="bg-white/5 rounded-lg p-2 flex-shrink-0">
+                <span className="text-xl"></span>
               </div>
 
               <div className="min-w-0 flex-1">
-                <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-0.5 truncate">
+                <p className="text-xs text-white/30 font-semibold uppercase tracking-wide mb-0.5 truncate">
                   {item.titulo}
                 </p>
-                <p className="font-black text-gray-900 text-sm truncate">
+                <p className="font-black text-white text-sm truncate">
                   {item.ganadorNombre}
                 </p>
 
@@ -54,7 +54,7 @@ export default function HistorialEncuestas({
                     <span>{item.votos} votos</span>
                     <span>{pct}%</span>
                   </div>
-                  <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-candas-rojo rounded-full transition-all"
                       style={{ width: `${pct}%` }}

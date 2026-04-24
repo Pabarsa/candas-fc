@@ -3,10 +3,6 @@ import { FilaClasificacion } from "@/lib/types";
 type Props = {
   filas: FilaClasificacion[];
   destacarEquipo?: string;
-  /**
-   * Cuántos equipos suben directos, hacen play-off y descienden.
-   * Segunda Asturfútbol Grupo 1 2025/26: 1 directo, 4 play-off, 3 descienden.
-   */
   ascensoDirecto?: number;
   playoff?: number;
   descienden?: number;
@@ -21,76 +17,90 @@ export default function TablaClasificacion({
 }: Props) {
   const total = filas.length;
 
-  const zonaDe = (pos: number) => {
+  const getZona = (pos: number) => {
     if (pos <= ascensoDirecto) return "directo";
     if (pos <= ascensoDirecto + playoff) return "playoff";
     if (pos > total - descienden) return "descenso";
     return "normal";
   };
 
-  const color = {
-    directo: "bg-green-100 border-l-4 border-green-600",
-    playoff: "bg-blue-50 border-l-4 border-blue-500",
-    descenso: "bg-red-50 border-l-4 border-red-500",
-    normal: "",
-  } as const;
-
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm border-collapse">
         <thead>
-          <tr className="bg-candas-negro text-white text-left">
-            <th className="px-3 py-2 w-10">#</th>
-            <th className="px-3 py-2">Equipo</th>
-            <th className="px-2 py-2 text-center">PJ</th>
-            <th className="px-2 py-2 text-center">G</th>
-            <th className="px-2 py-2 text-center">E</th>
-            <th className="px-2 py-2 text-center">P</th>
-            <th className="px-2 py-2 text-center hidden sm:table-cell">GF</th>
-            <th className="px-2 py-2 text-center hidden sm:table-cell">GC</th>
-            <th className="px-2 py-2 text-center">DIF</th>
-            <th className="px-3 py-2 text-center font-black">PTS</th>
+          <tr className="border-b border-white/5">
+            <th className="px-4 py-3 text-left text-xs text-white/20 font-medium w-10">#</th>
+            <th className="px-4 py-3 text-left text-xs text-white/20 font-medium">Equipo</th>
+            <th className="px-3 py-3 text-center text-xs text-white/20 font-medium">PJ</th>
+            <th className="px-3 py-3 text-center text-xs text-white/20 font-medium">G</th>
+            <th className="px-3 py-3 text-center text-xs text-white/20 font-medium">E</th>
+            <th className="px-3 py-3 text-center text-xs text-white/20 font-medium">P</th>
+            <th className="px-3 py-3 text-center text-xs text-white/20 font-medium hidden sm:table-cell">GF</th>
+            <th className="px-3 py-3 text-center text-xs text-white/20 font-medium hidden sm:table-cell">GC</th>
+            <th className="px-3 py-3 text-center text-xs text-white/20 font-medium">DIF</th>
+            <th className="px-4 py-3 text-center text-xs text-white/20 font-medium">PTS</th>
           </tr>
         </thead>
         <tbody>
           {filas.map((f, i) => {
             const pos = i + 1;
-            const zona = zonaDe(pos);
+            const zona = getZona(pos);
             const esCandas = f.equipo.nombre === destacarEquipo;
+
             return (
               <tr
                 key={f.equipo.id}
-                className={`${color[zona]} ${esCandas ? "font-bold" : ""} border-b border-gray-100`}
+                className={`border-b border-white/5 last:border-0 transition-colors duration-150 ${
+                  esCandas ? "bg-candas-rojo/[0.08]" : "hover:bg-white/[0.02]"
+                }`}
               >
-                <td className="px-3 py-2">{pos}</td>
-                <td className={`px-3 py-2 ${esCandas ? "text-candas-rojo" : ""}`}>
-                  {f.equipo.nombre}
+                {/* Celda con indicador de zona */}
+                <td className="px-4 py-3 w-10">
+                  <div className="flex items-center gap-2">
+                    {zona === "directo"  && <span className="w-1 h-5 rounded-full bg-green-500 flex-shrink-0" />}
+                    {zona === "playoff"  && <span className="w-1 h-5 rounded-full bg-blue-400 flex-shrink-0" />}
+                    {zona === "descenso" && <span className="w-1 h-5 rounded-full bg-red-500 flex-shrink-0" />}
+                    {zona === "normal"   && <span className="w-1 h-5 rounded-full bg-transparent flex-shrink-0" />}
+                    <span className="text-white/30 text-xs">{pos}</span>
+                  </div>
                 </td>
-                <td className="px-2 py-2 text-center">{f.pj}</td>
-                <td className="px-2 py-2 text-center">{f.g}</td>
-                <td className="px-2 py-2 text-center">{f.e}</td>
-                <td className="px-2 py-2 text-center">{f.p}</td>
-                <td className="px-2 py-2 text-center hidden sm:table-cell">{f.gf}</td>
-                <td className="px-2 py-2 text-center hidden sm:table-cell">{f.gc}</td>
-                <td className="px-2 py-2 text-center">
+                <td className={`px-4 py-3 font-medium ${esCandas ? "text-white" : "text-white/60"}`}>
+                  {f.equipo.nombre}
+                  {esCandas && <span className="ml-2 w-1.5 h-1.5 rounded-full bg-candas-rojo inline-block align-middle" />}
+                </td>
+                <td className="px-3 py-3 text-center text-white/40 text-xs">{f.pj}</td>
+                <td className="px-3 py-3 text-center text-white/40 text-xs">{f.g}</td>
+                <td className="px-3 py-3 text-center text-white/40 text-xs">{f.e}</td>
+                <td className="px-3 py-3 text-center text-white/40 text-xs">{f.p}</td>
+                <td className="px-3 py-3 text-center text-white/30 text-xs hidden sm:table-cell">{f.gf}</td>
+                <td className="px-3 py-3 text-center text-white/30 text-xs hidden sm:table-cell">{f.gc}</td>
+                <td className="px-3 py-3 text-center text-white/40 text-xs">
                   {f.dif > 0 ? `+${f.dif}` : f.dif}
                 </td>
-                <td className="px-3 py-2 text-center font-black">{f.pts}</td>
+                <td className="px-4 py-3 text-center">
+                  <span className={`font-bold text-sm ${esCandas ? "text-white" : "text-white/70"}`}>
+                    {f.pts}
+                  </span>
+                </td>
               </tr>
             );
           })}
         </tbody>
       </table>
 
-      <div className="mt-4 flex flex-wrap gap-4 text-xs text-gray-600">
+      {/* Leyenda */}
+      <div className="px-4 py-3 border-t border-white/5 flex flex-wrap gap-5 text-xs text-white/20">
         <span className="flex items-center gap-2">
-          <span className="w-3 h-3 bg-green-600 rounded" /> Ascenso directo
+          <span className="w-2.5 h-2.5 rounded-full bg-green-500 inline-block" />
+          Ascenso directo
         </span>
         <span className="flex items-center gap-2">
-          <span className="w-3 h-3 bg-blue-500 rounded" /> Play-off de ascenso
+          <span className="w-2.5 h-2.5 rounded-full bg-blue-400 inline-block" />
+          Play-off
         </span>
         <span className="flex items-center gap-2">
-          <span className="w-3 h-3 bg-red-500 rounded" /> Descenso
+          <span className="w-2.5 h-2.5 rounded-full bg-red-500 inline-block" />
+          Descenso
         </span>
       </div>
     </div>

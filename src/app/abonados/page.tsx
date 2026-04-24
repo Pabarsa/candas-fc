@@ -98,10 +98,10 @@ export default async function AbonadosPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-10">
+    <div className="max-w-6xl mx-auto px-5 sm:px-6 pt-20 sm:pt-28 pb-12">
       <div className="mb-8">
-        <h1 className="text-3xl md:text-4xl font-black mb-2">Zona de abonados</h1>
-        <p className="text-gray-600">
+        <h1 className="font-poppins font-black text-3xl sm:text-5xl text-white mb-2">Mi zona</h1>
+        <p className="text-white/40">
           Hola <strong>{profile?.nombre || "abonado"}</strong> · ¡Vamos Canijo! 🔴⚪
         </p>
       </div>
@@ -115,10 +115,10 @@ export default async function AbonadosPage() {
       {/* Encuesta activa */}
       <section className="mb-10">
         <div className="flex items-center gap-3 mb-5">
-          <h2 className="text-2xl font-black">🗳️ Encuesta</h2>
-          <span className="text-sm text-gray-500 font-normal">Vota al mejor jugador</span>
+          <p className="text-white/30 text-xs uppercase tracking-widest">Encuesta</p>
+          
         </div>
-        <div className="bg-white rounded-xl shadow p-6 max-w-xl">
+        <div className="card-dark rounded-2xl p-6 max-w-xl">
           <EncuestaAbonados usuarioId={user.id} />
         </div>
       </section>
@@ -129,7 +129,7 @@ export default async function AbonadosPage() {
       {/* Galería */}
       <section className="mb-10">
         <div className="flex items-center gap-3 mb-5">
-          <h2 className="text-2xl font-black">📸 Galería</h2>
+          <p className="text-white/30 text-xs uppercase tracking-widest">Galería</p>
           <span className="text-sm text-gray-500 font-normal">Fotos exclusivas para abonados</span>
         </div>
         <GaleriaAbonados />
@@ -138,7 +138,7 @@ export default async function AbonadosPage() {
       {/* Perfil */}
       <section>
         <div className="flex items-center gap-3 mb-5">
-          <h2 className="text-2xl font-black">👤 Tu perfil</h2>
+          <p className="text-white/30 text-xs uppercase tracking-widest">Tu perfil</p>
         </div>
         <PerfilAbonado
           perfil={{

@@ -105,9 +105,9 @@ export default function TablonViajes({ usuarioId, esAdmin, proximosPartidos }: P
   };
 
   return (
-    <div className="bg-white rounded-xl shadow p-6">
+    <div className="card-dark rounded-2xl p-6">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold">🚗 Viajes compartidos</h2>
+        <h2 className="text-sm font-semibold text-white/70 uppercase tracking-widest">🚗 Viajes compartidos</h2>
         <button
           onClick={() => setAbierto(!abierto)}
           className="bg-candas-rojo text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-candas-rojoOscuro"
@@ -117,7 +117,7 @@ export default function TablonViajes({ usuarioId, esAdmin, proximosPartidos }: P
       </div>
 
       {abierto && (
-        <div className="bg-candas-crema p-4 rounded-lg mb-4 space-y-3">
+        <div className="bg-white/3 border border-white/8 p-4 rounded-xl mb-4 space-y-3">
           {/* Aviso uso responsable */}
           {!aceptado ? (
             <div className="space-y-3">
@@ -144,7 +144,7 @@ export default function TablonViajes({ usuarioId, esAdmin, proximosPartidos }: P
                 <select
                   value={partidoId}
                   onChange={(e) => setPartidoId(e.target.value ? parseInt(e.target.value) : "")}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-white/20"
                 >
                   <option value="">Elige partido...</option>
                   {partidosFuturos.map((p) => (
@@ -170,7 +170,7 @@ export default function TablonViajes({ usuarioId, esAdmin, proximosPartidos }: P
                     value={puntoSalida}
                     onChange={(e) => setPuntoSalida(e.target.value)}
                     placeholder="Ej: Plaza La Baragaña"
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-white/20"
                   />
                 </div>
                 <div>
@@ -179,7 +179,7 @@ export default function TablonViajes({ usuarioId, esAdmin, proximosPartidos }: P
                     type="time"
                     value={horaSalida}
                     onChange={(e) => setHoraSalida(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-white/20"
                   />
                 </div>
               </div>
@@ -202,7 +202,7 @@ export default function TablonViajes({ usuarioId, esAdmin, proximosPartidos }: P
                   value={notas}
                   onChange={(e) => setNotas(e.target.value)}
                   placeholder="Opcional: teléfono de contacto, punto de encuentro..."
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-white/20"
                 />
               </div>
 
@@ -220,7 +220,7 @@ export default function TablonViajes({ usuarioId, esAdmin, proximosPartidos }: P
       )}
 
       {viajes.length === 0 ? (
-        <p className="text-gray-500 text-sm text-center py-8">
+        <p className="text-white/20 text-sm text-center py-8">
           Aún no hay viajes publicados. ¡Sé el primero!
         </p>
       ) : (
@@ -230,13 +230,13 @@ export default function TablonViajes({ usuarioId, esAdmin, proximosPartidos }: P
             const esMio = v.usuario_id === usuarioId;
             const puedeborrar = esMio || esAdmin;
             return (
-              <li key={v.id} className="border border-gray-200 rounded-lg p-3 text-sm">
+              <li key={v.id} className="bg-white/3 border border-white/8 rounded-xl p-3 text-sm">
                 <div className="flex justify-between items-start gap-2">
                   <div className="flex-1">
-                    <div className="font-bold">
+                    <div className="font-bold text-white">
                       {p ? `${p.local?.nombre} vs ${p.visitante?.nombre}` : "Partido"}
                     </div>
-                    <div className="text-gray-600 text-xs mb-1">
+                    <div className="text-white/40 text-xs mb-1">
                       Salida desde <strong>{v.punto_salida}</strong> a las{" "}
                       <strong>
                         {new Date(v.hora_salida).toLocaleTimeString("es-ES", {

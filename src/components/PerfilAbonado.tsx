@@ -69,43 +69,43 @@ export default function PerfilAbonado({
   return (
     <div className="grid sm:grid-cols-2 gap-6">
       {/* Datos personales */}
-      <div className="bg-white rounded-xl shadow p-6 border border-gray-100">
-        <h3 className="font-black text-lg mb-4">👤 Tus datos</h3>
+      <div className="card-dark rounded-2xl p-6">
+        <h3 className="font-black text-lg mb-4">Tus datos</h3>
         <div className="space-y-3">
           <div>
-            <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide">Nombre</p>
-            <p className="font-bold text-gray-900">{perfil.nombre || "—"}</p>
+            <p className="text-xs text-white/30 font-semibold uppercase tracking-wide">Nombre</p>
+            <p className="font-bold text-white">{perfil.nombre || "—"}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide">Email</p>
-            <p className="font-bold text-gray-900">{email}</p>
+            <p className="text-xs text-white/30 font-semibold uppercase tracking-wide">Email</p>
+            <p className="font-bold text-white">{email}</p>
           </div>
           {perfil.carnet && perfil.carnet.trim() !== "" && (
             <div>
-              <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide">Nº carnet</p>
-              <p className="font-bold text-gray-900">{perfil.carnet}</p>
+              <p className="text-xs text-white/30 font-semibold uppercase tracking-wide">Nº carnet</p>
+              <p className="font-bold text-white">{perfil.carnet}</p>
             </div>
           )}
           <div>
-            <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide">Rol</p>
+            <p className="text-xs text-white/30 font-semibold uppercase tracking-wide">Rol</p>
             <span className={`inline-block text-xs font-black px-3 py-1 rounded-full ${
               perfil.rol === "admin"
                 ? "bg-candas-rojo text-white"
                 : "bg-gray-100 text-gray-700"
             }`}>
-              {perfil.rol === "admin" ? "⚙️ Admin" : "🎫 Abonado"}
+              {perfil.rol === "admin" ? "Admin" : "🎫 Abonado"}
             </span>
           </div>
         </div>
 
-        {/* Cambiar contraseña */}
-        <div className="mt-5 pt-5 border-t border-gray-100">
+        {/*Cambiar contraseña */}
+        <div className="mt-5 pt-5 border-t border-white/5">
           {paso === "ver" ? (
             <button
               onClick={() => setPaso("password")}
               className="text-candas-rojo text-sm font-bold hover:underline"
             >
-              🔑 Cambiar contraseña
+              Cambiar contraseña
             </button>
           ) : (
             <form onSubmit={cambiarPassword} className="space-y-3">
@@ -115,7 +115,7 @@ export default function PerfilAbonado({
                 placeholder="Contraseña nueva"
                 value={passwordNueva}
                 onChange={(e) => setPasswordNueva(e.target.value)}
-                className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-candas-rojo focus:outline-none"
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-candas-rojo focus:outline-none"
                 autoFocus
               />
               <input
@@ -123,7 +123,7 @@ export default function PerfilAbonado({
                 placeholder="Repite la contraseña"
                 value={passwordRepeat}
                 onChange={(e) => setPasswordRepeat(e.target.value)}
-                className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-candas-rojo focus:outline-none"
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-candas-rojo focus:outline-none"
               />
               {error && <p className="text-red-600 text-xs">{error}</p>}
               {ok && <p className="text-green-600 text-xs">{ok}</p>}
@@ -149,25 +149,25 @@ export default function PerfilAbonado({
       </div>
 
       {/* Historial de votos */}
-      <div className="bg-white rounded-xl shadow p-6 border border-gray-100">
-        <h3 className="font-black text-lg mb-4">🗳️ Tus votos anteriores</h3>
+      <div className="card-dark rounded-2xl p-6">
+        <h3 className="font-black text-lg mb-4">Tus votos anteriores</h3>
         {votos.length === 0 ? (
-          <div className="text-center py-8 text-gray-400">
-            <p className="text-3xl mb-2">📭</p>
+          <div className="text-center py-8 text-white/20">
+            <p className="text-3xl mb-2"></p>
             <p className="text-sm">Aún no has votado en ninguna encuesta.</p>
           </div>
         ) : (
           <ul className="space-y-3">
             {votos.map((v, i) => (
-              <li key={i} className="flex items-start gap-3 border-b border-gray-50 pb-3 last:border-0">
-                <div className="bg-red-50 rounded-lg p-2 flex-shrink-0">
+              <li key={i} className="flex items-start gap-3 border-b border-white/5 pb-3 last:border-0">
+                <div className="bg-white/5 rounded-lg p-2 flex-shrink-0">
                   <span className="text-sm">⚽</span>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-400 font-semibold">
+                  <p className="text-xs text-white/30 font-semibold">
                     {v.encuesta?.titulo}
                   </p>
-                  <p className="font-bold text-sm text-gray-900">
+                  <p className="font-bold text-sm text-white">
                     {v.jugadores?.nombre ?? "—"}
                   </p>
                 </div>

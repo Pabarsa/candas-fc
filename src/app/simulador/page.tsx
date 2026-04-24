@@ -29,11 +29,9 @@ export default async function SimuladorPage() {
   const pts = (partidos ?? []) as Partido[];
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-10">
-      <h1 className="text-3xl md:text-4xl font-black mb-2">
-        Simulador de temporada
-      </h1>
-      <p className="text-gray-600 mb-8">
+    <div className="max-w-6xl mx-auto px-5 sm:px-6 pt-20 sm:pt-28 pb-12">
+      <h1 className="font-poppins font-black text-4xl text-white mb-2">Simulador</h1>
+      <p className="text-white/40 mb-8">
         Marca los resultados que crees que van a pasar en las jornadas que
         quedan y mira cómo termina el Candás. Usa <strong>1 / X / 2</strong>{" "}
         para una victoria local, empate o victoria visitante, o mete un

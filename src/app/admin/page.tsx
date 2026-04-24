@@ -47,7 +47,7 @@ export default async function AdminPage() {
   }
 
   const stats = [
-    { label: "Abonados", valor: totalAbonados ?? 0, icon: "👥" },
+    { label: "Abonados", valor: totalAbonados ?? 0, icon: "" },
     { label: "Partidos jugados", valor: partidosJugados, icon: "⚽" },
     { label: "Fotos subidas", valor: totalFotos ?? 0, icon: "📸" },
     {
@@ -55,24 +55,24 @@ export default async function AdminPage() {
         ? `Votos · ${encuestaActiva[0].titulo}`
         : "Sin encuesta activa",
       valor: votosEncuesta,
-      icon: "🗳️",
+      icon: "",
     },
   ];
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-10">
-      <h1 className="text-3xl md:text-4xl font-black mb-2">Panel de admin</h1>
-      <p className="text-gray-600 mb-6">
+    <div className="max-w-6xl mx-auto px-5 sm:px-6 pt-20 sm:pt-28 pb-12">
+      <h1 className="font-poppins font-black text-2xl sm:text-4xl text-white mb-2">Panel de admin</h1>
+      <p className="text-white/40 mb-6">
         Desde aquí metes los resultados, gestionas la plantilla, la galería y las encuestas.
       </p>
 
       {/* Estadísticas rápidas */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
         {stats.map((s) => (
-          <div key={s.label} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+          <div key={s.label} className="card-dark rounded-xl p-4">
             <p className="text-2xl mb-1">{s.icon}</p>
-            <p className="text-3xl font-black text-candas-rojo">{s.valor}</p>
-            <p className="text-xs text-gray-500 mt-1 leading-tight truncate">{s.label}</p>
+            <p className="text-3xl font-poppins font-black text-candas-rojo">{s.valor}</p>
+            <p className="text-xs text-white/30 mt-1 leading-tight truncate">{s.label}</p>
           </div>
         ))}
       </div>

@@ -107,24 +107,24 @@ export default function Simulador({ equipos, partidos }: Props) {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow p-4 md:p-6">
+      <div className="card-dark rounded-2xl p-4 md:p-6">
         <h2 className="text-xl font-bold mb-4">Clasificación proyectada</h2>
         <TablaClasificacion filas={clasificacionProyectada} />
       </div>
 
-      <div className="bg-white rounded-xl shadow p-4 md:p-6">
+      <div className="card-dark rounded-2xl p-4 md:p-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <div>
             <h2 className="text-xl font-bold">⚽ Partidos por simular</h2>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-white/30">
               El golaveraje se actualiza en la clasificación virtual.
             </p>
           </div>
-          <div className="text-sm text-gray-600">Partidos pendientes: {pendientesFiltrados.length}</div>
+          <div className="text-sm text-white/40">Partidos pendientes: {pendientesFiltrados.length}</div>
         </div>
 
         {pendientesFiltrados.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">No hay partidos pendientes.</p>
+          <p className="text-white/20 text-center py-8">No hay partidos pendientes.</p>
         ) : (
           <div className="space-y-4">
             {pendientesFiltrados.map((p) => {
@@ -134,16 +134,16 @@ export default function Simulador({ equipos, partidos }: Props) {
                 <div
                   key={p.id}
                   className={`rounded-xl border p-4 transition ${
-                    simulado ? "border-green-300 bg-green-50" : "border-gray-200 bg-white"
+                    simulado ? "border-green-500/30 bg-green-500/5" : "border-white/5 bg-white/2"
                   }`}
                 >
                   <div className="grid grid-cols-1 md:grid-cols-[80px_1fr_220px] gap-4 items-center">
-                    <div className="text-xs font-semibold uppercase text-gray-500">J{p.jornada}</div>
+                    <div className="text-xs font-semibold uppercase text-white/30">J{p.jornada}</div>
                     <div>
                       <p className="font-semibold text-sm">
                         {p.local?.nombre ?? `Local (${p.local_id})`}
                       </p>
-                      <p className="text-xs text-gray-500">vs</p>
+                      <p className="text-xs text-white/30">vs</p>
                       <p className="font-semibold text-sm">
                         {p.visitante?.nombre ?? `Visitante (${p.visitante_id})`}
                       </p>
@@ -156,7 +156,7 @@ export default function Simulador({ equipos, partidos }: Props) {
                           className={`w-9 h-9 rounded-lg text-sm font-bold transition ${
                             tipoSim(p) === "1"
                               ? "bg-candas-rojo text-white"
-                              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                              : "bg-white/5 text-white/50 hover:bg-white/10"
                           }`}
                         >
                           1
@@ -167,7 +167,7 @@ export default function Simulador({ equipos, partidos }: Props) {
                           className={`w-9 h-9 rounded-lg text-sm font-bold transition ${
                             tipoSim(p) === "X"
                               ? "bg-candas-rojo text-white"
-                              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                              : "bg-white/5 text-white/50 hover:bg-white/10"
                           }`}
                         >
                           X
@@ -178,7 +178,7 @@ export default function Simulador({ equipos, partidos }: Props) {
                           className={`w-9 h-9 rounded-lg text-sm font-bold transition ${
                             tipoSim(p) === "2"
                               ? "bg-candas-rojo text-white"
-                              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                              : "bg-white/5 text-white/50 hover:bg-white/10"
                           }`}
                         >
                           2
@@ -192,7 +192,7 @@ export default function Simulador({ equipos, partidos }: Props) {
                           onChange={(e) =>
                             setGol(p, "local", parseInt(e.target.value) || 0)
                           }
-                          className="w-12 rounded-lg border border-gray-300 bg-white px-2 py-1 text-center text-sm"
+                          className="w-12 rounded-lg border border-white/10 bg-white/5 text-white px-2 py-1 text-center text-sm"
                           placeholder="0"
                         />
                         <span className="text-sm font-bold">-</span>
@@ -203,7 +203,7 @@ export default function Simulador({ equipos, partidos }: Props) {
                           onChange={(e) =>
                             setGol(p, "visitante", parseInt(e.target.value) || 0)
                           }
-                          className="w-12 rounded-lg border border-gray-300 bg-white px-2 py-1 text-center text-sm"
+                          className="w-12 rounded-lg border border-white/10 bg-white/5 text-white px-2 py-1 text-center text-sm"
                           placeholder="0"
                         />
                       </div>

@@ -17,30 +17,30 @@ export default function AdminPanel({ equipos, partidos }: Props) {
 
   return (
     <div>
-      <div className="flex gap-2 mb-6 border-b border-gray-200 flex-wrap">
+      <div className="flex gap-2 mb-6 border-b border-white/5 flex-wrap overflow-x-auto">
         <TabBtn activo={tab === "resultados"} onClick={() => setTab("resultados")}>
-          ⚽ Resultados
+           Resultados
         </TabBtn>
         <TabBtn activo={tab === "crear"} onClick={() => setTab("crear")}>
-          ➕ Crear partido
+          Crear partido
         </TabBtn>
         <TabBtn activo={tab === "equipos"} onClick={() => setTab("equipos")}>
-          🛡️ Equipos
+          Equipos
         </TabBtn>
         <TabBtn activo={tab === "galeria"} onClick={() => setTab("galeria")}>
-          📸 Galería
+           Galería
         </TabBtn>
         <TabBtn activo={tab === "encuestas"} onClick={() => setTab("encuestas")}>
-          🗳️ Encuestas
+           Encuestas
         </TabBtn>
         <TabBtn activo={tab === "plantilla"} onClick={() => setTab("plantilla")}>
-          👟 Plantilla
+          Plantilla
         </TabBtn>
         <TabBtn activo={tab === "cuerpo"} onClick={() => setTab("cuerpo")}>
-          🧑‍💼 Cuerpo técnico
+          Cuerpo técnico
         </TabBtn>
         <TabBtn activo={tab === "directo"} onClick={() => setTab("directo")}>
-          📺 Directo
+          Directo
         </TabBtn>
       </div>
 
@@ -77,7 +77,7 @@ function TabBtn({
       className={`px-4 py-2 font-medium border-b-2 transition -mb-px ${
         activo
           ? "border-candas-rojo text-candas-rojo"
-          : "border-transparent text-gray-600 hover:text-gray-900"
+          : "border-transparent text-white/30 hover:text-white/70"
       }`}
     >
       {children}
@@ -123,7 +123,7 @@ function ResultadosTab({
   };
 
   if (partidos.length === 0) {
-    return <p className="text-gray-500">No hay partidos cargados.</p>;
+    return <p className="text-white/40">No hay partidos cargados.</p>;
   }
 
   // Agrupar por jornada
@@ -138,7 +138,7 @@ function ResultadosTab({
       {Array.from(jornadas.entries())
         .sort((a, b) => a[0] - b[0])
         .map(([jornada, parts]) => (
-          <div key={jornada} className="bg-white rounded-xl shadow p-4">
+          <div key={jornada} className="card-dark rounded-xl p-4">
             <h3 className="font-bold text-lg mb-3">Jornada {jornada}</h3>
             <div className="space-y-2">
               {parts.map((p) => (
@@ -175,19 +175,19 @@ function FilaResultado({
   const compartirWhatsApp = () => {
     const local = partido.local?.nombre ?? "";
     const visitante = partido.visitante?.nombre ?? "";
-    const texto = `⚽ Resultado Jornada ${partido.jornada}\n\n${local} ${gl} - ${gv} ${visitante}\n\n🔗 fondosurcanijo.com`;
+    const texto = ` Resultado Jornada ${partido.jornada}\n\n${local} ${gl} - ${gv} ${visitante}\n\n fondosurcanijo.com`;
     window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, "_blank", "noopener,noreferrer");
     setCompartido(true);
   };
 
   return (
-    <div className="border-b border-gray-100 pb-3 last:border-0 space-y-2">
+    <div className="border-b border-white/5 pb-3 last:border-0 space-y-2">
       <div className="flex flex-wrap items-center gap-2">
         <span className="flex-1 text-sm">
           <span className={partido.local?.nombre === "Candás CF" ? "font-bold" : ""}>
             {partido.local?.nombre}
           </span>
-          <span className="mx-2 text-gray-400">vs</span>
+          <span className="mx-2 text-white/20">vs</span>
           <span className={partido.visitante?.nombre === "Candás CF" ? "font-bold" : ""}>
             {partido.visitante?.nombre}
           </span>
@@ -197,7 +197,7 @@ function FilaResultado({
           min={0}
           value={gl}
           onChange={(e) => setGl(parseInt(e.target.value) || 0)}
-          className="w-14 text-center border rounded py-1"
+          className="w-14 text-center bg-surface-2 border border-white/10 rounded-lg py-1 text-sm font-bold text-white focus:outline-none focus:border-candas-rojo"
         />
         <span>-</span>
         <input
@@ -205,7 +205,7 @@ function FilaResultado({
           min={0}
           value={gv}
           onChange={(e) => setGv(parseInt(e.target.value) || 0)}
-          className="w-14 text-center border rounded py-1"
+          className="w-14 text-center bg-surface-2 border border-white/10 rounded-lg py-1 text-sm font-bold text-white focus:outline-none focus:border-candas-rojo"
         />
         <button
           onClick={() => onSave(partido.id, gl, gv)}
@@ -217,7 +217,7 @@ function FilaResultado({
         {partido.jugado && (
           <button
             onClick={() => onUnset(partido.id)}
-            className="text-gray-500 hover:text-red-600 text-xs"
+            className="text-white/30 hover:text-red-400 text-xs"
           >
             Deshacer
           </button>
@@ -228,7 +228,7 @@ function FilaResultado({
         <button
           onClick={compartirWhatsApp}
           className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg transition ${
-            compartido ? "bg-gray-100 text-gray-400" : "bg-green-50 text-green-700 hover:bg-green-100"
+            compartido ? "bg-white/5 text-white/20" : "bg-green-500/10 text-green-400 hover:bg-green-500/20"
           }`}
         >
           <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5">
@@ -294,27 +294,27 @@ function CrearPartidoTab({
   return (
     <form
       onSubmit={onSubmit}
-      className="bg-white rounded-xl shadow p-6 max-w-xl space-y-4"
+      className="card-dark rounded-2xl p-6 max-w-xl space-y-4"
     >
       <div>
-        <label className="block text-sm font-medium mb-1">Jornada</label>
+        <label className="block text-xs font-semibold text-white/40 uppercase tracking-wide mb-1">Jornada</label>
         <input
           type="number"
           min={1}
           value={jornada}
           onChange={(e) => setJornada(parseInt(e.target.value) || 1)}
-          className="w-full border rounded-lg px-3 py-2"
+          className="w-full bg-surface-2 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-candas-rojo"
         />
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-sm font-medium mb-1">Local</label>
+          <label className="block text-xs font-semibold text-white/40 uppercase tracking-wide mb-1">Local</label>
           <select
             value={localId}
             onChange={(e) =>
               setLocalId(e.target.value ? parseInt(e.target.value) : "")
             }
-            className="w-full border rounded-lg px-3 py-2"
+            className="w-full bg-surface-2 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-candas-rojo"
           >
             <option value="">--</option>
             {equipos.map((e) => (
@@ -325,13 +325,13 @@ function CrearPartidoTab({
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Visitante</label>
+          <label className="block text-xs font-semibold text-white/40 uppercase tracking-wide mb-1">Visitante</label>
           <select
             value={visitanteId}
             onChange={(e) =>
               setVisitanteId(e.target.value ? parseInt(e.target.value) : "")
             }
-            className="w-full border rounded-lg px-3 py-2"
+            className="w-full bg-surface-2 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-candas-rojo"
           >
             <option value="">--</option>
             {equipos.map((e) => (
@@ -343,12 +343,12 @@ function CrearPartidoTab({
         </div>
       </div>
       <div>
-        <label className="block text-sm font-medium mb-1">Fecha (opcional)</label>
+        <label className="block text-xs font-semibold text-white/40 uppercase tracking-wide mb-1">Fecha (opcional)</label>
         <input
           type="datetime-local"
           value={fecha}
           onChange={(e) => setFecha(e.target.value)}
-          className="w-full border rounded-lg px-3 py-2"
+          className="w-full bg-surface-2 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-candas-rojo"
         />
       </div>
       {error && (
@@ -513,19 +513,19 @@ function GaleriaAdminTab() {
   return (
     <div className="grid lg:grid-cols-2 gap-6">
       {/* ── Formulario nuevo post ── */}
-      <div className="bg-white rounded-xl shadow p-6">
-        <h3 className="font-black text-lg mb-4">📸 Nueva publicación</h3>
+      <div className="card-dark rounded-xl p-6">
+        <h3 className="font-black text-lg mb-4"> Nueva publicación</h3>
         <form onSubmit={publicar} className="space-y-4">
           {/* Preview foto */}
           <div
-            className="border-2 border-dashed border-gray-300 rounded-xl overflow-hidden cursor-pointer hover:border-candas-rojo transition"
+            className="border-2 border-dashed border-white/10 rounded-xl overflow-hidden cursor-pointer hover:border-candas-rojo transition"
             onClick={() => document.getElementById("input-foto")?.click()}
           >
             {preview ? (
               <img src={preview} alt="preview" className="w-full max-h-52 object-cover" />
             ) : (
-              <div className="h-36 flex flex-col items-center justify-center text-gray-400 gap-2">
-                <span className="text-3xl">🖼️</span>
+              <div className="h-36 flex flex-col items-center justify-center text-white/20 gap-2">
+                <span className="text-3xl"></span>
                 <span className="text-sm">Haz clic para seleccionar foto</span>
               </div>
             )}
@@ -539,35 +539,35 @@ function GaleriaAdminTab() {
           />
 
           <div>
-            <label className="block text-sm font-semibold mb-1">Título *</label>
+            <label className="block text-xs font-semibold text-white/40 uppercase tracking-wide mb-1">Título *</label>
             <input
               type="text"
               value={titulo}
               onChange={(e) => setTitulo(e.target.value)}
               placeholder="Ej: Partido vs Narcea · Jornada 31"
-              className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-candas-rojo focus:outline-none"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:border-candas-rojo focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold mb-1">Descripción (opcional)</label>
+            <label className="block text-xs font-semibold text-white/40 uppercase tracking-wide mb-1">Descripción (opcional)</label>
             <textarea
               value={descripcion}
               onChange={(e) => setDescripcion(e.target.value)}
               placeholder="Describe el momento..."
               rows={2}
-              className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-candas-rojo focus:outline-none resize-none"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:border-candas-rojo focus:outline-none resize-none"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold mb-1">
+            <label className="block text-xs font-semibold text-white/40 uppercase tracking-wide mb-1">
               Partido (opcional)
             </label>
             <select
               value={partidoId}
               onChange={(e) => setPartidoId(e.target.value ? parseInt(e.target.value) : "")}
-              className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-candas-rojo focus:outline-none"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:border-candas-rojo focus:outline-none"
             >
               <option value="">General (sin partido)</option>
               {partidos.map((p) => (
@@ -576,56 +576,56 @@ function GaleriaAdminTab() {
                 </option>
               ))}
             </select>
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-white/20 mt-1">
               Asocia la foto a un partido para que aparezca en su página
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold mb-1">
+            <label className="block text-xs font-semibold text-white/40 uppercase tracking-wide mb-1">
               Instagram de la fotógrafa (opcional)
             </label>
             <div className="flex items-center gap-2">
-              <span className="text-gray-400 font-bold">@</span>
+              <span className="text-white/20 font-bold">@</span>
               <input
                 type="text"
                 value={instagram}
                 onChange={(e) => setInstagram(e.target.value.replace("@", ""))}
                 placeholder="nombre_en_instagram"
-                className="flex-1 border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-candas-rojo focus:outline-none"
+                className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:border-candas-rojo focus:outline-none"
               />
             </div>
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-white/20 mt-1">
               Se mostrará un enlace directo a su perfil de Instagram
             </p>
           </div>
 
-          {error && <div className="bg-red-50 text-red-700 rounded-lg p-3 text-sm">{error}</div>}
-          {ok && <div className="bg-green-50 text-green-700 rounded-lg p-3 text-sm">{ok}</div>}
+          {error && <div className="bg-red-500/10 text-red-400 border border-red-500/20 rounded-xl p-3 text-sm">{error}</div>}
+          {ok && <div className="bg-green-500/10 text-green-400 border border-green-500/20 rounded-xl p-3 text-sm">{ok}</div>}
 
           <button
             type="submit"
             disabled={subiendo}
             className="w-full bg-candas-rojo text-white font-black py-3 rounded-xl hover:bg-candas-rojoOscuro transition disabled:opacity-50"
           >
-            {subiendo ? "⏳ Subiendo..." : "📤 Publicar foto"}
+            {subiendo ? " Subiendo..." : " Publicar foto"}
           </button>
         </form>
       </div>
 
       {/* ── Lista de posts publicados ── */}
-      <div className="bg-white rounded-xl shadow p-6">
+      <div className="card-dark rounded-xl p-6">
         <h3 className="font-black text-lg mb-4">
           Publicaciones ({posts.length})
         </h3>
         {cargando ? (
-          <p className="text-gray-400 text-sm">Cargando...</p>
+          <p className="text-white/20 text-sm">Cargando...</p>
         ) : posts.length === 0 ? (
-          <p className="text-gray-400 text-sm">Aún no hay publicaciones.</p>
+          <p className="text-white/20 text-sm">Aún no hay publicaciones.</p>
         ) : (
           <ul className="space-y-3 max-h-[520px] overflow-y-auto pr-1">
             {posts.map((post) => (
-              <li key={post.id} className="border-b border-gray-100 pb-3 last:border-0">
+              <li key={post.id} className="border-b border-white/5 pb-3 last:border-0">
                 {editandoId === post.id ? (
                   /* ── Modo edición ── */
                   <div className="flex gap-3 items-start">
@@ -644,13 +644,13 @@ function GaleriaAdminTab() {
                         autoFocus
                       />
                       <div className="flex items-center gap-1">
-                        <span className="text-gray-400 text-sm font-bold">@</span>
+                        <span className="text-white/20 text-sm font-bold">@</span>
                         <input
                           type="text"
                           value={editInstagram}
                           onChange={(e) => setEditInstagram(e.target.value.replace("@", ""))}
                           placeholder="instagram (opcional)"
-                          className="flex-1 border-2 border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:border-candas-rojo focus:outline-none"
+                          className="flex-1 bg-surface-2 border border-white/10 rounded-lg px-2 py-1.5 text-sm text-white focus:border-candas-rojo focus:outline-none"
                         />
                       </div>
                       <div className="flex gap-2">
@@ -663,7 +663,7 @@ function GaleriaAdminTab() {
                         </button>
                         <button
                           onClick={cancelarEdicion}
-                          className="text-gray-500 text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-gray-100 transition"
+                          className="text-white/30 text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-white/5 transition"
                         >
                           Cancelar
                         </button>
@@ -743,7 +743,7 @@ function EquiposTab({
     <div className="grid md:grid-cols-2 gap-6">
       <form
         onSubmit={añadir}
-        className="bg-white rounded-xl shadow p-6 h-fit space-y-3"
+        className="card-dark rounded-xl p-6 h-fit space-y-3"
       >
         <h3 className="font-bold">Añadir equipo</h3>
         <input
@@ -751,20 +751,20 @@ function EquiposTab({
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
           placeholder="Nombre del equipo"
-          className="w-full border rounded-lg px-3 py-2"
+          className="w-full bg-surface-2 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-candas-rojo"
         />
         <button className="bg-candas-rojo text-white font-bold px-4 py-2 rounded-lg">
           Añadir
         </button>
       </form>
 
-      <div className="bg-white rounded-xl shadow p-6">
+      <div className="card-dark rounded-xl p-6">
         <h3 className="font-bold mb-3">Equipos ({equipos.length})</h3>
         <ul className="space-y-1 text-sm">
           {equipos.map((e) => (
             <li
               key={e.id}
-              className="flex justify-between items-center border-b border-gray-100 py-1"
+              className="flex justify-between items-center border-b border-white/5 py-2"
             >
               <span>{e.nombre}</span>
               <button
@@ -792,7 +792,7 @@ function EncuestasAdminTab({ partidos }: { partidos: Partido[] }) {
   const supabase = createClient();
   const [encuestas, setEncuestas] = useState<Encuesta[]>([]);
   const [jugadores, setJugadores] = useState<Jugador[]>([]);
-  const [titulo, setTitulo] = useState("⭐ ¿Quién fue el mejor jugador?");
+  const [titulo, setTitulo] = useState(" ¿Quién fue el mejor jugador?");
   const [creando, setCreando] = useState(false);
   const [ok, setOk] = useState<string | null>(null);
   const [resultados, setResultados] = useState<{ [id: number]: { nombre: string; votos: number }[] }>({});
@@ -868,7 +868,7 @@ function EncuestasAdminTab({ partidos }: { partidos: Partido[] }) {
       created_by: user?.id,
     });
     setOk("✅ Encuesta creada y activa.");
-    setTitulo("⭐ ¿Quién fue el mejor jugador?");
+    setTitulo(" ¿Quién fue el mejor jugador?");
     setCreando(false);
     cargar();
   };
@@ -887,29 +887,29 @@ function EncuestasAdminTab({ partidos }: { partidos: Partido[] }) {
   return (
     <div className="grid lg:grid-cols-2 gap-6">
       {/* Crear encuesta */}
-      <div className="bg-white rounded-xl shadow p-6">
-        <h3 className="font-black text-lg mb-4">🗳️ Nueva encuesta</h3>
+      <div className="card-dark rounded-xl p-6">
+        <h3 className="font-black text-lg mb-4"> Nueva encuesta</h3>
         <form onSubmit={crear} className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold mb-1">Título</label>
+            <label className="block text-xs font-semibold text-white/40 uppercase tracking-wide mb-1">Título</label>
             <input
               type="text"
               value={titulo}
               onChange={(e) => setTitulo(e.target.value)}
-              className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-candas-rojo focus:outline-none"
-              placeholder="⭐ ¿Quién fue el mejor jugador?"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:border-candas-rojo focus:outline-none"
+              placeholder=" ¿Quién fue el mejor jugador?"
             />
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-white/20 mt-1">
               Los abonados votan entre los 23 jugadores de la plantilla.
             </p>
           </div>
-          {ok && <div className="bg-green-50 text-green-700 rounded-lg p-3 text-sm">{ok}</div>}
+          {ok && <div className="bg-green-500/10 text-green-400 border border-green-500/20 rounded-xl p-3 text-sm">{ok}</div>}
           <button
             type="submit"
             disabled={creando}
             className="w-full bg-candas-rojo text-white font-black py-3 rounded-xl hover:bg-candas-rojoOscuro transition disabled:opacity-50"
           >
-            {creando ? "Creando..." : "🗳️ Crear encuesta"}
+            {creando ? "Creando..." : " Crear encuesta"}
           </button>
         </form>
 
@@ -918,17 +918,17 @@ function EncuestasAdminTab({ partidos }: { partidos: Partido[] }) {
           <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Plantilla ({jugadores.length} jugadores)</p>
           <div className="max-h-48 overflow-y-auto space-y-1">
             {jugadores.map((j) => (
-              <p key={j.id} className="text-xs text-gray-600 px-2 py-0.5 hover:bg-gray-50 rounded">{j.nombre}</p>
+              <p key={j.id} className="text-xs text-white/40 px-2 py-0.5 hover:bg-white/5 rounded">{j.nombre}</p>
             ))}
           </div>
         </div>
       </div>
 
       {/* Lista encuestas */}
-      <div className="bg-white rounded-xl shadow p-6">
+      <div className="card-dark rounded-xl p-6">
         <h3 className="font-black text-lg mb-4">Encuestas ({encuestas.length})</h3>
         {notifOk && (
-          <div className={`text-xs rounded-lg p-2 mb-3 ${notifOk.startsWith("✅") ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>
+          <div className={`text-xs rounded-xl p-2 mb-3 ${notifOk.startsWith("") ? "bg-green-500/10 text-green-400" : "bg-red-500/10 text-red-400"}`}>
             {notifOk}
           </div>
         )}
@@ -937,7 +937,7 @@ function EncuestasAdminTab({ partidos }: { partidos: Partido[] }) {
         ) : (
           <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
             {encuestas.map((enc) => (
-              <div key={enc.id} className="border border-gray-100 rounded-xl p-3">
+              <div key={enc.id} className="card-dark rounded-xl p-3">
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-sm truncate">{enc.titulo}</p>
@@ -952,11 +952,11 @@ function EncuestasAdminTab({ partidos }: { partidos: Partido[] }) {
                       title="Enviar email a todos los abonados"
                       className="text-xs px-2 py-1 rounded-full font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 transition disabled:opacity-50"
                     >
-                      {notificando === enc.id ? "⏳" : "📧"}
+                      {notificando === enc.id ? "" : ""}
                     </button>
                     <button
                       onClick={() => toggleActiva(enc)}
-                      className={`text-xs px-2 py-1 rounded-full font-bold ${enc.activa ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}
+                      className={`text-xs px-2 py-1 rounded-full font-bold ${enc.activa ? "bg-green-500/10 text-green-400" : "bg-white/5 text-white/30"}`}
                     >
                       {enc.activa ? "Activa" : "Cerrada"}
                     </button>
@@ -1100,7 +1100,7 @@ function PlantillaAdminTab() {
   const activos = jugadores.filter(j => j.activo);
   const inactivos = jugadores.filter(j => !j.activo);
 
-  if (cargando) return <p className="text-gray-400 text-sm">Cargando plantilla...</p>;
+  if (cargando) return <p className="text-white/20 text-sm">Cargando plantilla...</p>;
 
   return (
     <div className="space-y-6">
@@ -1113,13 +1113,13 @@ function PlantillaAdminTab() {
           onClick={() => setMostrarForm(!mostrarForm)}
           className="bg-candas-rojo text-white font-bold px-4 py-2 rounded-xl text-sm hover:bg-candas-rojoOscuro transition"
         >
-          {mostrarForm ? "Cancelar" : "➕ Añadir jugador"}
+          {mostrarForm ? "Cancelar" : " Añadir jugador"}
         </button>
       </div>
 
       {/* Form nuevo jugador */}
       {mostrarForm && (
-        <form onSubmit={añadirJugador} className="bg-white rounded-xl shadow p-5 border border-gray-100">
+        <form onSubmit={añadirJugador} className="card-dark rounded-xl p-5">
           <h3 className="font-black mb-4">Nuevo jugador</h3>
           <div className="grid sm:grid-cols-3 gap-3 mb-3">
             <div>
@@ -1129,7 +1129,7 @@ function PlantillaAdminTab() {
                 value={nuevoNombre}
                 onChange={(e) => setNuevoNombre(e.target.value)}
                 placeholder="Nombre completo"
-                className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-candas-rojo focus:outline-none"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:border-candas-rojo focus:outline-none"
                 autoFocus
               />
             </div>
@@ -1141,7 +1141,7 @@ function PlantillaAdminTab() {
                 onChange={(e) => setNuevoDorsal(e.target.value)}
                 placeholder="Nº"
                 min={1} max={99}
-                className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-candas-rojo focus:outline-none"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:border-candas-rojo focus:outline-none"
               />
             </div>
             <div>
@@ -1149,7 +1149,7 @@ function PlantillaAdminTab() {
               <select
                 value={nuevaPosicion}
                 onChange={(e) => setNuevaPosicion(e.target.value)}
-                className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-candas-rojo focus:outline-none"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:border-candas-rojo focus:outline-none"
               >
                 <option value="">Sin especificar</option>
                 {POSICIONES.map(p => <option key={p} value={p}>{p}</option>)}
@@ -1169,8 +1169,8 @@ function PlantillaAdminTab() {
       {ok && <p className="text-green-600 text-sm font-semibold">{ok}</p>}
 
       {/* Lista activos */}
-      <div className="bg-white rounded-xl shadow overflow-hidden border border-gray-100">
-        <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
+      <div className="card-dark rounded-xl overflow-hidden">
+        <div className="px-4 py-3 bg-white/3 border-b border-white/5">
           <h3 className="font-black text-sm">Plantilla activa ({activos.length})</h3>
         </div>
         <ul className="divide-y divide-gray-50">
@@ -1192,12 +1192,12 @@ function PlantillaAdminTab() {
                       onChange={(e) => setEditDorsal(e.target.value)}
                       placeholder="Dorsal"
                       min={1} max={99}
-                      className="border-2 border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:border-candas-rojo focus:outline-none"
+                      className="bg-surface-2 border border-white/10 rounded-lg px-2 py-1.5 text-sm text-white focus:border-candas-rojo focus:outline-none"
                     />
                     <select
                       value={editPosicion}
                       onChange={(e) => setEditPosicion(e.target.value)}
-                      className="border-2 border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:border-candas-rojo focus:outline-none"
+                      className="bg-surface-2 border border-white/10 rounded-lg px-2 py-1.5 text-sm text-white focus:border-candas-rojo focus:outline-none"
                     >
                       <option value="">Sin especificar</option>
                       {POSICIONES.map(p => <option key={p} value={p}>{p}</option>)}
@@ -1213,7 +1213,7 @@ function PlantillaAdminTab() {
                     </button>
                     <button
                       onClick={cancelarEdicion}
-                      className="text-gray-500 text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-gray-100 transition"
+                      className="text-white/30 text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-white/5 transition"
                     >
                       Cancelar
                     </button>
@@ -1238,7 +1238,7 @@ function PlantillaAdminTab() {
                   <div className="flex gap-2 flex-shrink-0 items-center">
                     {/* Subir foto */}
                     <label className={`cursor-pointer text-xs font-medium transition ${subiendoFotoId === j.id ? "text-gray-300" : "text-purple-500 hover:text-purple-700"}`}>
-                      {subiendoFotoId === j.id ? "Subiendo..." : j.foto_url ? "📷 Cambiar" : "📷 Foto"}
+                      {subiendoFotoId === j.id ? "Subiendo..." : j.foto_url ? " Cambiar" : " Foto"}
                       <input
                         type="file"
                         accept="image/*"
@@ -1273,8 +1273,8 @@ function PlantillaAdminTab() {
 
       {/* Lista inactivos */}
       {inactivos.length > 0 && (
-        <div className="bg-white rounded-xl shadow overflow-hidden border border-gray-100">
-          <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
+        <div className="card-dark rounded-xl overflow-hidden">
+          <div className="px-4 py-3 bg-white/3 border-b border-white/5">
             <h3 className="font-black text-sm text-gray-400">Inactivos / baja ({inactivos.length})</h3>
           </div>
           <ul className="divide-y divide-gray-50">
@@ -1418,7 +1418,7 @@ function CuerpoTecnicoAdminTab() {
   const activos = miembros.filter(m => m.activo);
   const inactivos = miembros.filter(m => !m.activo);
 
-  if (cargando) return <p className="text-gray-400 text-sm">Cargando...</p>;
+  if (cargando) return <p className="text-white/20 text-sm">Cargando...</p>;
 
   return (
     <div className="space-y-6">
@@ -1430,24 +1430,24 @@ function CuerpoTecnicoAdminTab() {
           onClick={() => setMostrarForm(!mostrarForm)}
           className="bg-candas-rojo text-white font-bold px-4 py-2 rounded-xl text-sm hover:bg-candas-rojoOscuro transition"
         >
-          {mostrarForm ? "Cancelar" : "➕ Añadir miembro"}
+          {mostrarForm ? "Cancelar" : " Añadir miembro"}
         </button>
       </div>
 
       {mostrarForm && (
-        <form onSubmit={añadir} className="bg-white rounded-xl shadow p-5 border border-gray-100">
+        <form onSubmit={añadir} className="card-dark rounded-xl p-5">
           <h3 className="font-black mb-4">Nuevo miembro</h3>
           <div className="grid sm:grid-cols-3 gap-3 mb-3">
             <div>
               <label className="text-xs font-semibold text-gray-500 mb-1 block">Nombre *</label>
               <input type="text" value={nuevoNombre} onChange={(e) => setNuevoNombre(e.target.value)}
                 placeholder="Nombre completo" autoFocus
-                className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-candas-rojo focus:outline-none" />
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:border-candas-rojo focus:outline-none" />
             </div>
             <div>
               <label className="text-xs font-semibold text-gray-500 mb-1 block">Cargo *</label>
               <select value={nuevoCargo} onChange={(e) => setNuevoCargo(e.target.value)}
-                className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-candas-rojo focus:outline-none">
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:border-candas-rojo focus:outline-none">
                 <option value="">Selecciona cargo</option>
                 {CARGOS.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
@@ -1456,7 +1456,7 @@ function CuerpoTecnicoAdminTab() {
               <label className="text-xs font-semibold text-gray-500 mb-1 block">Orden (1=primero)</label>
               <input type="number" value={nuevoOrden} onChange={(e) => setNuevoOrden(e.target.value)}
                 placeholder="0" min={0}
-                className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-candas-rojo focus:outline-none" />
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:border-candas-rojo focus:outline-none" />
             </div>
           </div>
           <button type="submit" disabled={añadiendo}
@@ -1468,8 +1468,8 @@ function CuerpoTecnicoAdminTab() {
 
       {ok && <p className="text-green-600 text-sm font-semibold">{ok}</p>}
 
-      <div className="bg-white rounded-xl shadow overflow-hidden border border-gray-100">
-        <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
+      <div className="card-dark rounded-xl overflow-hidden">
+        <div className="px-4 py-3 bg-white/3 border-b border-white/5">
           <h3 className="font-black text-sm">Cuerpo técnico activo ({activos.length})</h3>
         </div>
         <ul className="divide-y divide-gray-50">
@@ -1481,13 +1481,13 @@ function CuerpoTecnicoAdminTab() {
                     <input type="text" value={editNombre} onChange={(e) => setEditNombre(e.target.value)} autoFocus
                       className="border-2 border-candas-rojo rounded-lg px-2 py-1.5 text-sm focus:outline-none" />
                     <select value={editCargo} onChange={(e) => setEditCargo(e.target.value)}
-                      className="border-2 border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:border-candas-rojo focus:outline-none">
+                      className="bg-surface-2 border border-white/10 rounded-lg px-2 py-1.5 text-sm text-white focus:border-candas-rojo focus:outline-none">
                       <option value="">Cargo</option>
                       {CARGOS.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                     <input type="number" value={editOrden} onChange={(e) => setEditOrden(e.target.value)}
                       placeholder="Orden" min={0}
-                      className="border-2 border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:border-candas-rojo focus:outline-none" />
+                      className="bg-surface-2 border border-white/10 rounded-lg px-2 py-1.5 text-sm text-white focus:border-candas-rojo focus:outline-none" />
                   </div>
                   <div className="flex gap-2">
                     <button onClick={() => guardarEdicion(m.id)} disabled={guardando}
@@ -1495,7 +1495,7 @@ function CuerpoTecnicoAdminTab() {
                       {guardando ? "..." : "✓ Guardar"}
                     </button>
                     <button onClick={cancelarEdicion}
-                      className="text-gray-500 text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-gray-100 transition">
+                      className="text-white/30 text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-white/5 transition">
                       Cancelar
                     </button>
                   </div>
@@ -1506,7 +1506,7 @@ function CuerpoTecnicoAdminTab() {
                     <img src={m.foto_url} alt={m.nombre} className="w-10 h-10 rounded-lg object-cover flex-shrink-0 border border-gray-100" />
                   ) : (
                     <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <span className="text-xl">🧑‍💼</span>
+                      <span className="text-xl"></span>
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
@@ -1515,7 +1515,7 @@ function CuerpoTecnicoAdminTab() {
                   </div>
                   <div className="flex gap-2 flex-shrink-0 items-center">
                     <label className={`cursor-pointer text-xs font-medium transition ${subiendoFotoId === m.id ? "text-gray-300" : "text-purple-500 hover:text-purple-700"}`}>
-                      {subiendoFotoId === m.id ? "Subiendo..." : m.foto_url ? "📷 Cambiar" : "📷 Foto"}
+                      {subiendoFotoId === m.id ? "Subiendo..." : m.foto_url ? " Cambiar" : " Foto"}
                       <input type="file" accept="image/*" className="hidden" disabled={subiendoFotoId !== null}
                         onChange={(e) => { const f = e.target.files?.[0]; if (f) subirFoto(m.id, f); e.target.value = ""; }} />
                     </label>
@@ -1535,15 +1535,15 @@ function CuerpoTecnicoAdminTab() {
       </div>
 
       {inactivos.length > 0 && (
-        <div className="bg-white rounded-xl shadow overflow-hidden border border-gray-100">
-          <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
+        <div className="card-dark rounded-xl overflow-hidden">
+          <div className="px-4 py-3 bg-white/3 border-b border-white/5">
             <h3 className="font-black text-sm text-gray-400">Inactivos ({inactivos.length})</h3>
           </div>
           <ul className="divide-y divide-gray-50">
             {inactivos.map((m) => (
               <li key={m.id} className="px-4 py-3 flex items-center gap-3 opacity-50">
                 <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <span className="text-xl">🧑‍💼</span>
+                  <span className="text-xl"></span>
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-sm line-through">{m.nombre}</p>
@@ -1643,12 +1643,12 @@ function DirectoAdminTab() {
 
   const directo = items.find(i => i.es_directo && i.activo);
 
-  if (cargando) return <p className="text-gray-400 text-sm">Cargando...</p>;
+  if (cargando) return <p className="text-white/20 text-sm">Cargando...</p>;
 
   return (
     <div className="space-y-6">
       {/* Estado actual */}
-      <div className={`rounded-xl p-4 flex items-center gap-3 ${directo ? "bg-red-50 border border-red-200" : "bg-gray-50 border border-gray-200"}`}>
+      <div className={`rounded-xl p-4 flex items-center gap-3 ${directo ? "bg-red-500/10 border border-red-500/20" : "card-dark border border-white/5"}`}>
         {directo ? (
           <>
             <span className="w-3 h-3 bg-red-500 rounded-full animate-pulse flex-shrink-0" />
@@ -1674,7 +1674,7 @@ function DirectoAdminTab() {
           onClick={() => setMostrarForm(!mostrarForm)}
           className="bg-candas-rojo text-white font-bold px-4 py-2 rounded-xl text-sm hover:bg-candas-rojoOscuro transition"
         >
-          {mostrarForm ? "Cancelar" : "➕ Añadir retransmisión"}
+          {mostrarForm ? "Cancelar" : " Añadir retransmisión"}
         </button>
       </div>
 
@@ -1686,38 +1686,38 @@ function DirectoAdminTab() {
           <label className="flex items-center gap-3 cursor-pointer">
             <div
               onClick={() => setEsDirecto(!esDireto)}
-              className={`w-10 h-6 rounded-full transition-colors ${esDireto ? "bg-red-500" : "bg-gray-300"} relative`}
+              className={`w-10 h-6 rounded-full transition-colors ${esDireto ? "bg-red-500" : "bg-white/20"} relative`}
             >
               <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${esDireto ? "translate-x-5" : "translate-x-1"}`} />
             </div>
-            <span className="text-sm font-semibold">{esDireto ? "🔴 Partido en directo" : "🎬 Partido grabado"}</span>
+            <span className="text-sm font-semibold">{esDireto ? " Partido en directo" : " Partido grabado"}</span>
           </label>
 
           <div>
             <label className="text-xs font-semibold text-gray-500 mb-1 block">Título *</label>
             <input type="text" value={titulo} onChange={(e) => setTitulo(e.target.value)}
               placeholder="Ej: Candás CF vs Vegadeo CF" autoFocus
-              className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-candas-rojo focus:outline-none" />
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:border-candas-rojo focus:outline-none" />
           </div>
 
           <div>
             <label className="text-xs font-semibold text-gray-500 mb-1 block">URL de tiivii.tv *</label>
             <input type="url" value={url} onChange={(e) => setUrl(e.target.value)}
               placeholder="https://tiivii.tv/..."
-              className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-candas-rojo focus:outline-none" />
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:border-candas-rojo focus:outline-none" />
           </div>
 
           <div className="grid sm:grid-cols-2 gap-3">
             <div>
               <label className="text-xs font-semibold text-gray-500 mb-1 block">Fecha del partido</label>
               <input type="datetime-local" value={fecha} onChange={(e) => setFecha(e.target.value)}
-                className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-candas-rojo focus:outline-none" />
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:border-candas-rojo focus:outline-none" />
             </div>
             <div>
               <label className="text-xs font-semibold text-gray-500 mb-1 block">Descripción (opcional)</label>
               <input type="text" value={descripcion} onChange={(e) => setDescripcion(e.target.value)}
                 placeholder="Jornada 30 · Segunda Asturfútbol"
-                className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-candas-rojo focus:outline-none" />
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:border-candas-rojo focus:outline-none" />
             </div>
           </div>
 
@@ -1731,7 +1731,7 @@ function DirectoAdminTab() {
       {ok && <p className="text-green-600 text-sm font-semibold">{ok}</p>}
 
       {/* Lista */}
-      <div className="bg-white rounded-xl shadow overflow-hidden border border-gray-100">
+      <div className="card-dark rounded-xl overflow-hidden">
         <ul className="divide-y divide-gray-50">
           {items.length === 0 && (
             <li className="px-4 py-8 text-center text-gray-400 text-sm">
@@ -1742,7 +1742,7 @@ function DirectoAdminTab() {
             <li key={item.id} className={`px-4 py-3 flex items-start gap-3 ${!item.activo ? "opacity-40" : ""}`}>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
-                  {item.es_directo && <span className="text-xs bg-red-100 text-red-600 font-bold px-2 py-0.5 rounded-full">🔴 Directo</span>}
+                  {item.es_directo && <span className="text-xs bg-red-100 text-red-600 font-bold px-2 py-0.5 rounded-full"> Directo</span>}
                   <p className="font-bold text-sm truncate">{item.titulo}</p>
                 </div>
                 {item.fecha && (
