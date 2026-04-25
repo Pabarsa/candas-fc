@@ -1,0 +1,10 @@
+Para la pagina del candas, hay que mirar:
+1. Mirar si por besoccer o algo asi que retrasmiten los datos del 2 asturfutbol se puede coger la api y que no tenga que estar pendiente de los calendario horarios etc
+2. Me dijeron que hay un equipo de veteranos del candasfc y que quieren tener su sección también en la pagina al igual que los futbolistas, le podemos poner al admin también lo mismo para que pueda
+meter o quitar personas de ahí, con sus posiciones foto y etc.
+3. El presi me dijo que mucha gente que les pedia camisetas y prendas del club que después me pasaran lo que pueden vender,  y que tenia que llamar a la empresa para encargarlo todo y la gente no pagaba hasta que no llegase
+entonces, la gente tendrá que aceptar la condición de si pilla esto pues tiene que pagar por adelantado pero no por stripe ni nada chungo sino le ponemos un teléfono de contacto para que al del teléfono le llegue una notificación personalizada de la prendra que es y demás a su wasap con la cantidad que quiere si lo quiere serigrafiado y que poner y el numero y demás. Y que le hagan bizum a su teléfono pero eso cuando ya de el ok al que le tiene que llegar todo lo
+que piden por si da la casualidad de que no se puede pedir mas.
+4. Y van a intentar pasar el libreo del 50 aniversario del candas con la historia y demás a pdf y seria para mas adelante meter la sección de historia del club y demás.
+
+IMPORTANTE: todo esto debe estar bien puesto y que no halla mucho saturamiento en la pagina de muchas cosas y demás para mejorar la navegación de los usuarios
