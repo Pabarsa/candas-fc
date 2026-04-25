@@ -66,7 +66,7 @@ function FotoCard({
   );
 }
 
-export default function GaleriaAbonados() {
+export default function GaleriaAbonados({ fotosIniciales = [] }: { fotosIniciales?: any[] }) {
   const supabase = createClient();
   const [posts, setPosts] = useState<Post[]>([]);
   const [cargando, setCargando] = useState(true);
