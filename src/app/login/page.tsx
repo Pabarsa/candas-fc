@@ -21,8 +21,7 @@ export default function LoginPage() {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) { setError("Email o contraseña incorrectos."); return; }
-      router.push("/abonados");
-      router.refresh();
+      window.location.href = "/abonados";
     } catch {
       setError("Ha ocurrido un error. Inténtalo de nuevo.");
     } finally {
