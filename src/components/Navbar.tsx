@@ -4,34 +4,40 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
+
+const supabase = createClient();
 
 export default function Navbar() {
   const [user, setUser] = useState<any>(null);
   const [rol, setRol] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const router = useRouter();
   const pathname = usePathname();
-  const supabase = createClient();
 
   useEffect(() => {
-    const cargar = async () => {
-      try {
-        const { data: { user }, error } = await supabase.auth.getUser();
-        if (error) { setUser(null); setRol(null); return; }
-        setUser(user);
-        if (user) {
-          const { data } = await supabase.from("profiles").select("rol").eq("id", user.id).single();
-          setRol(data?.rol ?? null);
-        } else { setRol(null); }
-      } catch { setUser(null); setRol(null); }
-    };
-    cargar();
-    const { data: sub } = supabase.auth.onAuthStateChange(() => cargar());
-    return () => sub.subscription.unsubscribe();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+    // Obtener sesión inicial desde cookies (sin red)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        supabase.from("profiles").select("rol").eq("id", session.user.id).single()
+          .then(({ data }) => setRol(data?.rol ?? null));
+      }
+    });
+
+    // Escuchar cambios de sesión
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        supabase.from("profiles").select("rol").eq("id", session.user.id).single()
+          .then(({ data }) => setRol(data?.rol ?? null));
+      } else {
+        setRol(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -39,10 +45,8 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Cerrar menú al navegar
   useEffect(() => { setOpen(false); }, [pathname]);
 
-  // Bloquear scroll del body cuando menú abierto en móvil
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
@@ -76,7 +80,6 @@ export default function Navbar() {
       }`}>
         <div className="max-w-7xl mx-auto px-5 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
 
-          {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0">
             <div className="w-7 h-7 sm:w-8 sm:h-8 transition-transform duration-200 group-hover:scale-105">
               <Image src="/630.png" alt="Candás CF" width={32} height={32} priority />
@@ -86,7 +89,6 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Nav desktop */}
           <nav className="hidden md:flex items-center gap-6">
             {links.map(({ href, label }) => (
               <Link key={href} href={href}
@@ -98,7 +100,6 @@ export default function Navbar() {
             ))}
           </nav>
 
-          {/* Botones derecha */}
           <div className="flex items-center gap-3">
             {user ? (
               <button onClick={logout}
@@ -112,7 +113,6 @@ export default function Navbar() {
               </Link>
             )}
 
-            {/* Hamburger */}
             <button
               className="md:hidden flex items-center justify-center w-9 h-9 text-white/70 hover:text-white transition-colors"
               onClick={() => setOpen(!open)} aria-label="Menú">
@@ -127,7 +127,6 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* Mobile menu — full screen overlay */}
       {open && (
         <div className="fixed inset-0 z-40 bg-black/98 backdrop-blur-md flex flex-col pt-14">
           <nav className="flex-1 overflow-y-auto px-6 py-8 flex flex-col gap-1">
