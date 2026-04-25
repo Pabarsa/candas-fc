@@ -35,6 +35,7 @@ export default function ChatAbonados({ usuarioId }: Props) {
         .from("mensajes")
         .select("*")
         .order("created_at", { ascending: true })
+        .limit(50)
         .limit(100);
       const msgs = await enriquecerConPerfil(data ?? []);
       setMensajes(msgs as Mensaje[]);
@@ -91,7 +92,7 @@ export default function ChatAbonados({ usuarioId }: Props) {
 
       <div className="flex-1 overflow-y-auto p-4 space-y-3 chat-scroll">
         {mensajes.length === 0 && (
-          <p className="text-center text-white/20 text-sm mt-10">
+          <p className="text-center text-white/20 text-sm mt-10 animate-pulse">
             Sé el primero en escribir. ¿Alguien va al campo el domingo?
           </p>
         )}
