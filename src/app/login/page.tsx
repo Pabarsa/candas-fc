@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 
@@ -12,6 +12,16 @@ export default function LoginPage() {
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Escuchar cambio de sesión y navegar cuando esté listo
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_IN") {
+        window.location.href = "/abonados";
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -22,11 +32,8 @@ export default function LoginPage() {
     if (error) {
       setError("Email o contraseña incorrectos.");
       setCargando(false);
-      return;
     }
-
-    // Navegación completa — no llamar setCargando(false) para que quede en "Entrando..."
-    window.location.assign("/abonados");
+    // Si no hay error, onAuthStateChange detecta SIGNED_IN y navega
   };
 
   return (
