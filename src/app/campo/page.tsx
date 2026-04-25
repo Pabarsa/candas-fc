@@ -1,3 +1,4 @@
+export const revalidate = 86400;
 import Link from "next/link";
 import GaleriaPublica from "@/components/GaleriaPublica";
 

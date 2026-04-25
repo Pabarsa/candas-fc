@@ -16,16 +16,12 @@ export default async function AbonadosPage() {
 
   if (!user) redirect("/login?redirectTo=/abonados");
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single();
+  const [{ data: profile }, { data: candasEq }] = await Promise.all([
+    supabase.from("profiles").select("*").eq("id", user.id).single(),
+    supabase.from("equipos").select("id").eq("nombre", "Candás CF").single(),
+  ]);
 
-  // Próximos partidos del Candás para el selector de viajes
-  const { data: equipos } = await supabase.from("equipos").select("*");
-  const candas = equipos?.find((e) => e.nombre === "Candás CF");
-
+  const candas = candasEq;
   let proximos: Partido[] = [];
   if (candas) {
     const { data } = await supabase

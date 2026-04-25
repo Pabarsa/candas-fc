@@ -9,14 +9,20 @@ export const dynamic = "force-dynamic";
 export default async function Home() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  const { data: equipos } = await supabase.from("equipos").select("*").order("nombre");
-  const { data: partidos } = await supabase
-    .from("partidos")
-    .select("*, local:equipos!partidos_local_id_fkey(*), visitante:equipos!partidos_visitante_id_fkey(*)")
-    .order("jornada", { ascending: true });
-  const { data: posts } = await supabase
-    .from("posts").select("id, titulo, foto_url, created_at")
-    .order("created_at", { ascending: false }).limit(6);
+  const [
+    { data: equipos },
+    { data: partidos },
+    { data: posts },
+  ] = await Promise.all([
+    supabase.from("equipos").select("*").order("nombre"),
+    supabase
+      .from("partidos")
+      .select("*, local:equipos!partidos_local_id_fkey(*), visitante:equipos!partidos_visitante_id_fkey(*)")
+      .order("jornada", { ascending: true }),
+    supabase
+      .from("posts").select("id, titulo, foto_url, created_at")
+      .order("created_at", { ascending: false }).limit(6),
+  ]);
 
   const eqs = (equipos ?? []) as Equipo[];
   const pts = (partidos ?? []) as Partido[];

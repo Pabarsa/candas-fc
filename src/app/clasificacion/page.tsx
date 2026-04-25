@@ -8,11 +8,13 @@ export const revalidate = 0;
 
 export default async function ClasificacionPage() {
   const supabase = createClient();
-  const { data: equipos } = await supabase.from("equipos").select("*").order("nombre");
-  const { data: partidos } = await supabase
-    .from("partidos")
-    .select("*, local:equipos!partidos_local_id_fkey(*), visitante:equipos!partidos_visitante_id_fkey(*)")
-    .order("jornada", { ascending: true });
+  const [{ data: equipos }, { data: partidos }] = await Promise.all([
+    supabase.from("equipos").select("*").order("nombre"),
+    supabase
+      .from("partidos")
+      .select("*, local:equipos!partidos_local_id_fkey(*), visitante:equipos!partidos_visitante_id_fkey(*)")
+      .order("jornada", { ascending: true }),
+  ]);
 
   const eqs = (equipos ?? []) as Equipo[];
   const pts = (partidos ?? []) as Partido[];

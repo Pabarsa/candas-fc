@@ -1,3 +1,4 @@
+export const revalidate = 3600;
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = {
