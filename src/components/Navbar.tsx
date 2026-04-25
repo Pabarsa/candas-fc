@@ -50,8 +50,7 @@ export default function Navbar() {
 
   const logout = async () => {
     await supabase.auth.signOut();
-    setUser(null); setRol(null);
-    router.push("/"); router.refresh();
+    window.location.href = "/";
   };
 
   const links = [
