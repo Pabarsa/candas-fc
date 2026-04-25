@@ -2,12 +2,10 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function LoginPage() {
   const supabase = createClient();
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
@@ -18,15 +16,17 @@ export default function LoginPage() {
     e.preventDefault();
     setError(null);
     setCargando(true);
-    try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) { setError("Email o contraseña incorrectos."); return; }
-      window.location.href = "/abonados";
-    } catch {
-      setError("Ha ocurrido un error. Inténtalo de nuevo.");
-    } finally {
+
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      setError("Email o contraseña incorrectos.");
       setCargando(false);
+      return;
     }
+
+    // Navegación completa — no llamar setCargando(false) para que quede en "Entrando..."
+    window.location.assign("/abonados");
   };
 
   return (
@@ -40,7 +40,6 @@ export default function LoginPage() {
 
         <div className="card-dark rounded-2xl p-8 border border-white/5">
           <form onSubmit={onSubmit} className="space-y-5">
-            {/* Email */}
             <div>
               <label className="block text-xs font-semibold text-white/40 uppercase tracking-wide mb-2">
                 Correo electrónico
@@ -52,7 +51,6 @@ export default function LoginPage() {
               />
             </div>
 
-            {/* Contraseña con ojo */}
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="block text-xs font-semibold text-white/40 uppercase tracking-wide">
@@ -70,11 +68,9 @@ export default function LoginPage() {
                   required placeholder="Tu contraseña" autoComplete="current-password"
                   className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 pr-12 text-sm text-white placeholder-white/20 focus:outline-none focus:border-candas-rojo focus:ring-1 focus:ring-candas-rojo/50 transition"
                 />
-                <button
-                  type="button" onClick={() => setShowPass(!showPass)}
+                <button type="button" onClick={() => setShowPass(!showPass)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/70 transition-colors p-1"
-                  aria-label={showPass ? "Ocultar contraseña" : "Ver contraseña"}
-                >
+                  aria-label={showPass ? "Ocultar contraseña" : "Ver contraseña"}>
                   {showPass ? (
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                       <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/>
