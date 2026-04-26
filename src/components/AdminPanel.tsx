@@ -413,6 +413,7 @@ function GaleriaAdminTab() {
   // Edición inline
   const [editandoId, setEditandoId] = useState<number | null>(null);
   const [editTitulo, setEditTitulo] = useState("");
+  const [editDescripcion, setEditDescripcion] = useState("");
   const [editInstagram, setEditInstagram] = useState("");
   const [editTipo, setEditTipo] = useState<TipoPost>("general");
   const [guardando, setGuardando] = useState(false);
@@ -502,6 +503,7 @@ function GaleriaAdminTab() {
   const empezarEdicion = (post: Post) => {
     setEditandoId(post.id);
     setEditTitulo(post.titulo);
+    setEditDescripcion(post.descripcion ?? "");
     setEditInstagram(post.instagram_fotografa ?? "");
     setEditTipo(post.tipo ?? "general");
   };
@@ -509,6 +511,7 @@ function GaleriaAdminTab() {
   const cancelarEdicion = () => {
     setEditandoId(null);
     setEditTitulo("");
+    setEditDescripcion("");
     setEditInstagram("");
   };
 
@@ -517,6 +520,7 @@ function GaleriaAdminTab() {
     setGuardando(true);
     await supabase.from("posts").update({
       titulo: editTitulo.trim(),
+      descripcion: editDescripcion.trim() || null,
       instagram_fotografa: editTipo === "previa" ? null : (editInstagram.trim().replace("@", "") || null),
       tipo: editTipo,
     }).eq("id", postId);
@@ -682,8 +686,15 @@ function GaleriaAdminTab() {
                         value={editTitulo}
                         onChange={(e) => setEditTitulo(e.target.value)}
                         placeholder="Título"
-                        className="w-full border-2 border-candas-rojo rounded-lg px-2 py-1.5 text-sm focus:outline-none"
+                        className="w-full bg-white/5 border-2 border-candas-rojo rounded-lg px-2 py-1.5 text-sm text-white focus:outline-none"
                         autoFocus
+                      />
+                      <textarea
+                        value={editDescripcion}
+                        onChange={(e) => setEditDescripcion(e.target.value)}
+                        placeholder="Descripción (opcional)"
+                        rows={2}
+                        className="w-full bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-sm text-white focus:border-candas-rojo focus:outline-none resize-none"
                       />
                       <select
                         value={editTipo}
