@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { Partido } from "@/lib/types";
 import ChatAbonados from "@/components/ChatAbonados";
 import TablonViajes from "@/components/TablonViajes";
-import GaleriaAbonados from "@/components/GaleriaAbonados";
 import EncuestaAbonados from "@/components/EncuestaAbonados";
 import HistorialEncuestas from "@/components/HistorialEncuestas";
 import PerfilAbonado from "@/components/PerfilAbonado";
@@ -21,13 +20,11 @@ export default async function AbonadosPage() {
     { data: candasEq },
     { data: encuestasCerradas },
     { data: misVotos },
-    { data: fotosAbonados },
   ] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", user.id).single(),
     supabase.from("equipos").select("id").eq("nombre", "Candás CF").single(),
     supabase.from("encuestas").select("id, titulo, created_at").eq("activa", false).order("created_at", { ascending: false }),
     supabase.from("votos").select("encuesta:encuestas(titulo), jugadores(nombre), created_at").eq("usuario_id", user.id).order("created_at", { ascending: false }),
-    supabase.from("posts").select("*").order("created_at", { ascending: false }),
   ]);
 
   // ── RONDA 2: lo que depende de ronda 1 ───────────────────────
@@ -101,12 +98,6 @@ export default async function AbonadosPage() {
 
       {/* Historial */}
       <HistorialEncuestas historial={historialEncuestas} />
-
-      {/* Galería — pasamos fotos desde servidor */}
-      <section className="mb-10">
-        <p className="text-white/30 text-xs uppercase tracking-widest mb-5">Galería</p>
-        <GaleriaAbonados fotosIniciales={fotosAbonados ?? []} />
-      </section>
 
       {/* Perfil */}
       <section>
