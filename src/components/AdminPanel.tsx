@@ -373,12 +373,13 @@ function CrearPartidoTab({
 // =====================================================
 // TAB: Galería de fotos (posts)
 // =====================================================
-type TipoPost = "previa" | "partido" | "general";
+type TipoPost = "previa" | "partido" | "aficion" | "general";
 
 const TIPO_LABELS: Record<TipoPost, { label: string; emoji: string; color: string }> = {
   previa:  { label: "Previa del partido", emoji: "📣", color: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30" },
   partido: { label: "Fotos del partido",  emoji: "📸", color: "bg-blue-500/20 text-blue-300 border-blue-500/30" },
-  general: { label: "General / Club",      emoji: "🔴", color: "bg-white/10 text-white/50 border-white/10" },
+  aficion: { label: "Afición",            emoji: "🙌", color: "bg-candas-rojo/20 text-red-300 border-candas-rojo/30" },
+  general: { label: "General / Club",     emoji: "🔴", color: "bg-white/10 text-white/50 border-white/10" },
 };
 
 type Post = {

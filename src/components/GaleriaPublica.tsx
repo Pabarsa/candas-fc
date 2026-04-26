@@ -8,7 +8,7 @@ type Post = {
   descripcion: string | null;
   foto_url: string;
   instagram_fotografa: string | null;
-  tipo?: "previa" | "partido" | "general";
+  tipo?: "previa" | "partido" | "aficion" | "general";
   created_at: string;
 };
 
@@ -40,6 +40,11 @@ function FotoCard({
       {post.tipo === "previa" && (
         <div className="absolute top-2 left-2 z-10 bg-yellow-400 text-black text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide shadow-lg">
           📣 Previa
+        </div>
+      )}
+      {post.tipo === "aficion" && (
+        <div className="absolute top-2 left-2 z-10 bg-candas-rojo text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide shadow-lg">
+          🙌 Afición
         </div>
       )}
       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all duration-300 flex flex-col justify-end p-3 rounded-xl">
@@ -145,6 +150,11 @@ export default function GaleriaPublica({
               {actual.tipo === "previa" && (
                 <span className="bg-yellow-400 text-black text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide">
                   📣 Previa
+                </span>
+              )}
+              {actual.tipo === "aficion" && (
+                <span className="bg-candas-rojo text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide">
+                  🙌 Afición
                 </span>
               )}
             </div>
