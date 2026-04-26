@@ -373,12 +373,21 @@ function CrearPartidoTab({
 // =====================================================
 // TAB: Galería de fotos (posts)
 // =====================================================
+type TipoPost = "previa" | "partido" | "general";
+
+const TIPO_LABELS: Record<TipoPost, { label: string; emoji: string; color: string }> = {
+  previa:  { label: "Previa del partido", emoji: "📣", color: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30" },
+  partido: { label: "Fotos del partido",  emoji: "📸", color: "bg-blue-500/20 text-blue-300 border-blue-500/30" },
+  general: { label: "General / Club",      emoji: "🔴", color: "bg-white/10 text-white/50 border-white/10" },
+};
+
 type Post = {
   id: number;
   titulo: string;
   descripcion: string | null;
   foto_url: string;
   instagram_fotografa: string | null;
+  tipo: TipoPost;
   created_at: string;
 };
 
@@ -394,6 +403,7 @@ function GaleriaAdminTab() {
   const [titulo, setTitulo] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [instagram, setInstagram] = useState("");
+  const [tipo, setTipo] = useState<TipoPost>("general");
   const [archivo, setArchivo] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [partidoId, setPartidoId] = useState<number | "">(""); 
@@ -403,6 +413,7 @@ function GaleriaAdminTab() {
   const [editandoId, setEditandoId] = useState<number | null>(null);
   const [editTitulo, setEditTitulo] = useState("");
   const [editInstagram, setEditInstagram] = useState("");
+  const [editTipo, setEditTipo] = useState<TipoPost>("general");
   const [guardando, setGuardando] = useState(false);
 
   const cargar = async () => {
@@ -458,7 +469,8 @@ function GaleriaAdminTab() {
         titulo: titulo.trim(),
         descripcion: descripcion.trim() || null,
         foto_url: urlData.publicUrl,
-        instagram_fotografa: instagram.trim().replace("@", "") || null,
+        instagram_fotografa: tipo === "previa" ? null : (instagram.trim().replace("@", "") || null),
+        tipo,
         created_by: user?.id,
         partido_id: partidoId || null,
       });
@@ -467,7 +479,7 @@ function GaleriaAdminTab() {
 
       setOk("✅ Foto publicada correctamente.");
       setTitulo(""); setDescripcion(""); setInstagram("");
-      setArchivo(null); setPreview(null); setPartidoId("");
+      setArchivo(null); setPreview(null); setPartidoId(""); setTipo("general");
       cargar();
     } catch (err: any) {
       setError(err.message ?? "Error al publicar.");
@@ -490,6 +502,7 @@ function GaleriaAdminTab() {
     setEditandoId(post.id);
     setEditTitulo(post.titulo);
     setEditInstagram(post.instagram_fotografa ?? "");
+    setEditTipo(post.tipo ?? "general");
   };
 
   const cancelarEdicion = () => {
@@ -503,7 +516,8 @@ function GaleriaAdminTab() {
     setGuardando(true);
     await supabase.from("posts").update({
       titulo: editTitulo.trim(),
-      instagram_fotografa: editInstagram.trim().replace("@", "") || null,
+      instagram_fotografa: editTipo === "previa" ? null : (editInstagram.trim().replace("@", "") || null),
+      tipo: editTipo,
     }).eq("id", postId);
     setGuardando(false);
     setEditandoId(null);
@@ -516,6 +530,31 @@ function GaleriaAdminTab() {
       <div className="card-dark rounded-xl p-6">
         <h3 className="font-black text-lg mb-4"> Nueva publicación</h3>
         <form onSubmit={publicar} className="space-y-4">
+          {/* ── Tipo de publicación ── */}
+          <div>
+            <label className="block text-xs font-semibold text-white/40 uppercase tracking-wide mb-2">Tipo de publicación *</label>
+            <div className="grid grid-cols-3 gap-2">
+              {(Object.entries(TIPO_LABELS) as [TipoPost, typeof TIPO_LABELS[TipoPost]][]).map(([key, val]) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => {
+                    setTipo(key);
+                    if (key === "previa") setInstagram("");
+                  }}
+                  className={`flex flex-col items-center gap-1 py-2.5 px-2 rounded-xl border text-xs font-bold transition ${
+                    tipo === key
+                      ? val.color + " ring-2 ring-offset-1 ring-offset-transparent ring-white/20"
+                      : "bg-white/5 border-white/10 text-white/30 hover:bg-white/10"
+                  }`}
+                >
+                  <span className="text-lg">{val.emoji}</span>
+                  <span className="leading-tight text-center">{val.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Preview foto */}
           <div
             className="border-2 border-dashed border-white/10 rounded-xl overflow-hidden cursor-pointer hover:border-candas-rojo transition"
@@ -581,6 +620,7 @@ function GaleriaAdminTab() {
             </p>
           </div>
 
+          {tipo !== "previa" && (
           <div>
             <label className="block text-xs font-semibold text-white/40 uppercase tracking-wide mb-1">
               Instagram de la fotógrafa (opcional)
@@ -599,6 +639,7 @@ function GaleriaAdminTab() {
               Se mostrará un enlace directo a su perfil de Instagram
             </p>
           </div>
+          )}
 
           {error && <div className="bg-red-500/10 text-red-400 border border-red-500/20 rounded-xl p-3 text-sm">{error}</div>}
           {ok && <div className="bg-green-500/10 text-green-400 border border-green-500/20 rounded-xl p-3 text-sm">{ok}</div>}
@@ -643,6 +684,16 @@ function GaleriaAdminTab() {
                         className="w-full border-2 border-candas-rojo rounded-lg px-2 py-1.5 text-sm focus:outline-none"
                         autoFocus
                       />
+                      <select
+                        value={editTipo}
+                        onChange={(e) => setEditTipo(e.target.value as TipoPost)}
+                        className="w-full bg-surface-2 border border-white/10 rounded-lg px-2 py-1.5 text-sm text-white focus:border-candas-rojo focus:outline-none"
+                      >
+                        {(Object.entries(TIPO_LABELS) as [TipoPost, typeof TIPO_LABELS[TipoPost]][]).map(([k, v]) => (
+                          <option key={k} value={k}>{v.emoji} {v.label}</option>
+                        ))}
+                      </select>
+                      {editTipo !== "previa" && (
                       <div className="flex items-center gap-1">
                         <span className="text-white/20 text-sm font-bold">@</span>
                         <input
@@ -653,6 +704,7 @@ function GaleriaAdminTab() {
                           className="flex-1 bg-surface-2 border border-white/10 rounded-lg px-2 py-1.5 text-sm text-white focus:border-candas-rojo focus:outline-none"
                         />
                       </div>
+                      )}
                       <div className="flex gap-2">
                         <button
                           onClick={() => guardarEdicion(post.id)}
@@ -679,6 +731,13 @@ function GaleriaAdminTab() {
                       className="w-14 h-14 object-cover rounded-lg flex-shrink-0"
                     />
                     <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        {post.tipo && post.tipo !== "general" && (
+                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${TIPO_LABELS[post.tipo]?.color}`}>
+                            {TIPO_LABELS[post.tipo]?.emoji} {post.tipo === "previa" ? "PREVIA" : "PARTIDO"}
+                          </span>
+                        )}
+                      </div>
                       <p className="font-semibold text-sm truncate">{post.titulo}</p>
                       {post.instagram_fotografa && (
                         <p className="text-xs text-pink-500">@{post.instagram_fotografa}</p>

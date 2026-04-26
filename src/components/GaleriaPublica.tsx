@@ -8,6 +8,7 @@ type Post = {
   descripcion: string | null;
   foto_url: string;
   instagram_fotografa: string | null;
+  tipo?: "previa" | "partido" | "general";
   created_at: string;
 };
 
@@ -51,6 +52,12 @@ function FotoCard({
         className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-105
           ${cargada ? "opacity-100 blur-0" : "opacity-0 blur-sm"}`}
       />
+      {/* Badge PREVIA */}
+      {post.tipo === "previa" && (
+        <div className="absolute top-2 left-2 z-10 bg-yellow-400 text-black text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide shadow-lg">
+          📣 Previa
+        </div>
+      )}
       {/* Overlay hover */}
       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/45 transition-all duration-300 flex flex-col justify-end p-3">
         <div className="translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
