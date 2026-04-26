@@ -25,9 +25,16 @@ export default async function ClasificacionPage() {
     ? pts.filter((p) => !p.jugado && (p.local_id === candas.id || p.visitante_id === candas.id)).slice(0, 10)
     : [];
 
-  const ultimos = candas
-    ? pts.filter((p) => p.jugado && (p.local_id === candas.id || p.visitante_id === candas.id)).slice(-5).reverse()
-    : [];
+  // Todos los jugados agrupados por jornada, más reciente primero
+  const jugados = pts.filter((p) => p.jugado);
+  const porJornada = jugados.reduce<Record<number, Partido[]>>((acc, p) => {
+    if (!acc[p.jornada]) acc[p.jornada] = [];
+    acc[p.jornada].push(p);
+    return acc;
+  }, {});
+  const jornadasOrdenadas = Object.keys(porJornada)
+    .map(Number)
+    .sort((a, b) => b - a); // más reciente primero
 
   return (
     <div className="max-w-6xl mx-auto px-5 sm:px-6 pt-20 sm:pt-28 pb-12">
@@ -35,6 +42,7 @@ export default async function ClasificacionPage() {
       <h1 className="font-poppins font-black text-3xl sm:text-5xl text-white mb-2">Clasificación</h1>
       <p className="text-white/40 mb-10">Segunda Asturfútbol · Grupo 1</p>
 
+      {/* ── Tabla clasificación ── */}
       {clasificacion.length === 0 ? (
         <div className="card-dark rounded-2xl p-8 text-center text-white/30">
           Todavía no hay equipos cargados.
@@ -45,54 +53,92 @@ export default async function ClasificacionPage() {
         </div>
       )}
 
-      <div className="grid md:grid-cols-2 gap-4">
-        <div className="card-dark rounded-2xl p-6">
-          <p className="text-white/30 text-xs uppercase tracking-widest mb-5">Últimos resultados</p>
-          {ultimos.length === 0 ? (
-            <p className="text-white/20 text-sm">Sin partidos jugados aún.</p>
-          ) : (
-            <ul className="space-y-3">
-              {ultimos.map((p) => (
-                <li key={p.id} className="flex justify-between items-center border-b border-white/5 pb-3 last:border-0 last:pb-0">
-                  <div>
-                    <span className="text-white/20 text-xs block mb-0.5">J{p.jornada}</span>
-                    <div className="text-sm text-white/70">
-                      {p.local?.nombre}{" "}
-                      <span className="text-white font-bold">{p.goles_local} - {p.goles_visitante}</span>{" "}
-                      {p.visitante?.nombre}
-                    </div>
+      {/* ── Próximos partidos ── */}
+      {proximos.length > 0 && (
+        <div className="card-dark rounded-2xl p-6 mb-10">
+          <p className="text-white/30 text-xs uppercase tracking-widest mb-5">Próximos partidos del Candás CF</p>
+          <ul className="space-y-3">
+            {proximos.map((p) => (
+              <li key={p.id} className="flex justify-between items-center border-b border-white/5 pb-3 last:border-0 last:pb-0">
+                <div>
+                  <span className="text-white/20 text-xs block mb-0.5">J{p.jornada}</span>
+                  <div className="text-sm text-white/70">
+                    {p.local?.nombre} <span className="text-white/30">vs</span> {p.visitante?.nombre}
                   </div>
-                </li>
-              ))}
-            </ul>
-          )}
+                </div>
+                {p.fecha && (
+                  <span className="text-white/30 text-xs flex-shrink-0 ml-3">
+                    {new Date(p.fecha).toLocaleDateString("es-ES", { day: "numeric", month: "short", timeZone: "Europe/Madrid" })}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
         </div>
+      )}
 
-        <div className="card-dark rounded-2xl p-6">
-          <p className="text-white/30 text-xs uppercase tracking-widest mb-5">Próximos partidos</p>
-          {proximos.length === 0 ? (
-            <p className="text-white/20 text-sm">No hay partidos pendientes.</p>
-          ) : (
-            <ul className="space-y-3">
-              {proximos.map((p) => (
-                <li key={p.id} className="flex justify-between items-center border-b border-white/5 pb-3 last:border-0 last:pb-0">
-                  <div>
-                    <span className="text-white/20 text-xs block mb-0.5">J{p.jornada}</span>
-                    <div className="text-sm text-white/70">
-                      {p.local?.nombre} <span className="text-white/30">vs</span> {p.visitante?.nombre}
-                    </div>
-                  </div>
-                  {p.fecha && (
-                    <span className="text-white/30 text-xs flex-shrink-0 ml-3">
-                      {new Date(p.fecha).toLocaleDateString("es-ES", { day: "numeric", month: "short", timeZone: "Europe/Madrid" })}
-                    </span>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
+      {/* ── Todos los resultados por jornada ── */}
+      {jornadasOrdenadas.length > 0 && (
+        <div>
+          <p className="text-white/30 text-xs uppercase tracking-widest mb-6">Resultados</p>
+          <div className="space-y-4">
+            {jornadasOrdenadas.map((jornada) => (
+              <div key={jornada} className="card-dark rounded-2xl overflow-hidden">
+                {/* Cabecera jornada */}
+                <div className="px-5 py-3 border-b border-white/5 flex items-center gap-3">
+                  <span className="text-xs font-black uppercase tracking-widest text-white/30">Jornada {jornada}</span>
+                </div>
+                {/* Partidos */}
+                <ul className="divide-y divide-white/5">
+                  {porJornada[jornada].map((p) => {
+                    const esLocal = candas && p.local_id === candas.id;
+                    const esVisitante = candas && p.visitante_id === candas.id;
+                    const esCandas = esLocal || esVisitante;
+                    const ganoLocal = (p.goles_local ?? 0) > (p.goles_visitante ?? 0);
+                    const ganoVisitante = (p.goles_visitante ?? 0) > (p.goles_local ?? 0);
+                    const resultado = esCandas
+                      ? (esLocal && ganoLocal) || (esVisitante && ganoVisitante)
+                        ? "V"
+                        : ganoLocal === ganoVisitante
+                        ? "E"
+                        : "D"
+                      : null;
+
+                    return (
+                      <li key={p.id} className={`px-5 py-3 flex items-center gap-3 ${esCandas ? "bg-candas-rojo/5" : ""}`}>
+                        {/* Resultado badge solo en partidos del Candás */}
+                        <span className={`w-5 text-[10px] font-black text-center flex-shrink-0 ${
+                          resultado === "V" ? "text-green-400" :
+                          resultado === "E" ? "text-yellow-400" :
+                          resultado === "D" ? "text-red-400" :
+                          "text-transparent"
+                        }`}>
+                          {resultado ?? "·"}
+                        </span>
+
+                        {/* Local */}
+                        <span className={`flex-1 text-sm text-right truncate ${esLocal ? "text-white font-bold" : "text-white/50"}`}>
+                          {p.local?.nombre}
+                        </span>
+
+                        {/* Marcador */}
+                        <span className="flex-shrink-0 font-black text-base tabular-nums tracking-tight text-white bg-white/5 rounded-lg px-3 py-0.5 min-w-[60px] text-center">
+                          {p.goles_local} - {p.goles_visitante}
+                        </span>
+
+                        {/* Visitante */}
+                        <span className={`flex-1 text-sm truncate ${esVisitante ? "text-white font-bold" : "text-white/50"}`}>
+                          {p.visitante?.nombre}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
