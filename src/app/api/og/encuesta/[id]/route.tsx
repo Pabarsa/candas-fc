@@ -1,14 +1,22 @@
 import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@supabase/supabase-js";
 
 export const runtime = "nodejs";
+
+// Cliente sin cookies — funciona para crawlers (WhatsApp, Twitter, etc.)
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+}
 
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const supabase = createClient();
+  const supabase = getSupabase();
   const formato = req.nextUrl.searchParams.get("format") ?? "og"; // "og" | "square"
 
   // Ancho/alto según formato
@@ -46,7 +54,7 @@ export async function GET(
   const titulo = encuesta.titulo.replace("⭐ ", "");
   const fotoUrl = fotoPost?.foto_url ?? null;
 
-  return new ImageResponse(
+  const imageResponse = new ImageResponse(
     isSquare
       ? /* ── SQUARE 1080×1080 para Instagram ── */
         (
@@ -347,4 +355,8 @@ export async function GET(
         ),
     { width: W, height: H }
   );
+
+  // Headers para que WhatsApp y otros crawlers cacheen la imagen
+  imageResponse.headers.set("Cache-Control", "public, max-age=60, s-maxage=60");
+  return imageResponse;
 }
