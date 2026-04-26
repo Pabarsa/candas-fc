@@ -12,60 +12,43 @@ type Post = {
   created_at: string;
 };
 
-// Patrón de collage: define col-span y aspect por posición en ciclo de 8
-const PATRON: string[] = [
-  "col-span-2 row-span-2",
-  "col-span-1 row-span-1",
-  "col-span-1 row-span-1",
-  "col-span-1 row-span-2",
-  "col-span-2 row-span-1",
-  "col-span-1 row-span-1",
-  "col-span-1 row-span-1",
-  "col-span-1 row-span-1",
-];
-
 function FotoCard({
   post,
-  indicePatron,
   onClick,
 }: {
   post: Post;
-  indicePatron: number;
   onClick: () => void;
 }) {
   const [cargada, setCargada] = useState(false);
-  const col = PATRON[indicePatron % PATRON.length];
 
   return (
     <button
       onClick={onClick}
-      className={`${col} group relative overflow-hidden rounded-xl bg-gray-200 focus:outline-none focus:ring-2 focus:ring-candas-rojo`}
+      className="group relative w-full overflow-hidden rounded-xl focus:outline-none focus:ring-2 focus:ring-candas-rojo mb-2 sm:mb-3 block"
+      style={{ breakInside: "avoid" }}
     >
-      {/* Placeholder blur mientras carga */}
       {!cargada && (
-        <div className="absolute inset-0 bg-gray-200 animate-pulse rounded-xl" />
+        <div className="w-full bg-white/5 animate-pulse rounded-xl" style={{ aspectRatio: "4/3" }} />
       )}
       <img
         src={post.foto_url}
         alt={post.titulo}
         onLoad={() => setCargada(true)}
-        className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-105
-          ${cargada ? "opacity-100 blur-0" : "opacity-0 blur-sm"}`}
+        className={`w-full h-auto block transition-all duration-500 group-hover:scale-[1.02]
+          ${cargada ? "opacity-100" : "opacity-0 absolute inset-0"}`}
       />
-      {/* Badge PREVIA */}
       {post.tipo === "previa" && (
         <div className="absolute top-2 left-2 z-10 bg-yellow-400 text-black text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide shadow-lg">
           📣 Previa
         </div>
       )}
-      {/* Overlay hover */}
-      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/45 transition-all duration-300 flex flex-col justify-end p-3">
+      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all duration-300 flex flex-col justify-end p-3 rounded-xl">
         <div className="translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-          <p className="text-white font-bold text-xs sm:text-sm leading-tight line-clamp-2">
+          <p className="text-white font-bold text-xs sm:text-sm leading-tight line-clamp-2 drop-shadow">
             {post.titulo}
           </p>
           {post.instagram_fotografa && (
-            <p className="text-white/70 text-xs mt-0.5">
+            <p className="text-white/80 text-xs mt-0.5 drop-shadow">
               📸 @{post.instagram_fotografa}
             </p>
           )}
@@ -80,7 +63,7 @@ export default function GaleriaPublica({
   titulo,
 }: {
   fotos: Post[];
-  titulo?: boolean; // mostrar contador en header
+  titulo?: boolean;
 }) {
   const [indice, setIndice] = useState<number | null>(null);
   const touchStartX = useRef(0);
@@ -95,7 +78,6 @@ export default function GaleriaPublica({
     [fotos.length]
   );
 
-  // Teclado
   useEffect(() => {
     if (indice === null) return;
     const handler = (e: KeyboardEvent) => {
@@ -111,7 +93,6 @@ export default function GaleriaPublica({
     };
   }, [indice, cerrar, anterior, siguiente]);
 
-  // Swipe móvil
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
   };
@@ -128,20 +109,18 @@ export default function GaleriaPublica({
 
   return (
     <>
-      {/* Contador opcional */}
       {titulo && (
-        <p className="text-sm text-gray-400 mb-4">
-          {fotos.length} {fotos.length === 1 ? "foto" : "fotos"}
+        <p className="text-sm text-white/30 mb-6">
+          {fotos.length} {fotos.length === 1 ? "publicación" : "publicaciones"}
         </p>
       )}
 
-      {/* Grid collage */}
-      <div className="grid grid-cols-3 auto-rows-[180px] sm:auto-rows-[220px] gap-2 sm:gap-3">
+      {/* Masonry: columnas CSS — cada imagen respeta su proporción natural */}
+      <div className="columns-2 sm:columns-3 gap-2 sm:gap-3">
         {fotos.map((post, i) => (
           <FotoCard
             key={post.id}
             post={post}
-            indicePatron={i}
             onClick={() => setIndice(i)}
           />
         ))}
@@ -155,14 +134,20 @@ export default function GaleriaPublica({
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
-          {/* Barra superior */}
           <div
             className="flex items-center justify-between px-4 py-3 flex-shrink-0"
             onClick={(e) => e.stopPropagation()}
           >
-            <span className="text-white/50 text-sm tabular-nums font-medium">
-              {indice + 1} / {fotos.length}
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="text-white/50 text-sm tabular-nums font-medium">
+                {indice + 1} / {fotos.length}
+              </span>
+              {actual.tipo === "previa" && (
+                <span className="bg-yellow-400 text-black text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide">
+                  📣 Previa
+                </span>
+              )}
+            </div>
             <button
               onClick={cerrar}
               className="text-white/70 hover:text-white p-2 hover:bg-white/10 rounded-full transition"
@@ -174,7 +159,6 @@ export default function GaleriaPublica({
             </button>
           </div>
 
-          {/* Foto + flechas */}
           <div className="flex-1 flex items-center justify-center relative min-h-0 px-10 sm:px-16">
             {fotos.length > 1 && (
               <button
@@ -187,7 +171,6 @@ export default function GaleriaPublica({
                 </svg>
               </button>
             )}
-
             <img
               key={actual.id}
               src={actual.foto_url}
@@ -196,7 +179,6 @@ export default function GaleriaPublica({
               onClick={(e) => e.stopPropagation()}
               style={{ maxHeight: "calc(100vh - 160px)" }}
             />
-
             {fotos.length > 1 && (
               <button
                 onClick={(e) => { e.stopPropagation(); siguiente(); }}
@@ -210,7 +192,6 @@ export default function GaleriaPublica({
             )}
           </div>
 
-          {/* Pie con info */}
           <div
             className="flex-shrink-0 px-4 py-4 flex items-center justify-between gap-4"
             onClick={(e) => e.stopPropagation()}
@@ -220,7 +201,7 @@ export default function GaleriaPublica({
                 {actual.titulo}
               </p>
               {actual.descripcion && (
-                <p className="text-white/60 text-xs mt-0.5 line-clamp-1">
+                <p className="text-white/60 text-xs mt-0.5 line-clamp-2">
                   {actual.descripcion}
                 </p>
               )}
