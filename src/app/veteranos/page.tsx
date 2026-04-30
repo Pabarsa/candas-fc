@@ -48,7 +48,7 @@ function TarjetaVeterano({ veterano }: { veterano: Veterano }) {
           <img
             src={veterano.foto_url}
             alt={veterano.nombre}
-            className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+            className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-candas-rojo/20 to-candas-rojoOscuro/20">
