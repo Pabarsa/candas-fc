@@ -20,7 +20,8 @@ export default async function Home() {
       .select("*, local:equipos!partidos_local_id_fkey(*), visitante:equipos!partidos_visitante_id_fkey(*)")
       .order("jornada", { ascending: true }),
     supabase
-      .from("posts").select("id, titulo, foto_url, created_at")
+      .from("posts").select("id, titulo, foto_url, tipo, created_at")
+      .in("tipo", ["partido", "aficion", "general"])
       .order("created_at", { ascending: false }).limit(6),
   ]);
 
