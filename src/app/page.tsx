@@ -171,7 +171,12 @@ export default async function Home() {
           <section className="py-4 px-5 sm:px-6">
             <div className="max-w-7xl mx-auto">
               <p className="text-white/30 text-xs uppercase tracking-widest mb-4">Últimos resultados</p>
-              <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-hide">
+              <div className={`grid gap-2 sm:gap-3 ${
+                ultimosResultados.length === 1 ? "grid-cols-1 max-w-[160px]" :
+                ultimosResultados.length === 2 ? "grid-cols-2 max-w-xs" :
+                ultimosResultados.length === 3 ? "grid-cols-3 max-w-sm" :
+                "grid-cols-4 sm:grid-cols-5"
+              }`}>
                 {ultimosResultados.map((p) => {
                   const res = getResultado(p);
                   const color =
@@ -179,7 +184,7 @@ export default async function Home() {
                     res === "D" ? "bg-red-500/10 border-red-500/20 text-red-400" :
                     "bg-yellow-500/10 border-yellow-500/20 text-yellow-400";
                   return (
-                    <div key={p.id} className="flex-shrink-0 card-dark rounded-xl p-3 sm:p-4 min-w-[110px] sm:min-w-[130px] text-center">
+                    <div key={p.id} className="card-dark rounded-xl p-3 sm:p-4 text-center">
                       <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full border mb-1.5 ${color}`}>
                         {res === "V" ? "Victoria" : res === "D" ? "Derrota" : "Empate"}
                       </span>
