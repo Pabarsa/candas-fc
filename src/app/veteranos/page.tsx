@@ -2,7 +2,7 @@ export const revalidate = 3600;
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = {
-  title: "Veteranos — Fondo Sur Canijo",
+  title: "Veteranos",
   description: "Conoce a los jugadores veteranos del Candás CF.",
 };
 export const dynamic = "force-dynamic";
