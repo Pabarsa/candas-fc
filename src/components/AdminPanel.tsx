@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Equipo, Partido } from "@/lib/types";
 import { useRouter } from "next/navigation";
+import VeteranosAdminTab from "./VeteranosAdminTab";
 
 type Props = {
   equipos: Equipo[];
@@ -13,7 +14,7 @@ type Props = {
 export default function AdminPanel({ equipos, partidos }: Props) {
   const supabase = createClient();
   const router = useRouter();
-  const [tab, setTab] = useState<"resultados" | "crear" | "equipos" | "galeria" | "encuestas" | "plantilla" | "cuerpo" | "directo">("resultados");
+  const [tab, setTab] = useState<"resultados" | "crear" | "equipos" | "galeria" | "encuestas" | "plantilla" | "cuerpo" | "directo" | "veteranos">("resultados");
 
   return (
     <div>
@@ -42,6 +43,9 @@ export default function AdminPanel({ equipos, partidos }: Props) {
         <TabBtn activo={tab === "directo"} onClick={() => setTab("directo")}>
           Directo
         </TabBtn>
+        <TabBtn activo={tab === "veteranos"} onClick={() => setTab("veteranos")}>
+          Veteranos
+        </TabBtn>
       </div>
 
       {tab === "resultados" && (
@@ -58,6 +62,7 @@ export default function AdminPanel({ equipos, partidos }: Props) {
       {tab === "plantilla" && <PlantillaAdminTab />}
       {tab === "cuerpo" && <CuerpoTecnicoAdminTab />}
       {tab === "directo" && <DirectoAdminTab />}
+      {tab === "veteranos" && <VeteranosAdminTab />}
     </div>
   );
 }

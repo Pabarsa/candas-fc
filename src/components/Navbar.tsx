@@ -64,6 +64,7 @@ export default function Navbar() {
     { href: "/directo",       label: "Directo" },
     { href: "/campo",         label: "El Campo" },
     { href: "/equipo",        label: "Equipo" },
+    { href: "/veteranos",     label: "Veteranos" },
     ...(user ? [
       { href: "/simulador", label: "Simulador" },
       { href: "/abonados",  label: "Mi zona" },
