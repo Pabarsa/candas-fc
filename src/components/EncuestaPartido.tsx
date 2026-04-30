@@ -8,10 +8,7 @@ type Jugador = { id: number; nombre: string };
 type ResultadoVoto = { jugador_id: number; nombre: string; votos: number };
 
 export default function EncuestaPartido({
-  encuestaId,
-  titulo,
-  activa,
-  usuarioId,
+  encuestaId, titulo, activa, usuarioId,
 }: {
   encuestaId: number;
   titulo: string;
@@ -71,6 +68,7 @@ export default function EncuestaPartido({
   };
 
   const total = resultados.reduce((s, r) => s + r.votos, 0);
+  const ganador = resultados[0] ?? null;
 
   if (cargando) return (
     <div className="space-y-2 animate-pulse">
@@ -78,17 +76,42 @@ export default function EncuestaPartido({
     </div>
   );
 
+  // ── Encuesta cerrada: resultado final ──
+  if (!activa) return (
+    <div className="space-y-4">
+      <p className="text-white/60 text-xs">{titulo.replace("⭐ ", "")}</p>
+      {ganador ? (
+        <div className="text-center py-3">
+          <p className="text-yellow-400 text-xs font-black uppercase tracking-widest mb-2">⭐ Mejor jugador</p>
+          <p className="font-poppins font-black text-white text-2xl mb-1">{ganador.nombre}</p>
+          <p className="text-white/30 text-xs">{ganador.votos} votos de {total} participantes</p>
+        </div>
+      ) : (
+        <p className="text-white/30 text-sm text-center py-4">Sin votos registrados</p>
+      )}
+      {resultados.length > 1 && (
+        <div className="space-y-1.5 border-t border-white/5 pt-3">
+          {resultados.map((r, i) => {
+            const pct = total > 0 ? Math.round((r.votos / total) * 100) : 0;
+            return (
+              <div key={r.jugador_id} className="flex items-center gap-2 relative overflow-hidden rounded-lg px-3 py-1.5">
+                <div className="absolute inset-0 bg-white/3 rounded-lg" style={{ width: `${pct}%` }} />
+                <span className="relative text-white/20 text-xs w-4 flex-shrink-0">{i + 1}</span>
+                <span className={`relative flex-1 text-xs truncate ${i === 0 ? "text-white font-bold" : "text-white/50"}`}>{r.nombre}</span>
+                <span className="relative text-white/30 text-xs flex-shrink-0">{r.votos} ({pct}%)</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+      <p className="text-[10px] text-white/20 text-center">Encuesta cerrada</p>
+    </div>
+  );
+
+  // ── Encuesta abierta: votación ──
   return (
     <div className="space-y-3">
       <p className="text-white/60 text-xs">{titulo.replace("⭐ ", "")}</p>
-
-      {!activa && (
-        <div className="bg-white/5 rounded-xl px-3 py-2 text-xs text-white/30 text-center">
-          Encuesta cerrada · {total} votos
-        </div>
-      )}
-
-      {/* Lista jugadores */}
       <div className="space-y-1.5 max-h-72 overflow-y-auto pr-1">
         {jugadores.map((j) => {
           const res = resultados.find((r) => r.jugador_id === j.id);
@@ -96,11 +119,10 @@ export default function EncuestaPartido({
           const pct = total > 0 ? Math.round((votos / total) * 100) : 0;
           const esElMio = miVoto === j.id;
           const esLider = resultados[0]?.jugador_id === j.id && total > 0;
-
           return (
             <button key={j.id}
               onClick={() => votar(j.id)}
-              disabled={votando || !activa || !usuarioId}
+              disabled={votando || !usuarioId}
               className={`w-full text-left rounded-xl px-3 py-2 transition relative overflow-hidden border ${
                 esElMio ? "border-candas-rojo bg-candas-rojo/10" : "border-white/5 bg-white/3 hover:bg-white/5"
               } disabled:cursor-default`}>
@@ -123,10 +145,8 @@ export default function EncuestaPartido({
           );
         })}
       </div>
-
-      {!usuarioId && activa && (
-        <Link href="/login"
-          className="block text-center text-xs text-candas-rojo hover:underline mt-2">
+      {!usuarioId && (
+        <Link href="/login" className="block text-center text-xs text-candas-rojo hover:underline mt-2">
           Inicia sesión para votar
         </Link>
       )}
