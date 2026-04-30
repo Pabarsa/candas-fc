@@ -9,6 +9,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/clasificacion`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
     { url: `${base}/fotos`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     { url: `${base}/equipo`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${base}/veteranos`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${base}/campo`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${base}/directo`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
     { url: `${base}/simulador`, lastModified: now, changeFrequency: "weekly", priority: 0.6 },

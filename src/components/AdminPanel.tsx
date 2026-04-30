@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Equipo, Partido } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import VeteranosAdminTab from "./VeteranosAdminTab";
+import { comprimirImagen } from "@/lib/imageUtils";
 
 type Props = {
   equipos: Equipo[];
@@ -115,6 +116,15 @@ function ResultadosTab({
       .eq("id", id);
     setGuardando(null);
     onSave();
+
+    // Abrir WhatsApp automáticamente con el resultado
+    const res = await fetch("/api/notificar-resultado", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ partidoId: id }),
+    });
+    const data = await res.json();
+    if (data.url) window.open(data.url, "_blank", "noopener,noreferrer");
   };
 
   const desmarcar = async (id: number) => {
@@ -456,12 +466,12 @@ function GaleriaAdminTab() {
 
     setSubiendo(true);
     try {
-      // 1. Subir foto al bucket
-      const ext = archivo.name.split(".").pop();
-      const nombre = `${Date.now()}.${ext}`;
+      // 1. Comprimir imagen antes de subir
+      const archivoComprimido = await comprimirImagen(archivo);
+      const nombre = `${Date.now()}.jpg`;
       const { error: uploadError } = await supabase.storage
         .from("galeria")
-        .upload(nombre, archivo, { contentType: archivo.type });
+        .upload(nombre, archivoComprimido, { contentType: "image/jpeg" });
 
       if (uploadError) throw new Error(uploadError.message);
 
@@ -1104,11 +1114,11 @@ function PlantillaAdminTab() {
 
   const subirFoto = async (jugadorId: number, archivo: File) => {
     setSubiendoFotoId(jugadorId);
-    const ext = archivo.name.split(".").pop();
-    const nombre = `jugador_${jugadorId}_${Date.now()}.${ext}`;
+    const comprimido = await comprimirImagen(archivo);
+    const nombre = `jugador_${jugadorId}_${Date.now()}.jpg`;
     const { error: uploadError } = await supabase.storage
       .from("galeria")
-      .upload(`jugadores/${nombre}`, archivo, { contentType: archivo.type, upsert: true });
+      .upload(`jugadores/${nombre}`, comprimido, { contentType: "image/jpeg", upsert: true });
     if (!uploadError) {
       const { data: urlData } = supabase.storage.from("galeria").getPublicUrl(`jugadores/${nombre}`);
       await supabase.from("jugadores").update({ foto_url: urlData.publicUrl }).eq("id", jugadorId);

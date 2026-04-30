@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { calcularClasificacion, Equipo, Partido } from "@/lib/types";
 import TablaClasificacion from "@/components/TablaClasificacion";
+import Link from "next/link";
 
 export const metadata = { title: "Clasificación — Fondo Sur Canijo" };
 export const dynamic = "force-dynamic";
@@ -105,31 +106,30 @@ export default async function ClasificacionPage() {
                       : null;
 
                     return (
-                      <li key={p.id} className={`px-5 py-3 flex items-center gap-3 ${esCandas ? "bg-candas-rojo/5" : ""}`}>
-                        {/* Resultado badge solo en partidos del Candás */}
-                        <span className={`w-5 text-[10px] font-black text-center flex-shrink-0 ${
-                          resultado === "V" ? "text-green-400" :
-                          resultado === "E" ? "text-yellow-400" :
-                          resultado === "D" ? "text-red-400" :
-                          "text-transparent"
-                        }`}>
-                          {resultado ?? "·"}
-                        </span>
-
-                        {/* Local */}
-                        <span className={`flex-1 text-sm text-right truncate ${esLocal ? "text-white font-bold" : "text-white/50"}`}>
-                          {p.local?.nombre}
-                        </span>
-
-                        {/* Marcador */}
-                        <span className="flex-shrink-0 font-black text-base tabular-nums tracking-tight text-white bg-white/5 rounded-lg px-3 py-0.5 min-w-[60px] text-center">
-                          {p.goles_local} - {p.goles_visitante}
-                        </span>
-
-                        {/* Visitante */}
-                        <span className={`flex-1 text-sm truncate ${esVisitante ? "text-white font-bold" : "text-white/50"}`}>
-                          {p.visitante?.nombre}
-                        </span>
+                      <li key={p.id}>
+                        <Link href={`/partido/${p.id}`}
+                          className={`px-5 py-3 flex items-center gap-3 hover:bg-white/5 transition-colors ${esCandas ? "bg-candas-rojo/5 hover:bg-candas-rojo/10" : ""}`}>
+                          <span className={`w-5 text-[10px] font-black text-center flex-shrink-0 ${
+                            resultado === "V" ? "text-green-400" :
+                            resultado === "E" ? "text-yellow-400" :
+                            resultado === "D" ? "text-red-400" :
+                            "text-transparent"
+                          }`}>
+                            {resultado ?? "·"}
+                          </span>
+                          <span className={`flex-1 text-sm text-right truncate ${esLocal ? "text-white font-bold" : "text-white/50"}`}>
+                            {p.local?.nombre}
+                          </span>
+                          <span className="flex-shrink-0 font-black text-base tabular-nums tracking-tight text-white bg-white/5 rounded-lg px-3 py-0.5 min-w-[60px] text-center">
+                            {p.goles_local} - {p.goles_visitante}
+                          </span>
+                          <span className={`flex-1 text-sm truncate ${esVisitante ? "text-white font-bold" : "text-white/50"}`}>
+                            {p.visitante?.nombre}
+                          </span>
+                          {esCandas && (
+                            <span className="text-white/20 text-xs flex-shrink-0">→</span>
+                          )}
+                        </Link>
                       </li>
                     );
                   })}

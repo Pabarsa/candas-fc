@@ -57,6 +57,43 @@ export default async function Home() {
   const marcador = (p: Partido) =>
     p.goles_local != null ? `${p.goles_local} - ${p.goles_visitante}` : "vs";
 
+  // ── Estadísticas de temporada ──────────────────────────────
+  const partidosCandas = candas
+    ? pts.filter((p) => p.jugado && (p.local_id === candas.id || p.visitante_id === candas.id))
+    : [];
+
+  const statsTemp = partidosCandas.reduce(
+    (acc, p) => {
+      const esLocal = p.local_id === candas!.id;
+      const gF = esLocal ? (p.goles_local ?? 0) : (p.goles_visitante ?? 0);
+      const gC = esLocal ? (p.goles_visitante ?? 0) : (p.goles_local ?? 0);
+      acc.gf += gF; acc.gc += gC;
+      if (esLocal) {
+        acc.casa_pj++;
+        if (gF > gC) acc.casa_v++; else if (gF === gC) acc.casa_e++; else acc.casa_d++;
+      } else {
+        acc.fuera_pj++;
+        if (gF > gC) acc.fuera_v++; else if (gF === gC) acc.fuera_e++; else acc.fuera_d++;
+      }
+      return acc;
+    },
+    { gf: 0, gc: 0, casa_pj: 0, casa_v: 0, casa_e: 0, casa_d: 0, fuera_pj: 0, fuera_v: 0, fuera_e: 0, fuera_d: 0 }
+  );
+
+  const rachaPartidos = [...partidosCandas].reverse();
+  let racha = 0; let rachaType = "";
+  for (const p of rachaPartidos) {
+    const esLocal = p.local_id === candas!.id;
+    const gF = esLocal ? (p.goles_local ?? 0) : (p.goles_visitante ?? 0);
+    const gC = esLocal ? (p.goles_visitante ?? 0) : (p.goles_local ?? 0);
+    const r = gF > gC ? "V" : gF < gC ? "D" : "E";
+    if (racha === 0) { rachaType = r; racha = 1; }
+    else if (r === rachaType) racha++;
+    else break;
+  }
+  const rachaLabel = rachaType === "V" ? `${racha} victorias seguidas` : rachaType === "D" ? `${racha} derrotas seguidas` : `${racha} empates seguidos`;
+  const rachaColor = rachaType === "V" ? "text-green-400" : rachaType === "D" ? "text-red-400" : "text-yellow-400";
+
   return (
     <div className="bg-site">
 
@@ -326,6 +363,59 @@ export default async function Home() {
           </div>
         </section>
       </RevealSection>
+
+      {/* ─── ESTADÍSTICAS DE TEMPORADA ───────────────────────── */}
+      {partidosCandas.length > 0 && (
+        <RevealSection>
+          <section className="py-10 sm:py-14 px-5 sm:px-6">
+            <div className="max-w-7xl mx-auto">
+              <div className="flex items-center justify-between mb-6">
+                <p className="text-white/30 text-xs uppercase tracking-widest">Estadísticas temporada</p>
+                {racha > 1 && (
+                  <span className={`text-xs font-bold ${rachaColor}`}>🔥 {rachaLabel}</span>
+                )}
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="card-dark rounded-2xl p-5">
+                  <p className="text-white/30 text-[10px] uppercase tracking-widest mb-3">Goles</p>
+                  <div className="flex items-end gap-3">
+                    <div>
+                      <p className="font-poppins font-black text-3xl text-green-400">{statsTemp.gf}</p>
+                      <p className="text-white/30 text-[10px] mt-0.5">A favor</p>
+                    </div>
+                    <div className="text-white/10 font-black text-xl mb-1">·</div>
+                    <div>
+                      <p className="font-poppins font-black text-3xl text-red-400">{statsTemp.gc}</p>
+                      <p className="text-white/30 text-[10px] mt-0.5">En contra</p>
+                    </div>
+                  </div>
+                  <p className="text-white/20 text-xs mt-2">Diferencia: {statsTemp.gf - statsTemp.gc > 0 ? "+" : ""}{statsTemp.gf - statsTemp.gc}</p>
+                </div>
+                <div className="card-dark rounded-2xl p-5">
+                  <p className="text-white/30 text-[10px] uppercase tracking-widest mb-3">Rendimiento</p>
+                  <p className="font-poppins font-black text-3xl text-white">
+                    {partidosCandas.length > 0 ? Math.round(((statsCandas?.g ?? 0) / partidosCandas.length) * 100) : 0}%
+                  </p>
+                  <p className="text-white/30 text-[10px] mt-0.5">De victorias</p>
+                  <p className="text-white/20 text-xs mt-2">{statsCandas?.g ?? 0}V · {statsCandas?.e ?? 0}E · {statsCandas?.p ?? 0}D</p>
+                </div>
+                <div className="card-dark rounded-2xl p-5">
+                  <p className="text-white/30 text-[10px] uppercase tracking-widest mb-3">🏠 En casa</p>
+                  <p className="font-poppins font-black text-3xl text-white">{statsTemp.casa_v}</p>
+                  <p className="text-white/30 text-[10px] mt-0.5">Victorias de {statsTemp.casa_pj}</p>
+                  <p className="text-white/20 text-xs mt-2">{statsTemp.casa_v}V · {statsTemp.casa_e}E · {statsTemp.casa_d}D</p>
+                </div>
+                <div className="card-dark rounded-2xl p-5">
+                  <p className="text-white/30 text-[10px] uppercase tracking-widest mb-3">✈️ Fuera</p>
+                  <p className="font-poppins font-black text-3xl text-white">{statsTemp.fuera_v}</p>
+                  <p className="text-white/30 text-[10px] mt-0.5">Victorias de {statsTemp.fuera_pj}</p>
+                  <p className="text-white/20 text-xs mt-2">{statsTemp.fuera_v}V · {statsTemp.fuera_e}E · {statsTemp.fuera_d}D</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        </RevealSection>
+      )}
 
       {/* ─── CTA REGISTRO ─────────────────────────────────────── */}
       {!user && (

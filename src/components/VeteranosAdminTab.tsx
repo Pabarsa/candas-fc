@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { comprimirImagen } from "@/lib/imageUtils";
 
 type Veterano = {
   id: number;
@@ -61,9 +62,9 @@ export default function VeteranosAdminTab() {
   };
 
   const subirFoto = async (file: File, nombre: string): Promise<string> => {
-    const ext = file.name.split(".").pop();
-    const path = `veteranos/${Date.now()}_${nombre.toLowerCase().replace(/\s+/g, "_")}.${ext}`;
-    const { error } = await supabase.storage.from("galeria").upload(path, file, { upsert: true });
+    const comprimido = await comprimirImagen(file);
+    const path = `veteranos/${Date.now()}_${nombre.toLowerCase().replace(/\s+/g, "_")}.jpg`;
+    const { error } = await supabase.storage.from("galeria").upload(path, comprimido, { contentType: "image/jpeg", upsert: true });
     if (error) throw new Error(error.message);
     const { data } = supabase.storage.from("galeria").getPublicUrl(path);
     return data.publicUrl;
