@@ -296,16 +296,18 @@ export default async function Home() {
         <section className="py-10 sm:py-14 px-5 sm:px-6">
           <div className="max-w-7xl mx-auto">
             <p className="text-white/30 text-xs uppercase tracking-widest mb-5">Explorar</p>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
               {[
                 { href: "/clasificacion", title: "Clasificación", desc: "Segunda Asturfútbol actualizada" },
                 { href: "/fotos",         title: "Fotos",         desc: "Galería de imágenes del equipo" },
+                { href: "/equipo",        title: "Plantilla",     desc: "Jugadores de la temporada" },
+                { href: "/veteranos",     title: "Veteranos",     desc: "Los históricos del club" },
                 { href: user ? "/simulador" : "/login", title: "Simulador", desc: "Simula el final de la liga", locked: !user },
                 { href: user ? "/abonados"  : "/login", title: "Mi zona",   desc: "Chat, viajes y encuestas",  locked: !user },
               ].map((item) => (
                 <Link key={item.title} href={item.href}
-                  className="card-dark rounded-2xl p-4 sm:p-6 group hover:border-white/10 transition-all duration-200">
-                  <p className="font-poppins font-bold text-white text-sm sm:text-base mb-1">{item.title}</p>
+                  className="card-dark rounded-2xl p-4 sm:p-5 group hover:border-white/10 transition-all duration-200">
+                  <p className="font-poppins font-bold text-white text-sm mb-1">{item.title}</p>
                   <p className="text-white/30 text-xs leading-relaxed">{item.desc}</p>
                   {item.locked && (
                     <span className="inline-block mt-2 text-[10px] text-white/20 border border-white/10 px-2 py-0.5 rounded-full">
