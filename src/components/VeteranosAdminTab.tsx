@@ -63,7 +63,8 @@ export default function VeteranosAdminTab() {
 
   const subirFoto = async (file: File, nombre: string): Promise<string> => {
     const comprimido = await comprimirImagen(file);
-    const path = `veteranos/${Date.now()}_${nombre.toLowerCase().replace(/\s+/g, "_")}.jpg`;
+    const nombreLimpio = nombre.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "_");
+    const path = `veteranos/${Date.now()}_${nombreLimpio}.jpg`;
     const { error } = await supabase.storage.from("galeria").upload(path, comprimido, { contentType: "image/jpeg", upsert: true });
     if (error) throw new Error(error.message);
     const { data } = supabase.storage.from("galeria").getPublicUrl(path);
