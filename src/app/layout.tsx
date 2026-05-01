@@ -66,7 +66,87 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Navbar />
         <main className="flex-1">{children}</main>
 
-        <footer className="bg-black/60 border-t border-white/5 text-white/50 text-sm mt-16">
+        {/* ── PATROCINADORES ── */}
+        <div className="border-t border-white/5 bg-black/40 py-10 px-5 sm:px-6">
+          <div className="max-w-6xl mx-auto">
+            <p className="text-white/20 text-[10px] uppercase tracking-widest text-center mb-8">Patrocinadores del Candás CF</p>
+
+            {/* Oficial — el más grande */}
+            <div className="flex justify-center mb-10">
+              <a href="https://www.agromar.es" target="_blank" rel="noopener noreferrer"
+                className="block grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition-all duration-300">
+                <img src="/patrocinadores/agromar.png" alt="Agromar" className="h-20 object-contain" />
+              </a>
+            </div>
+
+            {/* Grandes */}
+            <div className="flex flex-wrap justify-center gap-8 mb-8">
+              {[
+                { name: "Helados Helio",         url: "https://www.instagram.com/heladoshelio/",              img: "/patrocinadores/helados-helio.png" },
+                { name: "Clínica Bejerano",       url: "https://clinicabejerano.com",                          img: "/patrocinadores/bejerano.png" },
+                { name: "Las Terrazas de Candás", url: "https://lasterrazasdecandas.es",                       img: "/patrocinadores/las-terrazas.png" },
+                { name: "Tierras Gallegas",       url: "https://www.tierrasgallegas.com",                      img: "/patrocinadores/tierras-gallegas.png" },
+                { name: "Vinos Tascón",           url: "https://www.facebook.com/vinostascon/",                img: "/patrocinadores/vinos-tascon.png" },
+                { name: "Sidra Peñón",            url: "https://www.sidrapenon.com",                           img: "/patrocinadores/sidra-penon.png" },
+                { name: "Transportes Pico",       url: "https://grupopico.es",                                 img: "/patrocinadores/transportes-pico.png" },
+                { name: "Muebles Novar",          url: "https://www.instagram.com/muebles_novar_luanco/",      img: "/patrocinadores/muebles-novar.png" },
+                { name: "Bar Domingo",            url: "https://www.facebook.com/bardomingo/",                 img: "/patrocinadores/bar-domingo.png" },
+                { name: "Hotel Piedra",           url: "https://hotelpiedra.es",                               img: "/patrocinadores/hotel-piedra.png" },
+                { name: "Copy Flash",             url: "https://copisteriacopyflash.es",                       img: "/patrocinadores/copy-flash.png" },
+                { name: "CD Autos",               url: null,                                                    img: "/patrocinadores/cd-autos.png" },
+              ].map((p) => (
+                p.url ? (
+                  <a key={p.name} href={p.url} target="_blank" rel="noopener noreferrer"
+                    className="block grayscale hover:grayscale-0 opacity-50 hover:opacity-90 transition-all duration-300">
+                    <img src={p.img} alt={p.name} className="h-10 object-contain" />
+                  </a>
+                ) : (
+                  <div key={p.name} className="block grayscale opacity-40">
+                    <img src={p.img} alt={p.name} className="h-10 object-contain" />
+                  </div>
+                )
+              ))}
+            </div>
+
+            {/* Medianos */}
+            <div className="flex flex-wrap justify-center gap-6 mb-8">
+              {[
+                { name: "El Cubano",  url: "https://www.instagram.com/restaurante.cubano/",        img: "/patrocinadores/el-cubano.png" },
+                { name: "La Calma",   url: "https://www.instagram.com/lacalmacandas/",              img: "/patrocinadores/la-calma.png" },
+                { name: "B3rto's",    url: "https://www.instagram.com/b3rtosbarcafeteria/",         img: "/patrocinadores/bertos.png" },
+                { name: "El Mirados", url: null,                                                     img: "/patrocinadores/el-mirados.png" },
+                { name: "Iris Café",  url: "https://www.facebook.com/people/Iris-Caf%C3%A9/100057402822406/", img: "/patrocinadores/iris-cafe.png" },
+              ].map((p) => (
+                p.url ? (
+                  <a key={p.name} href={p.url} target="_blank" rel="noopener noreferrer"
+                    className="block grayscale hover:grayscale-0 opacity-45 hover:opacity-85 transition-all duration-300">
+                    <img src={p.img} alt={p.name} className="h-8 object-contain" />
+                  </a>
+                ) : (
+                  <div key={p.name} className="block grayscale opacity-35">
+                    <img src={p.img} alt={p.name} className="h-8 object-contain" />
+                  </div>
+                )
+              ))}
+            </div>
+
+            {/* Pequeños */}
+            <div className="flex flex-wrap justify-center gap-5">
+              {[
+                { name: "Socializ",               url: "https://www.instagram.com/socialiteshop/",                                    img: "/patrocinadores/socializ.png" },
+                { name: "Carrocerías Sirgo",       url: "https://redcomercial.peugeot.es/sirgo/",                                      img: "/patrocinadores/carrocerias-sirgo.png" },
+                { name: "Fisioterapia Integral",   url: "https://medicalfisio.es/candas-fisioterapia-integral-en-candas-asturias/",    img: "/patrocinadores/medicalfisio.png" },
+              ].map((p) => (
+                <a key={p.name} href={p.url} target="_blank" rel="noopener noreferrer"
+                  className="block grayscale hover:grayscale-0 opacity-35 hover:opacity-70 transition-all duration-300">
+                  <img src={p.img} alt={p.name} className="h-6 object-contain" />
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <footer className="bg-black/60 border-t border-white/5 text-white/50 text-sm mt-0">
           <div className="max-w-6xl mx-auto px-6 py-10">
             <div className="flex flex-col md:flex-row justify-between gap-6">
               <div>
