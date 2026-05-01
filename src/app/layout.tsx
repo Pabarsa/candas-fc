@@ -67,49 +67,71 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main className="flex-1">{children}</main>
 
         {/* ── PATROCINADORES ── */}
-        <div className="border-t border-white/5 bg-black/40 py-10 px-5 sm:px-6">
+        <div className="border-t border-white/5 bg-black/40 py-12 px-5 sm:px-6">
           <div className="max-w-6xl mx-auto">
-            <p className="text-white/20 text-[10px] uppercase tracking-widest text-center mb-8">Patrocinadores del Candás CF</p>
+            <p className="text-white/20 text-[10px] uppercase tracking-widest text-center mb-10">Patrocinadores del Candás CF</p>
 
             {/* Oficial — el más grande */}
-            <div className="flex justify-center mb-10">
+            <div className="flex justify-center mb-12">
               <a href="https://www.agromar.es" target="_blank" rel="noopener noreferrer"
-                className="block grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition-all duration-300">
-                <img src="/patrocinadores/agromar.png" alt="Agromar" className="h-20 object-contain" />
+                className="block opacity-90 hover:opacity-100 transition-opacity duration-200">
+                <img src="/patrocinadores/agromar.png" alt="Agromar" className="h-28 object-contain" />
               </a>
             </div>
 
-            {/* Grandes */}
-            <div className="flex flex-wrap justify-center gap-8 mb-8">
+            {/* Fila 1 — 4 logos */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-8 items-center justify-items-center">
               {[
-                { name: "Helados Helio",         url: "https://www.instagram.com/heladoshelio/",              img: "/patrocinadores/helados-helio.png" },
-                { name: "Clínica Bejerano",       url: "https://clinicabejerano.com",                          img: "/patrocinadores/bejerano.png" },
-                { name: "Las Terrazas de Candás", url: "https://lasterrazasdecandas.es",                       img: "/patrocinadores/las-terrazas.png" },
-                { name: "Tierras Gallegas",       url: "https://www.tierrasgallegas.com",                      img: "/patrocinadores/tierras-gallegas.png" },
-                { name: "Vinos Tascón",           url: "https://www.facebook.com/vinostascon/",                img: "/patrocinadores/vinos-tascon.png" },
-                { name: "Sidra Peñón",            url: "https://www.sidrapenon.com",                           img: "/patrocinadores/sidra-penon.png" },
-                { name: "Transportes Pico",       url: "https://grupopico.es",                                 img: "/patrocinadores/transportes-pico.png" },
-                { name: "Muebles Novar",          url: "https://www.instagram.com/muebles_novar_luanco/",      img: "/patrocinadores/muebles-novar.png" },
-                { name: "Bar Domingo",            url: "https://www.facebook.com/bardomingo/",                 img: "/patrocinadores/bar-domingo.png" },
-                { name: "Hotel Piedra",           url: "https://hotelpiedra.es",                               img: "/patrocinadores/hotel-piedra.png" },
-                { name: "Copy Flash",             url: "https://copisteriacopyflash.es",                       img: "/patrocinadores/copy-flash.png" },
-                { name: "CD Autos",               url: null,                                                    img: "/patrocinadores/cd-autos.png" },
+                { name: "Helados Helio",   url: "https://www.instagram.com/heladoshelio/",         img: "/patrocinadores/helados-helio.png" },
+                { name: "Clínica Bejerano",url: "https://clinicabejerano.com",                      img: "/patrocinadores/bejerano.png" },
+                { name: "Las Terrazas",    url: "https://lasterrazasdecandas.es",                   img: "/patrocinadores/las-terrazas.png" },
+                { name: "Tierras Gallegas",url: "https://www.tierrasgallegas.com",                  img: "/patrocinadores/tierras-gallegas.png" },
+              ].map((p) => (
+                <a key={p.name} href={p.url} target="_blank" rel="noopener noreferrer"
+                  className="block opacity-85 hover:opacity-100 hover:scale-105 transition-all duration-200">
+                  <img src={p.img} alt={p.name} className="h-14 object-contain" />
+                </a>
+              ))}
+            </div>
+
+            {/* Fila 2 — 4 logos */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-8 items-center justify-items-center">
+              {[
+                { name: "Vinos Tascón",      url: "https://www.facebook.com/vinostascon/",             img: "/patrocinadores/vinos-tascon.png" },
+                { name: "Sidra Peñón",        url: "https://www.sidrapenon.com",                        img: "/patrocinadores/sidra-penon.png" },
+                { name: "Transportes Pico",   url: "https://grupopico.es",                              img: "/patrocinadores/transportes-pico.png" },
+                { name: "Muebles Novar",      url: "https://www.instagram.com/muebles_novar_luanco/",   img: "/patrocinadores/muebles-novar.png" },
+              ].map((p) => (
+                <a key={p.name} href={p.url} target="_blank" rel="noopener noreferrer"
+                  className="block opacity-85 hover:opacity-100 hover:scale-105 transition-all duration-200">
+                  <img src={p.img} alt={p.name} className="h-14 object-contain" />
+                </a>
+              ))}
+            </div>
+
+            {/* Fila 3 — 4 logos */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-8 items-center justify-items-center">
+              {[
+                { name: "Bar Domingo",  url: "https://www.facebook.com/bardomingo/",          img: "/patrocinadores/bar-domingo.png" },
+                { name: "Hotel Piedra", url: "https://hotelpiedra.es",                        img: "/patrocinadores/hotel-piedra.png" },
+                { name: "Copy Flash",   url: "https://copisteriacopyflash.es",                img: "/patrocinadores/copy-flash.png" },
+                { name: "CD Autos",     url: null,                                             img: "/patrocinadores/cd-autos.png" },
               ].map((p) => (
                 p.url ? (
                   <a key={p.name} href={p.url} target="_blank" rel="noopener noreferrer"
-                    className="block grayscale hover:grayscale-0 opacity-50 hover:opacity-90 transition-all duration-300">
-                    <img src={p.img} alt={p.name} className="h-10 object-contain" />
+                    className="block opacity-85 hover:opacity-100 hover:scale-105 transition-all duration-200">
+                    <img src={p.img} alt={p.name} className="h-14 object-contain" />
                   </a>
                 ) : (
-                  <div key={p.name} className="block grayscale opacity-40">
-                    <img src={p.img} alt={p.name} className="h-10 object-contain" />
+                  <div key={p.name} className="block opacity-80">
+                    <img src={p.img} alt={p.name} className="h-14 object-contain" />
                   </div>
                 )
               ))}
             </div>
 
-            {/* Medianos */}
-            <div className="flex flex-wrap justify-center gap-6 mb-8">
+            {/* Fila 4 — 5 logos medianos */}
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-6 mb-8 items-center justify-items-center">
               {[
                 { name: "El Cubano",  url: "https://www.instagram.com/restaurante.cubano/",        img: "/patrocinadores/el-cubano.png" },
                 { name: "La Calma",   url: "https://www.instagram.com/lacalmacandas/",              img: "/patrocinadores/la-calma.png" },
@@ -119,30 +141,31 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               ].map((p) => (
                 p.url ? (
                   <a key={p.name} href={p.url} target="_blank" rel="noopener noreferrer"
-                    className="block grayscale hover:grayscale-0 opacity-45 hover:opacity-85 transition-all duration-300">
-                    <img src={p.img} alt={p.name} className="h-8 object-contain" />
+                    className="block opacity-80 hover:opacity-100 hover:scale-105 transition-all duration-200">
+                    <img src={p.img} alt={p.name} className="h-12 object-contain" />
                   </a>
                 ) : (
-                  <div key={p.name} className="block grayscale opacity-35">
-                    <img src={p.img} alt={p.name} className="h-8 object-contain" />
+                  <div key={p.name} className="block opacity-75">
+                    <img src={p.img} alt={p.name} className="h-12 object-contain" />
                   </div>
                 )
               ))}
             </div>
 
-            {/* Pequeños */}
-            <div className="flex flex-wrap justify-center gap-5">
+            {/* Fila 5 — 3 logos pequeños */}
+            <div className="grid grid-cols-3 gap-6 max-w-lg mx-auto items-center justify-items-center">
               {[
-                { name: "Socializ",               url: "https://www.instagram.com/socialiteshop/",                                    img: "/patrocinadores/socializ.png" },
-                { name: "Carrocerías Sirgo",       url: "https://redcomercial.peugeot.es/sirgo/",                                      img: "/patrocinadores/carrocerias-sirgo.png" },
-                { name: "Fisioterapia Integral",   url: "https://medicalfisio.es/candas-fisioterapia-integral-en-candas-asturias/",    img: "/patrocinadores/medicalfisio.png" },
+                { name: "Socializ",             url: "https://www.instagram.com/socialiteshop/",                                 img: "/patrocinadores/socializ.png" },
+                { name: "Carrocerías Sirgo",     url: "https://redcomercial.peugeot.es/sirgo/",                                  img: "/patrocinadores/carrocerias-sirgo.png" },
+                { name: "Fisioterapia Integral", url: "https://medicalfisio.es/candas-fisioterapia-integral-en-candas-asturias/", img: "/patrocinadores/medicalfisio.png" },
               ].map((p) => (
                 <a key={p.name} href={p.url} target="_blank" rel="noopener noreferrer"
-                  className="block grayscale hover:grayscale-0 opacity-35 hover:opacity-70 transition-all duration-300">
-                  <img src={p.img} alt={p.name} className="h-6 object-contain" />
+                  className="block opacity-75 hover:opacity-100 hover:scale-105 transition-all duration-200">
+                  <img src={p.img} alt={p.name} className="h-10 object-contain" />
                 </a>
               ))}
             </div>
+
           </div>
         </div>
 
