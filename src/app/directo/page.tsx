@@ -3,6 +3,7 @@ import CuentaAtras from "@/components/CuentaAtras";
 
 export const metadata = { title: "Directo — Fondo Sur Canijo" };
 export const dynamic = "force-dynamic";
+export const revalidate = 120; // Revalidar cada 2 minutos
 
 type Retransmision = {
   id: number; titulo: string; descripcion: string | null;
@@ -32,8 +33,86 @@ export default async function DirectoPage() {
     proximoPartido = partidos?.[0] ?? null;
   }
 
+  // Buscar partido hoy
+  const hoy = new Date();
+  const inicioHoy = new Date(hoy); inicioHoy.setHours(0,0,0,0);
+  const finHoy    = new Date(hoy); finHoy.setHours(23,59,59,999);
+
+  const { data: equiposDirec } = await supabase.from("equipos").select("id, nombre");
+  const candasDirec = equiposDirec?.find(e => e.nombre === "Candás CF");
+
+  let partidoHoy = null;
+  if (candasDirec) {
+    const { data: ph } = await supabase
+      .from("partidos")
+      .select("*, local:equipos!partidos_local_id_fkey(nombre), visitante:equipos!partidos_visitante_id_fkey(nombre)")
+      .or(`local_id.eq.${candasDirec.id},visitante_id.eq.${candasDirec.id}`)
+      .gte("fecha", inicioHoy.toISOString())
+      .lte("fecha", finHoy.toISOString())
+      .limit(1);
+    partidoHoy = ph?.[0] ?? null;
+  }
+
+  // Buscar último resultado scrapeado
+  let marcadorVivo: { golesLocal: number; golesVisitante: number; enJuego: boolean; finalizado: boolean } | null = null;
+  if (partidoHoy) {
+    try {
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://fondosurcanijo.com";
+      const res = await fetch(`${siteUrl}/api/scraper-asturfutbol?secret=${process.env.CRON_SECRET ?? ""}`, { cache: "no-store" });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.ok && json.enJuego !== undefined) {
+          marcadorVivo = { golesLocal: json.golesLocal, golesVisitante: json.golesVisitante, enJuego: json.enJuego, finalizado: json.finalizado };
+        }
+      }
+    } catch {}
+  }
+
   return (
     <div className="max-w-5xl mx-auto px-5 sm:px-6 pt-20 sm:pt-28 pb-12">
+
+      {/* ─── MARCADOR EN VIVO ── */}
+      {partidoHoy && (
+        <div className="card-dark rounded-2xl p-6 sm:p-10 mb-10 border border-candas-rojo/30">
+          <div className="flex items-center justify-center gap-2 mb-6">
+            {marcadorVivo?.enJuego ? (
+              <>
+                <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse" />
+                <span className="text-red-400 font-bold text-xs uppercase tracking-widest">En juego</span>
+              </>
+            ) : marcadorVivo?.finalizado ? (
+              <span className="text-white/40 font-bold text-xs uppercase tracking-widest">Finalizado</span>
+            ) : (
+              <span className="text-white/40 font-bold text-xs uppercase tracking-widest">J{(partidoHoy as any).jornada} · Hoy</span>
+            )}
+          </div>
+          <div className="flex items-center justify-center gap-6 sm:gap-12">
+            <p className="font-poppins font-black text-lg sm:text-2xl text-white text-right flex-1">
+              {(partidoHoy.local as any)?.nombre}
+            </p>
+            <div className="text-center flex-shrink-0">
+              {marcadorVivo ? (
+                <p className="font-poppins font-black text-5xl sm:text-7xl text-white tabular-nums">
+                  {marcadorVivo.golesLocal} <span className="text-white/20">-</span> {marcadorVivo.golesVisitante}
+                </p>
+              ) : (
+                <div className="px-6 py-3 rounded-xl bg-white/5 border border-white/10">
+                  <p className="font-poppins font-black text-white/40 text-3xl">vs</p>
+                </div>
+              )}
+            </div>
+            <p className="font-poppins font-black text-lg sm:text-2xl text-white flex-1">
+              {(partidoHoy.visitante as any)?.nombre}
+            </p>
+          </div>
+          {marcadorVivo?.enJuego && (
+            <p className="text-center text-white/20 text-xs mt-6">
+              Marcador actualizado automáticamente desde Asturfútbol · Se refresca cada 2 min
+            </p>
+          )}
+        </div>
+      )}
+
       <p className="text-white/30 text-xs uppercase tracking-widest mb-3">Retransmisiones</p>
       <h1 className="font-poppins font-black text-3xl sm:text-5xl text-white mb-2">En Directo</h1>
       <p className="text-white/40 mb-10">Partidos del Candás CF en tiivii.tv</p>

@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/scraper-asturfutbol?secret=CRON_SECRET_PLACEHOLDER",
+      "schedule": "*/2 14-18 * * 0"
+    }
+  ]
+}

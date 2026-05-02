@@ -94,8 +94,29 @@ export default async function Home() {
   const rachaLabel = rachaType === "V" ? `${racha} victorias seguidas` : rachaType === "D" ? `${racha} derrotas seguidas` : `${racha} empates seguidos`;
   const rachaColor = rachaType === "V" ? "text-green-400" : rachaType === "D" ? "text-red-400" : "text-yellow-400";
 
+  // Buscar partido en curso hoy
+  const hoy = new Date();
+  const inicioHoy = new Date(hoy); inicioHoy.setHours(0,0,0,0);
+  const finHoy = new Date(hoy); finHoy.setHours(23,59,59,999);
+  const partidoHoy = candas ? pts.find(p =>
+    !p.jugado &&
+    (p.local_id === candas.id || p.visitante_id === candas.id) &&
+    p.fecha &&
+    new Date(p.fecha) >= inicioHoy &&
+    new Date(p.fecha) <= finHoy
+  ) : null;
+
   return (
     <div className="bg-site">
+
+      {/* ─── BANNER PARTIDO EN CURSO ─────────────────────────── */}
+      {partidoHoy && (
+        <div className="fixed top-0 left-0 right-0 z-50 bg-candas-rojo text-white text-center py-2 px-4 text-sm font-bold flex items-center justify-center gap-3 shadow-lg">
+          <span className="w-2 h-2 bg-white rounded-full animate-pulse inline-block" />
+          <span>PARTIDO EN CURSO · {(partidoHoy.local as any)?.nombre} vs {(partidoHoy.visitante as any)?.nombre}</span>
+          <a href="/directo" className="underline hover:no-underline text-white/80 hover:text-white">Ver directo →</a>
+        </div>
+      )}
 
       {/* ─── HERO ─────────────────────────────────────────────── */}
       <section className="relative min-h-[100svh] flex flex-col justify-end overflow-hidden">
