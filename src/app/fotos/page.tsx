@@ -1,7 +1,15 @@
 import { createClient } from "@/lib/supabase/server";
 import FotosCliente from "@/components/FotosCliente";
 
-export const metadata = { title: "Fotos — Fondo Sur Canijo" };
+export const metadata = {
+  title: "Fotos — Fondo Sur Canijo",
+  description: "Galería de fotos del Candás CF. Imágenes de partidos, afición y momentos del club de Candás, Carreño, Asturias.",
+  openGraph: {
+    title: "Fotos del Candás CF — Fondo Sur Canijo",
+    description: "Galería de fotos del Candás CF. Partidos, afición y momentos del club.",
+    url: "https://fondosurcanijo.com/fotos",
+  },
+};
 export const dynamic = "force-dynamic";
 
 type Post = {

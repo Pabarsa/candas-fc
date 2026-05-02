@@ -2,8 +2,13 @@ export const revalidate = 3600;
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = {
-  title: "Veteranos",
-  description: "Conoce a los jugadores veteranos del Candás CF.",
+  title: "Veteranos — Fondo Sur Canijo",
+  description: "Los históricos del Candás CF. Conoce a los jugadores del equipo veterano del club de Candás, Carreño, Asturias.",
+  openGraph: {
+    title: "Veteranos del Candás CF — Fondo Sur Canijo",
+    description: "Los históricos del Candás CF. Equipo veterano del club de Candás, Carreño, Asturias.",
+    url: "https://fondosurcanijo.com/veteranos",
+  },
 };
 export const dynamic = "force-dynamic";
 

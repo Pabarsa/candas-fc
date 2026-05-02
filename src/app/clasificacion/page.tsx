@@ -3,7 +3,15 @@ import { calcularClasificacion, Equipo, Partido } from "@/lib/types";
 import TablaClasificacion from "@/components/TablaClasificacion";
 import ResultadosJornada from "@/components/ResultadosJornada";
 
-export const metadata = { title: "Clasificación — Fondo Sur Canijo" };
+export const metadata = {
+  title: "Clasificación — Fondo Sur Canijo",
+  description: "Clasificación actualizada de la Segunda Asturfútbol Grupo 1 temporada 2025/26. Resultados y tabla del Candás CF.",
+  openGraph: {
+    title: "Clasificación Segunda Asturfútbol — Fondo Sur Canijo",
+    description: "Clasificación actualizada de la Segunda Asturfútbol Grupo 1 temporada 2025/26.",
+    url: "https://fondosurcanijo.com/clasificacion",
+  },
+};
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
