@@ -15,7 +15,7 @@ async function fetchJornada(jornada: number) {
       "Accept-Language": "es-ES,es;q=0.9",
       "Referer": "https://www.asturfutbol.es/",
     },
-    next: { revalidate: 0 },
+    cache: "no-store",
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.text();
@@ -106,7 +106,7 @@ export async function GET(req: NextRequest) {
 
     for (const res of resultados) {
       // Buscar el partido correspondiente en Supabase por nombre de equipos
-      const partido = partidosDB?.find(p => {
+      const partido = partidosDB?.find((p: any) => {
         const localDB     = (p.local as any)?.nombre ?? "";
         const visitanteDB = (p.visitante as any)?.nombre ?? "";
         return (
