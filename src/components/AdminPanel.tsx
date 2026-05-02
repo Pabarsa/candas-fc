@@ -425,6 +425,63 @@ function GaleriaAdminTab() {
   const [partidoId, setPartidoId] = useState<number | "">(""); 
   const [partidos, setPartidos] = useState<any[]>([]);
 
+  // Subida masiva ZIP
+  const [zipTitulo, setZipTitulo] = useState("");
+  const [zipDescripcion, setZipDescripcion] = useState("");
+  const [zipInstagram, setZipInstagram] = useState("");
+  const [zipTipo, setZipTipo] = useState<TipoPost>("partido");
+  const [zipPartidoId, setZipPartidoId] = useState<number | "">(""); 
+  const [zipProgreso, setZipProgreso] = useState<string | null>(null);
+  const [zipSubiendo, setZipSubiendo] = useState(false);
+
+  const subirZip = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!zipTitulo.trim()) { setError("Pon un t\u00edtulo antes de subir el ZIP."); return; }
+    setError(null); setOk(null); setZipSubiendo(true);
+    try {
+      const JSZip = (await import("jszip")).default;
+      const zip = await JSZip.loadAsync(file);
+      const imagenes = Object.values(zip.files).filter((f: any) =>
+        !f.dir && /\.(jpe?g|png|webp)$/i.test(f.name)
+      );
+      if (imagenes.length === 0) { setError("El ZIP no contiene im\u00e1genes."); setZipSubiendo(false); return; }
+      const { data: { user } } = await supabase.auth.getUser();
+      let ok_count = 0;
+      for (let i = 0; i < imagenes.length; i++) {
+        const zipFile = imagenes[i] as any;
+        setZipProgreso(`Subiendo ${i + 1} de ${imagenes.length}...`);
+        const blob = await zipFile.async("blob");
+        const imgFile = new File([blob], zipFile.name, { type: "image/jpeg" });
+        const comprimido = await comprimirImagen(imgFile);
+        const nombre = `${Date.now()}_${i}.jpg`;
+        const { error: upErr } = await supabase.storage.from("galeria").upload(nombre, comprimido, { contentType: "image/jpeg" });
+        if (upErr) { console.error(upErr); continue; }
+        const { data: urlData } = supabase.storage.from("galeria").getPublicUrl(nombre);
+        await supabase.from("posts").insert({
+          titulo: zipTitulo.trim(),
+          descripcion: zipDescripcion.trim() || null,
+          foto_url: urlData.publicUrl,
+          instagram_fotografa: zipTipo === "previa" ? null : (zipInstagram.trim().replace("@", "") || null),
+          tipo: zipTipo,
+          created_by: user?.id,
+          partido_id: zipPartidoId || null,
+        });
+        ok_count++;
+      }
+      setOk(`\u2705 ${ok_count} fotos subidas correctamente.`);
+      setZipProgreso(null);
+      setZipTitulo(""); setZipDescripcion(""); setZipInstagram("");
+      cargar();
+    } catch (err: any) {
+      setError(err.message ?? "Error al procesar el ZIP.");
+    } finally {
+      setZipSubiendo(false);
+      setZipProgreso(null);
+      e.target.value = "";
+    }
+  };
+
   // Edición inline
   const [editandoId, setEditandoId] = useState<number | null>(null);
   const [editTitulo, setEditTitulo] = useState("");
@@ -432,6 +489,11 @@ function GaleriaAdminTab() {
   const [editInstagram, setEditInstagram] = useState("");
   const [editTipo, setEditTipo] = useState<TipoPost>("general");
   const [guardando, setGuardando] = useState(false);
+
+  // Subida masiva
+  const [modoMasivo, setModoMasivo] = useState(false);
+  const [archivosMasivos, setArchivosMasivos] = useState<File[]>([]);
+  const [progresoMasivo, setProgresoMasivo] = useState<{done: number; total: number} | null>(null);
 
   const cargar = async () => {
     const { data } = await supabase
@@ -530,6 +592,44 @@ function GaleriaAdminTab() {
     setEditInstagram("");
   };
 
+  const publicarMasivo = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (archivosMasivos.length === 0) { setError("Selecciona al menos una foto."); return; }
+    if (!titulo.trim()) { setError("El título es obligatorio."); return; }
+    setError(null); setOk(null); setSubiendo(true);
+    setProgresoMasivo({ done: 0, total: archivosMasivos.length });
+    let subidos = 0;
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      for (const archivo of archivosMasivos) {
+        const comprimido = await comprimirImagen(archivo);
+        const nombre = `${Date.now()}_${Math.random().toString(36).slice(2)}.jpg`;
+        const { error: uploadError } = await supabase.storage.from("galeria").upload(nombre, comprimido, { contentType: "image/jpeg" });
+        if (uploadError) throw new Error(uploadError.message);
+        const { data: urlData } = supabase.storage.from("galeria").getPublicUrl(nombre);
+        await supabase.from("posts").insert({
+          titulo: titulo.trim(),
+          descripcion: descripcion.trim() || null,
+          foto_url: urlData.publicUrl,
+          instagram_fotografa: tipo === "previa" ? null : (instagram.trim().replace("@", "") || null),
+          tipo,
+          created_by: user?.id,
+          partido_id: partidoId || null,
+        });
+        subidos++;
+        setProgresoMasivo({ done: subidos, total: archivosMasivos.length });
+      }
+      setOk(`✅ ${subidos} fotos publicadas correctamente.`);
+      setTitulo(""); setDescripcion(""); setInstagram(""); setArchivosMasivos([]);
+      setPartidoId(""); setTipo("general"); setModoMasivo(false); setProgresoMasivo(null);
+      cargar();
+    } catch (err: any) {
+      setError(err.message ?? "Error al publicar.");
+    } finally {
+      setSubiendo(false);
+    }
+  };
+
   const guardarEdicion = async (postId: number) => {
     if (!editTitulo.trim()) return;
     setGuardando(true);
@@ -544,12 +644,88 @@ function GaleriaAdminTab() {
     cargar();
   };
 
+  const [mostrarZip, setMostrarZip] = useState(false);
+
   return (
     <div className="grid lg:grid-cols-2 gap-6">
+      {/* ── Modal ZIP ── */}
+      {mostrarZip && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+          <div className="card-dark rounded-2xl p-6 w-full max-w-md space-y-4">
+            <h3 className="font-black text-lg">🗜️ Subir ZIP de fotos</h3>
+            <p className="text-xs text-white/40">Rellena los datos — se aplicarán a todas las fotos del ZIP.</p>
+            <div>
+              <label className="block text-xs font-semibold text-white/40 uppercase tracking-wide mb-2">Tipo *</label>
+              <div className="grid grid-cols-3 gap-2">
+                {(Object.entries(TIPO_LABELS) as [TipoPost, typeof TIPO_LABELS[TipoPost]][]).map(([key, val]) => (
+                  <button key={key} type="button" onClick={() => setZipTipo(key)}
+                    className={`flex flex-col items-center gap-1 py-2 px-2 rounded-xl border text-xs font-bold transition ${zipTipo === key ? val.color + " ring-2 ring-white/20" : "bg-white/5 border-white/10 text-white/30 hover:bg-white/10"}`}>
+                    <span className="text-lg">{val.emoji}</span>
+                    <span className="leading-tight text-center">{val.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <input type="text" value={zipTitulo} onChange={e => setZipTitulo(e.target.value)}
+              placeholder="Título * (ej: J32 · Gozón CF 0-0 Candás CF)"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:border-candas-rojo focus:outline-none" />
+            <input type="text" value={zipDescripcion} onChange={e => setZipDescripcion(e.target.value)}
+              placeholder="Descripción (opcional)"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:border-candas-rojo focus:outline-none" />
+            {zipTipo !== "previa" && (
+              <div className="flex items-center gap-2">
+                <span className="text-white/20 font-bold">@</span>
+                <input type="text" value={zipInstagram} onChange={e => setZipInstagram(e.target.value.replace("@",""))}
+                  placeholder="instagram_fotografo"
+                  className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:border-candas-rojo focus:outline-none" />
+              </div>
+            )}
+            <select value={zipPartidoId} onChange={e => setZipPartidoId(e.target.value ? parseInt(e.target.value) : "")}
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:border-candas-rojo focus:outline-none">
+              <option value="">Sin partido</option>
+              {partidos.map(p => (
+                <option key={p.id} value={p.id}>J{p.jornada} · {(p.local as any)?.nombre} vs {(p.visitante as any)?.nombre}</option>
+              ))}
+            </select>
+            {zipProgreso && (
+              <div className="text-sm text-candas-rojo font-bold text-center animate-pulse">{zipProgreso}</div>
+            )}
+            <div className="flex gap-3">
+              <button type="button" onClick={() => setMostrarZip(false)}
+                className="flex-1 py-2 rounded-xl border border-white/10 text-white/40 text-sm font-bold hover:bg-white/5 transition">
+                Cancelar
+              </button>
+              <button type="button" disabled={zipSubiendo || !zipTitulo.trim()}
+                onClick={() => document.getElementById("input-zip-real")?.click()}
+                className="flex-1 py-2 rounded-xl bg-candas-rojo text-white text-sm font-bold disabled:opacity-40 hover:bg-red-700 transition">
+                {zipSubiendo ? "Subiendo..." : "Seleccionar ZIP"}
+              </button>
+              <input id="input-zip-real" type="file" accept=".zip" className="hidden"
+                onChange={async (e) => { await subirZip(e); setMostrarZip(false); }} />
+            </div>
+          </div>
+        </div>
+      )}
       {/* ── Formulario nuevo post ── */}
       <div className="card-dark rounded-xl p-6">
-        <h3 className="font-black text-lg mb-4"> Nueva publicación</h3>
-        <form onSubmit={publicar} className="space-y-4">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-black text-lg"> Nueva publicación</h3>
+          <button
+            type="button"
+            onClick={() => { setModoMasivo(!modoMasivo); setArchivosMasivos([]); setArchivo(null); setPreview(null); }}
+            className={`text-xs px-3 py-1.5 rounded-lg border font-bold transition ${modoMasivo ? "bg-candas-rojo border-candas-rojo text-white" : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"}`}
+          >
+            {modoMasivo ? "📦 Subida masiva activa" : "📦 Subida masiva"}
+          </button>
+          <button
+            type="button"
+            onClick={() => setMostrarZip(true)}
+            className="text-xs px-3 py-1.5 rounded-lg border font-bold transition bg-white/5 border-white/10 text-white/40 hover:bg-white/10 ml-2"
+          >
+            🗜️ Subir ZIP
+          </button>
+        </div>
+        <form onSubmit={modoMasivo ? publicarMasivo : publicar} className="space-y-4">
           {/* ── Tipo de publicación ── */}
           <div>
             <label className="block text-xs font-semibold text-white/40 uppercase tracking-wide mb-2">Tipo de publicación *</label>
@@ -576,26 +752,68 @@ function GaleriaAdminTab() {
           </div>
 
           {/* Preview foto */}
-          <div
-            className="border-2 border-dashed border-white/10 rounded-xl overflow-hidden cursor-pointer hover:border-candas-rojo transition"
-            onClick={() => document.getElementById("input-foto")?.click()}
-          >
-            {preview ? (
-              <img src={preview} alt="preview" className="w-full max-h-52 object-cover" />
-            ) : (
-              <div className="h-36 flex flex-col items-center justify-center text-white/20 gap-2">
-                <span className="text-3xl"></span>
-                <span className="text-sm">Haz clic para seleccionar foto</span>
+          {modoMasivo ? (
+            <div>
+              <div
+                className="border-2 border-dashed border-candas-rojo/40 rounded-xl overflow-hidden cursor-pointer hover:border-candas-rojo transition p-6 text-center"
+                onClick={() => document.getElementById("input-masivo")?.click()}
+              >
+                <div className="flex flex-col items-center gap-2 text-white/40">
+                  <span className="text-4xl">📦</span>
+                  <span className="text-sm font-bold">Seleccionar múltiples fotos</span>
+                  {archivosMasivos.length > 0
+                    ? <span className="text-candas-rojo font-black text-lg">{archivosMasivos.length} fotos seleccionadas</span>
+                    : <span className="text-xs">Mantén Ctrl o Cmd para seleccionar varias</span>
+                  }
+                </div>
               </div>
-            )}
-          </div>
-          <input
-            id="input-foto"
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={onArchivo}
-          />
+              <input
+                id="input-masivo"
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={(e) => setArchivosMasivos(Array.from(e.target.files ?? []))}
+              />
+              {progresoMasivo && (
+                <div className="mt-3">
+                  <div className="flex justify-between text-xs text-white/40 mb-1">
+                    <span>Subiendo...</span>
+                    <span>{progresoMasivo.done}/{progresoMasivo.total}</span>
+                  </div>
+                  <div className="w-full bg-white/10 rounded-full h-2">
+                    <div
+                      className="bg-candas-rojo h-2 rounded-full transition-all"
+                      style={{ width: `${(progresoMasivo.done / progresoMasivo.total) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div>
+              <div
+                className="border-2 border-dashed border-white/10 rounded-xl overflow-hidden cursor-pointer hover:border-candas-rojo transition"
+                onClick={() => document.getElementById("input-foto")?.click()}
+              >
+                {preview ? (
+                  <img src={preview} alt="preview" className="w-full max-h-52 object-cover" />
+                ) : (
+                  <div className="h-36 flex flex-col items-center justify-center text-white/20 gap-2">
+                    <span className="text-3xl"></span>
+                    <span className="text-sm">Haz clic para seleccionar foto</span>
+                  </div>
+                )}
+              </div>
+              <input
+                id="input-foto"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={onArchivo}
+              />
+            </div>
+          )}
 
           <div>
             <label className="block text-xs font-semibold text-white/40 uppercase tracking-wide mb-1">Título *</label>
