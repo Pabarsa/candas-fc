@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-// Parámetros Segunda Asturfútbol Grupo 1 Temporada 2025/26
 const COD_COMPETICION = "22191380";
 const COD_GRUPO       = "22243649";
 const COD_TEMPORADA   = "21";
@@ -22,39 +21,42 @@ async function fetchJornada(jornada: number) {
   return res.text();
 }
 
-function parsePartidoCandas(html: string) {
-  // Buscar fila que contenga "Candás" o "Cand" en el HTML
+function parseResultados(html: string) {
+  const resultados: { local: string; visitante: string; golesLocal: number; golesVisitante: number; finalizado: boolean; enJuego: boolean }[] = [];
   const rows = html.match(/<tr[^>]*>[\s\S]*?<\/tr>/gi) ?? [];
 
   for (const row of rows) {
-    if (!/cand[aá]s/i.test(row)) continue;
-
-    // Extraer equipos
-    const equipos = [...row.matchAll(/<td[^>]*>([^<]{3,40})<\/td>/gi)].map(m => m[1].trim()).filter(Boolean);
-
-    // Buscar marcador: dígitos separados por - o :
     const marcador = row.match(/(\d+)\s*[-:]\s*(\d+)/);
     if (!marcador) continue;
 
-    const local     = equipos[0] ?? "";
-    const visitante = equipos[equipos.length - 1] ?? "";
-    const golesLocal = parseInt(marcador[1]);
-    const golesVisitante = parseInt(marcador[2]);
+    const celdas = [...row.matchAll(/<td[^>]*>([\s\S]*?)<\/td>/gi)]
+      .map(m => m[1].replace(/<[^>]+>/g, "").trim())
+      .filter(t => t.length > 2 && t.length < 60);
 
-    // Estado del partido
-    const enJuego = /en\s*juego|directo|live|\d+['']/i.test(row);
+    if (celdas.length < 2) continue;
+
+    const local     = celdas[0];
+    const visitante = celdas[celdas.length - 1];
+    if (local === visitante) continue;
+
     const finalizado = /finaliz|fin\b/i.test(row);
+    const enJuego   = /en\s*juego|directo|live|\d+['´']/i.test(row);
 
-    return { local, visitante, golesLocal, golesVisitante, enJuego, finalizado };
+    resultados.push({
+      local,
+      visitante,
+      golesLocal:      parseInt(marcador[1]),
+      golesVisitante:  parseInt(marcador[2]),
+      finalizado,
+      enJuego,
+    });
   }
-  return null;
+  return resultados;
 }
 
 export async function GET(req: NextRequest) {
-  // Verificar secret para cron
   const secret = req.nextUrl.searchParams.get("secret");
   const isCron = secret === CRON_SECRET && CRON_SECRET !== "";
-  const isAdmin = !isCron; // Si no es cron, requiere auth
 
   if (!isCron) {
     const supabase = createClient();
@@ -65,48 +67,83 @@ export async function GET(req: NextRequest) {
   try {
     const supabase = createClient();
 
-    // Buscar el próximo partido o el partido de hoy del Candás
-    const { data: equipos } = await supabase.from("equipos").select("id, nombre");
-    const candas = equipos?.find(e => e.nombre === "Candás CF");
-    if (!candas) return NextResponse.json({ error: "Candás CF no encontrado" }, { status: 404 });
-
-    // Buscar partido de hoy o en curso
+    // Buscar la jornada más alta sin terminar (o la de hoy)
     const hoy = new Date();
-    const inicio = new Date(hoy); inicio.setHours(0, 0, 0, 0);
-    const fin    = new Date(hoy); fin.setHours(23, 59, 59, 999);
+    const inicioHoy = new Date(hoy); inicioHoy.setHours(0, 0, 0, 0);
+    const finHoy    = new Date(hoy); finHoy.setHours(23, 59, 59, 999);
 
-    const { data: partidos } = await supabase
+    const { data: partidosHoy } = await supabase
       .from("partidos")
-      .select("*, local:equipos!partidos_local_id_fkey(nombre), visitante:equipos!partidos_visitante_id_fkey(nombre)")
+      .select("jornada")
       .eq("jugado", false)
-      .or(`local_id.eq.${candas.id},visitante_id.eq.${candas.id}`)
-      .gte("fecha", inicio.toISOString())
-      .lte("fecha", fin.toISOString())
+      .gte("fecha", inicioHoy.toISOString())
+      .lte("fecha", finHoy.toISOString())
+      .order("jornada", { ascending: false })
       .limit(1);
 
-    const partido = partidos?.[0];
-    if (!partido) return NextResponse.json({ ok: true, mensaje: "No hay partido hoy" });
+    if (!partidosHoy?.length) {
+      return NextResponse.json({ ok: true, mensaje: "No hay partidos hoy" });
+    }
 
-    // Scrape jornada
-    const html = await fetchJornada(partido.jornada);
-    const datos = parsePartidoCandas(html);
+    const jornada = partidosHoy[0].jornada;
 
-    if (!datos) return NextResponse.json({ ok: true, mensaje: "No se encontró el partido en Asturfútbol", jornada: partido.jornada });
+    // Scrape toda la jornada
+    const html = await fetchJornada(jornada);
+    const resultados = parseResultados(html);
 
-    // Si el partido ha finalizado, actualizar Supabase
-    if (datos.finalizado) {
-      await supabase.from("partidos").update({
-        jugado: true,
-        goles_local:     datos.golesLocal,
-        goles_visitante: datos.golesVisitante,
-      }).eq("id", partido.id);
+    if (!resultados.length) {
+      return NextResponse.json({ ok: true, mensaje: "No se encontraron resultados en Asturfútbol", jornada });
+    }
+
+    // Cargar todos los partidos de esa jornada de Supabase
+    const { data: partidosDB } = await supabase
+      .from("partidos")
+      .select("id, jugado, local:equipos!partidos_local_id_fkey(nombre), visitante:equipos!partidos_visitante_id_fkey(nombre)")
+      .eq("jornada", jornada);
+
+    let actualizados = 0;
+    let candidatosCandas = null;
+
+    for (const res of resultados) {
+      // Buscar el partido correspondiente en Supabase por nombre de equipos
+      const partido = partidosDB?.find(p => {
+        const localDB     = (p.local as any)?.nombre ?? "";
+        const visitanteDB = (p.visitante as any)?.nombre ?? "";
+        return (
+          localDB.toLowerCase().includes(res.local.toLowerCase().slice(0, 5)) ||
+          res.local.toLowerCase().includes(localDB.toLowerCase().slice(0, 5))
+        ) && (
+          visitanteDB.toLowerCase().includes(res.visitante.toLowerCase().slice(0, 5)) ||
+          res.visitante.toLowerCase().includes(visitanteDB.toLowerCase().slice(0, 5))
+        );
+      });
+
+      if (!partido) continue;
+
+      // Guardar si el partido ha finalizado y no estaba marcado como jugado
+      if (res.finalizado && !partido.jugado) {
+        await supabase.from("partidos").update({
+          jugado:          true,
+          goles_local:     res.golesLocal,
+          goles_visitante: res.golesVisitante,
+        }).eq("id", partido.id);
+        actualizados++;
+      }
+
+      // Guardar marcador vivo del Candás para devolverlo
+      const localDB     = (partido.local as any)?.nombre ?? "";
+      const visitanteDB = (partido.visitante as any)?.nombre ?? "";
+      if (localDB === "Candás CF" || visitanteDB === "Candás CF") {
+        candidatosCandas = res;
+      }
     }
 
     return NextResponse.json({
-      ok: true,
-      partidoId: partido.id,
-      jornada: partido.jornada,
-      ...datos,
+      ok:           true,
+      jornada,
+      resultados:   resultados.length,
+      actualizados,
+      candas:       candidatosCandas,
     });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
