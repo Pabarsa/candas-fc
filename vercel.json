@@ -1,7 +1,7 @@
 {
   "crons": [
     {
-      "path": "/api/scraper-asturfutbol?secret=CRON_SECRET_PLACEHOLDER",
+      "path": "/api/scraper-asturfutbol?secret=candasfc2025secreto",
       "schedule": "*/2 14-18 * * 0"
     }
   ]
